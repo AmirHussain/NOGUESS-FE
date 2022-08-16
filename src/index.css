@@ -11,3 +11,8 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.MuiDrawer-root .nav-item {
+  color: var(--gray_400);
+  padding: 8px 32px;
+}
