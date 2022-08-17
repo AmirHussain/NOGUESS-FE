@@ -4,7 +4,7 @@ import { responsiveFontSizes, createTheme } from '@mui/material/styles'
 const theme = responsiveFontSizes(createTheme({
     spacing: 4,
     drawerIndex: 1000,
-    headerHeight:'63px',
+    headerHeight:'80px',
     components: {
         MuiAppBar: {
             styleOverrides: {

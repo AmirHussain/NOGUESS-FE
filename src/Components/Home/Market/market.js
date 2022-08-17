@@ -6,7 +6,7 @@ import ListSubheader from '@mui/material/ListSubheader';
 import {Favorite,Share} from '@mui/icons-material'
 import { Grid ,Box,Typography,CardContent,Card,CardHeader,Avatar ,IconButton,CardMedia ,CardActions } from '@mui/material';
 import {makeStyles} from '@mui/styles'
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   
   listSection: {
     backgroundColor: 'inherit',
@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
   cardmedia:{    
     objectFit: 'scale-down'
   }
-}));
+});
 
 export default function PinnedSubheaderList() {
   const classes = useStyles();

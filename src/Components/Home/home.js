@@ -15,6 +15,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
+import { Box } from '@mui/material';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
@@ -31,13 +32,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { routes } from '../../routes';
 import { ThemeProvider } from '@mui/styles';
 import theme from './../../theme';
+import { NavLink } from 'react-router-dom';
 
 const drawerWidth = 240;
 const useStyles = makeStyles({
     root: {
         display: 'flex',
         height: theme.headerHeight,
-        minHeight:theme.headerHeight
+        minHeight: theme.headerHeight
     },
     menuButton: {
         marginRight: theme.spacing,
@@ -50,8 +52,7 @@ const useStyles = makeStyles({
         zIndex: theme.drawerIndex + 1,
         background: '#1D1B22 !important',
         color: 'white !important',
-        fontStyle: 'bold',
-        height:theme.headerHeight
+        fontStyle: 'bold'
     },
     drawer: {
         width: drawerWidth,
@@ -64,32 +65,34 @@ const useStyles = makeStyles({
         color: '#56525d !important',
     },
     drawerContainer: {
-        overflow: 'auto',
-        color:'#56525d !important'
+
     },
     content: {
-        width: '100%',
-        position: 'relative',
-        overflow: 'auto',
-        maxHeight: '90vh',
-        position: 'relative',
-        top: theme.headerHeight,
-        width: '100%',
-        height: '90vh',
         background: '#3a383f',
         color: 'white',
-        padding: '1%'
+        padding: '1%',
+        position: 'relative',
+        top: theme.headerHeight,
+        overflow:'auto',
+        // height:'calc(100% - '+theme.headerHeight+') !important'
     },
-    linkClass:{
+    linkClass: {
         textDecoration: 'none',
-        padding:'6px 23px 6px 14px',
-        color:theme.palette.primary.text,
-        fontWeight:'bold',
-        margin:'6px 6px 6px 0px',
-        display:'block'
+        padding: '6px 23px 6px 14px',
+        color: theme.palette.primary.text,
+        fontWeight: 'bold',
+        margin: '6px 6px 6px 0px',
+        display: 'block'
     },
-    linkClassActive:{
-        background:'#3A383F'
+    linkClassActive: {
+        background: '#3A383F',
+        color: 'white',
+        fontWeight: 400
+    },
+    sideToolbar:{
+        color:'white',
+        fontWeight:500
+
     }
 });
 
@@ -103,6 +106,35 @@ export default function Home() {
     const classes = useStyles();
     let auth = true;
 
+    const pages=[{
+        link:'',
+        text:'market',
+        component:Market,
+        icon:'market',
+        filledIcon:'market'
+    },
+    {
+        link:'',
+        text:'market',
+        component:Market,
+        icon:'market',
+        filledIcon:'market'
+    },{
+        link:'/bridge',
+        text:'Bridge',
+        component:Bridge,
+        icon:'bridge',
+        filledIcon:'bridge'
+    },{
+
+        link:'/governance',
+        text:'governance',
+        component:Governance,
+        icon:'governance',
+        filledIcon:'governance' 
+       }
+    ]
+
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -111,25 +143,32 @@ export default function Home() {
         setAnchorEl(null);
     };
 
+    const container = window !== undefined ? () => window().document.body : undefined;
 
     const drawer = (
-        <div className={classes.drawerContainer}>
+        <div >
+            <Toolbar variant="dense" sx={{ height: theme.headerHeight }} className={classes.sideToolbar}>
+                <Typography variant="h5">
+                    D Finance
+                </Typography>
+            </Toolbar>
+            <Divider />
             <List>
-                <Link className={classes.linkClass} to="/market">
+                <NavLink className={classes.linkClass} to="/market" activeClassName={classes.linkClassActive}>
                     <ListItem button key="Home">
                         <ListItemIcon><StarBorderOutlined color="primary"> : </StarBorderOutlined>
                         </ListItemIcon>
-                        <ListItemText primary="Home"/>
+                        <ListItemText primary="Home" />
                     </ListItem>
-                </Link>
-                <Link className={classes.linkClass} to="/bridge" classes={{active:classes.linkClassActive}}>
+                </NavLink>
+                <NavLink className={classes.linkClass} to="/bridge" activeClassName={classes.linkClassActive}>
                     <ListItem button key="BlockchainBridge">
                         <ListItemIcon><KingBed color="primary"> : </KingBed>
                         </ListItemIcon>
                         <ListItemText primary="Blockchain Bridge" />
                     </ListItem>
-                </Link>
-                <Link className={classes.linkClass} to="/governance">
+                </NavLink>
+                <Link className={classes.linkClass} to="/governance" activeClassName={classes.linkClassActive}>
                     <ListItem button key="Governance">
                         <ListItemIcon><MeetingRoom color="primary"> : </MeetingRoom>
                         </ListItemIcon>
@@ -155,12 +194,16 @@ export default function Home() {
     );
     return (
         <ThemeProvider theme={theme}>
-
             <Router>
-                <div className={classes.root}>
+                <Box sx={{ display: 'flex' }}>
                     <CssBaseline />
-                    <AppBar position="fixed" className={classes.appBar} color="primary">
-                        <Toolbar variant="dense">
+                    <AppBar position="fixed" className={classes.appBar} color="primary"
+                        sx={{
+                            width: { md: `calc(100% - ${drawerWidth}px)` },
+                            ml: { sm: `${drawerWidth}px` },
+                        }}
+                    >
+                        <Toolbar variant="dense" sx={{ height: theme.headerHeight }}>
                             <IconButton
                                 aria-label="open drawer"
                                 edge="start"
@@ -199,38 +242,50 @@ export default function Home() {
                             )}
                         </Toolbar>
                     </AppBar>
-                    <Drawer
-                        variant="temporary"
-                        open={mobileOpen}
-                        onClose={handleDrawerToggle}
-                        ModalProps={{
-                            keepMounted: true, // Better open performance on mobile.
-                        }}
-                        sx={{
-                            display: { xs: 'block', sm: 'block', md: 'none' },
-                            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-                        }}
-
-
+                    <Box
+                        component="nav"
+                        sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
+                        aria-label="mailbox folders"
                     >
-                        {drawer}
-                    </Drawer>
-                    <Drawer
-                        className={classes.drawer}
-                        classes={{
-                            paper: classes.drawerPaper,
-                        }}
+                        <Drawer
+                            className={classes.drawer}
+                            classes={{
+                                paper: classes.drawerPaper,
+                            }}
+                            variant="temporary"
+                            open={mobileOpen}
+                            onClose={handleDrawerToggle}
+                            sx={{
+                                display: { xs: 'block', sm: 'block', md: 'none' },
+                                '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                            }}
 
-                        variant="permanent"
-                        sx={{
-                            display: { xs: 'none', sm: 'none', md: 'block' },
-                            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-                        }}
+
+                        >
+                            {drawer}
+                        </Drawer>
+                        <Drawer
+                            className={classes.drawer}
+                            classes={{
+                                paper: classes.drawerPaper,
+                            }}
+
+                            variant="permanent"
+                            sx={{
+                                display: { xs: 'none', sm: 'none', md: 'block' },
+                                '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                            }}
+                        >
+                            {drawer}
+                        </Drawer>
+
+
+                    </Box>
+                    <Box
+                        component="main"
+                        sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+                        className={classes.content}
                     >
-                        <Toolbar />
-                        {drawer}
-                    </Drawer>
-                    <main className={classes.content}>
                         <Switch>
 
                             <Route path="/bridge" exact component={Bridge}></Route>
@@ -241,9 +296,8 @@ export default function Home() {
 
                         </Switch>
 
-                    </main>
-                </div>
-
+                    </Box>
+                </Box>
             </Router>
         </ThemeProvider>
     );
