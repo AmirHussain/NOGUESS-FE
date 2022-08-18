@@ -1,10 +1,14 @@
 
 import { responsiveFontSizes, createTheme } from '@mui/material/styles'
 
-const theme = responsiveFontSizes(createTheme({
+const drawerWidth = 240;
+const drawerIndex=1000;
+const theme = createTheme({
     spacing: 4,
-    drawerIndex: 1000,
-    headerHeight:'80px',
+    drawerIndex: drawerIndex,
+    
+    drawerWidth: drawerWidth,
+    headerHeight: '80px',
     components: {
         MuiAppBar: {
             styleOverrides: {
@@ -63,7 +67,7 @@ const theme = responsiveFontSizes(createTheme({
         },
         primary: {
             main: '#2B37D4',//indigo
-            text:'#56525d'
+            text: '#56525d'
         },
         secondary: {
             main: '#E769A6',//pink
@@ -84,8 +88,32 @@ const theme = responsiveFontSizes(createTheme({
             primary: '#000000',//black
             secondary: '#FFFFFF',//white
         },
+        divider: '#3A383F'
     },
-}));
+    
+    drawer: {
+        width: drawerWidth,
+        zIndex: drawerIndex,
+
+        flexShrink: 0,
+    },
+    drawerPaper: {
+        background: '#0b0a0d !important',
+        color: '#56525d !important',
+    },
+    drawerContainer: {
+
+    },
+    walletConnect: {
+        backgroundColor: '#4158D0',
+        backgroundImage: 'linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)',
+        color:'white !important',
+        fontWeight:'600 !important',
+        padding:'10px 24px !important'
+
+    },
+
+});
 
 
 export default theme;

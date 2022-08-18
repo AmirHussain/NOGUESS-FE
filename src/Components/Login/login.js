@@ -24,17 +24,10 @@ const LoginPage = () => {
 
 
     let provider = await metamaskProvider(providerName);
-    // const mintyContract = new ethers.Contract(MINTY_CONTRACT_ADDRESS, minty, provider.getSigner());
-    // const lockingContract = new ethers.Contract(LOCKING_CONTRACT_ADDRESS, locking, provider);
-    // const uniqueContract = new ethers.Contract(UNIQUE_CONTRACT_ADDRESS, unique, provider.getSigner());
-
-    // check if connected to correct network
+    
     const ntw = await provider.getNetwork();
-    // eslint-disable-next-line eqeqeq
     if (ntw.chainId != 80001) {
-      // router.push(routes.POLYGON_CONNECT);
-
-      return;
+          return;
     }
 
     const signer = provider.getSigner();
@@ -54,37 +47,6 @@ const LoginPage = () => {
       );
 
       router.push(routes.home);
-      //   const userExist = await postUserExist({ address });
-      //   if (!userExist.exist) {
-      //     dispatch(
-      //       showAlert({
-      //         content: 'No user found with the address given.',
-      //         show: true,
-      //       }),
-      //     );
-      //     router.push(routes.SIGNUP);
-      //     return;
-      //   }
-
-      //   const userSigninRequest = await postUserSignin({ address });
-      //   const nonce = userSigninRequest.nonce;
-      //   const signature = await signer.signMessage(nonce);
-      //   const userVerifyRequest = await postUserVerify({ address, signature });
-      //   const mintyBalance = ethers.utils.formatEther(await mintyContract.balanceOf(address));
-      //   const lockData = await lockingContract.LockData(address);
-      //   const isApprovedForAll = await uniqueContract.isApprovedForAll(address, SALE_CONTRACT_ADDRESS);
-      //   setRole(userVerifyRequest.role);
-      //   dispatch(
-      //     loginUser({
-      //       ...userVerifyRequest,
-      //       mintyBalance,
-      //       isPatron: lockData.locked,
-      //       address,
-      //       firstTimeLogin: false,
-      //       isApprovedForAll,
-      //       ethProviderName: 'metamask',
-      //     }),
-      //   );
     } catch (error) {
       console.log('the message:', error);
 

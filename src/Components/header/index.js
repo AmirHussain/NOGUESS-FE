@@ -3,6 +3,7 @@ import { makeStyles } from '@mui/styles';
 import { AppBar, Toolbar, IconButton, Menu, MenuItem, Button, Typography, Divider, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { AccountCircle } from '@mui/icons-material';
+import WalletConnecter from '../walletConnect/walletConnect'
 
 import theme from './../../theme';
 
@@ -99,25 +100,7 @@ function Header() {
           <Typography variant="h6" className={classes.title}>
             D Finance
           </Typography>
-          {auth && (
-            <div>
-              <Button id="basic-button" aria-controls="basic-menu" aria-haspopup="true" aria-expanded={open ? 'true' : undefined} onClick={handleClick}>
-                <AccountCircle></AccountCircle>
-              </Button>
-              <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                  'aria-labelledby': 'basic-button',
-                }}
-              >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
-              </Menu>
-            </div>
-          )}
+          <div><WalletConnecter /></div>
         </Toolbar>
       </AppBar>
     </>

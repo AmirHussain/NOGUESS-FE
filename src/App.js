@@ -1,7 +1,7 @@
 
 import './App.css';
 //pages imports
-import Home from './Components/Home/home';
+import Home from './pages/home/index';
 import Lending from './pages/lending';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import {routes} from "./routes"
