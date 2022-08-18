@@ -1,5 +1,6 @@
 //========================= MarketPlace =====================================================//
 export const routes = {
-    home: "",
-    login:'login'
+    home: "/",
+    login:'/login',
+    lending:'/lending'
 }
