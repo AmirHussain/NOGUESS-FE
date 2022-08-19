@@ -34,12 +34,17 @@ const useStyles = makeStyles({
 
 export default function Home() {
   const classes = useStyles();
-  
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
   return (
       <Router>
         <Box sx={{ display: 'flex' }}>
-          <Header/>
-          <Sidebar/>
+          <Header mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} handleDrawerToggle={handleDrawerToggle}/>
+          <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} handleDrawerToggle={handleDrawerToggle}/>
           
 
           <Box

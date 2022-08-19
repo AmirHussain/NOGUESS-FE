@@ -1,10 +1,10 @@
 // lib imports
-import React from 'react';
+import {useEffect,useState} from 'react';
 import { makeStyles } from '@mui/styles';
 import { Drawer, Box, Toolbar, List, Typography, Divider, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 
 import { NavLink } from 'react-router-dom';
-import { KingBed, MeetingRoom, StarBorderOutlined, ViewList, AccountCircle, AccessibleForwardIcon } from '@mui/icons-material';
+import { KingBed, MeetingRoom, StarBorderOutlined, ViewList, AccountCircle, AccessibleForwardIcon ,Pix} from '@mui/icons-material';
 
 
 
@@ -52,25 +52,30 @@ const useStyles = makeStyles({
     color: 'white',
     fontWeight: 500,
   },
+  divider:{
+    borderColor:theme.palette.divider +' !important'  }
 });
 
-export default function Home() {
+export default function Home (props) {
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-
+  const [anchorEl, setAnchorEl] = useState(null);
+  //  props.mobileOpen=!mobileOpen
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+    props.setMobileOpen(!props.mobileOpen)
   };
 
+  // useEffect(() => {
+  //   props.setMobileOpen(!props.mobileOpen)
+  // },[props.mobileOpen])
   const open = Boolean(anchorEl);
 
   const drawer = (
     <div>
       <Toolbar variant="dense" sx={{ height: theme.headerHeight }} className={classes.sideToolbar}>
+        <Pix color="primary" sx={{ fontSize: "40px" }} ></Pix>
         <Typography variant="h5">D Finance</Typography>
       </Toolbar>
-      <Divider />
+      <Divider className={classes.divider}/>
       <List>
         <NavLink className={classes.linkClass} to="/market" activeClassName={classes.linkClassActive}>
           <ListItem button key="Home">
@@ -117,7 +122,7 @@ export default function Home() {
               paper: classes.drawerPaper,
             }}
             variant="temporary"
-            open={mobileOpen}
+            open={props.mobileOpen}
             onClose={handleDrawerToggle}
             sx={{
               display: { xs: 'block', sm: 'block', md: 'none' },

@@ -64,15 +64,16 @@ const useStyles = makeStyles({
     color: 'white',
     fontWeight: 500,
   },
+  divider:{
+borderColor:theme.palette.divider +' !important'
+  }
 });
 
-function Header() {
+function Header(props) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileOpen, setMobileOpen] = React.useState(false);
 
   let auth = true;
-
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -81,7 +82,8 @@ function Header() {
     setAnchorEl(null);
   };
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+    props.setMobileOpen(!props.mobileOpen)
+    // props.mobileOpen1=!mobileOpen
   };
 
   return (
@@ -94,7 +96,7 @@ function Header() {
       >
         <Toolbar variant="dense" sx={{ height: theme.headerHeight }}>
           <IconButton aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2, display: { md: 'none' } }}>
-            <MenuRoundedIcon />
+            <MenuRoundedIcon color="primary"/>
           </IconButton>
 
           <Typography variant="h6" className={classes.title}>
@@ -102,6 +104,7 @@ function Header() {
           </Typography>
           <div><WalletConnecter /></div>
         </Toolbar>
+        <Divider className={classes.divider}></Divider>
       </AppBar>
     </>
   );

@@ -25,3 +25,22 @@ body::-webkit-scrollbar {
     border-radius: 20px;       /* roundness of the scroll thumb */
     border: 1px solid lightgray ;  /* creates padding around scroll thumb */
   }
+
+  .d-flexSpaceBetween{
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .d-flex-evenly{
+    display: flex;
+    justify-content: space-evenly;
+  }
+  
+  .d-flexSpaceAround{
+    display: flex;
+    justify-content: space-around;
+
+  }
+  .d-flex{
+    display: flex;
+  }

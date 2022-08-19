@@ -112,7 +112,10 @@ const theme = createTheme({
         padding:'10px 24px !important'
 
     },
-
+    cardBackground:{
+        background:'#0B0A0D !important',
+        color:'#56525d !important',
+    }
 });
 
 

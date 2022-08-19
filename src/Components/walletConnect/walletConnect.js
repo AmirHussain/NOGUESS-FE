@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import theme from '../../theme';
 import { makeStyles } from '@mui/styles';
-import { Button, Drawer, ButtonGroup, Menu, MenuItem } from '@mui/material';
+import { Button, Card, ButtonGroup, Menu, MenuItem, Fab, Divider, Popover } from '@mui/material';
+import { ArrowDownward } from '@mui/icons-material';
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 // import providerOptions from './providers'
-
 import WalletConnect from "@walletconnect/web3-provider";
 import CoinbaseWalletSDK from "@coinbase/wallet-sdk";
 import Torus from "@toruslabs/torus-embed";
@@ -37,11 +37,15 @@ const providerOptions = {
         }
     }
 };
+
+
+
 const useStyles = makeStyles({
     walletConnect: theme.walletConnect,
     drawer: theme.drawer,
     drawerPaper: theme.drawerPaper,
     drawerContainer: theme.drawerContainer,
+    cardBackground: theme.cardBackground
 });
 const web3Modal = new Web3Modal({
     theme: {
@@ -196,6 +200,13 @@ function WalletConnecter() {
             };
         }
     }, [provider])
+
+    const logout = ()=>{
+        setAnchorEl(null);
+        disconnect()
+        
+    }
+
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -204,49 +215,54 @@ function WalletConnecter() {
     const handleClose = () => {
         setAnchorEl(null);
     };
+
     function start_and_end(str) {
-        if (str&& str.length > 35) {
-          return str.substr(0, 5) + '...' + str.substr(str.length-5, str.length);
+        if (str && str.length > 35) {
+            return str.substr(0, 5) + '...' + str.substr(str.length - 5, str.length);
         }
         return str;
-      }
-    return (
-        <div >
-            <ButtonGroup variant="contained" aria-label="outlined primary button group" onClick={switchNetwork} isDisabled={!network}>
-                <Button>Polygon</Button>
-                <Button>BSC</Button>
-                <Button>Ethereum</Button>
-            </ButtonGroup>
-            {!account && (
-                <Button variant="text" className={classes.walletConnect} onClick={connectWallet}>Connect</Button>
+    }
+    const networks = [{ name: 'Polygon', icon: '', chainId: 137 }, { name: 'BSC', icon: '', chainId: 56 }, { name: 'Ethereum', icon: '', chainId: 1 }]
+    const networkList = []
+    networks.forEach(object => {
+        networkList.push(<Button color={object.chainId === chainId ? 'primary' : 'secondary'}>{object.name}</Button>)
 
-            )}
-            <span> {start_and_end(account)} </span>
-            
-            {/* {account && (
-                <Button
-                    id="basic-button"
-                    // aria-controls={open ? 'basic-menu' : undefined}
-                    // aria-haspopup="true"
-                    // aria-expanded={open ? 'true' : undefined}
-                    onClick={handleClick}
-                >
-                    {{ account }}
-                </Button>
-            )} */}
-            {/* <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                    'aria-labelledby': 'basic-button',
-                }}
-            >
-                <MenuItem onClick={handleClose}>
-                    {{ account }}</MenuItem>
-                <MenuItem onClick={handleClose}>Logout</MenuItem>
-            </Menu> */}
+
+    })
+    return (
+        <div class="d-flex-evenly">
+            <ButtonGroup variant="contained" aria-label="outlined primary button group" onClick={switchNetwork}
+                sx={{ marginRight: '5px' }}
+            >{networkList}
+            </ButtonGroup>
+            {!account ?
+                <Button variant="text" className={classes.walletConnect} onClick={connectWallet}>Connect</Button>
+                :
+                <div>
+                    <Fab variant="extended"
+                        aria-controls={open ? 'basic-menu' : undefined}
+                        aria-haspopup="true"
+                        aria-expanded={open ? 'true' : undefined}
+                        onClick={handleClick}
+                    >
+                        {start_and_end(account)}
+                        <ArrowDownward sx={{ ml: 1 }} />
+
+                    </Fab>
+                    <Menu
+                        id="basic-menu"
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                        MenuListProps={{
+                            'aria-labelledby': 'basic-button',
+                        }}
+                    >
+                        <MenuItem >{account}</MenuItem>
+                        <MenuItem onClick={logout}>Logout</MenuItem>
+                    </Menu>
+                </div>
+            }
 
         </div>
     );
