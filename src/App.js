@@ -20,7 +20,7 @@ function App() {
           <Router>
             <Switch>
               <Route path="*" exact component={Home}></Route>
-              <Route path={routes.lending} exact component={Lending}></Route>
+              {/* <Route path={routes.lending} exact component={Lending}></Route> */}
             </Switch>
           </Router>
         </div>

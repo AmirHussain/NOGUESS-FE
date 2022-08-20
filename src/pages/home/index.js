@@ -10,6 +10,7 @@ import Governance from '../governance';
 import Bridge from '../bridge';
 import Market from '../market';
 import Staking from '../staking';
+import Lending from '../../pages/lending';
 
 import Header from "../../Components/header"
 import Sidebar from "../../Components/sidebar"
@@ -59,7 +60,7 @@ export default function Home() {
                     className={classes.content}
                 >
 
-                    <Container maxWidth="sm">
+                    <Container maxWidth="xl">
                         <Switch>
                             <Route path="/bridge" exact component={Bridge}></Route>
                             <Route path="/market" exact component={Market}></Route>
@@ -67,6 +68,7 @@ export default function Home() {
 
                             <Route path="/governance" exact component={Governance}></Route>
                             <Route path="/" exact component={Market}></Route>
+                            <Route path="/lending" exact component={Lending}></Route>
                         </Switch>
                     </Container>
 
