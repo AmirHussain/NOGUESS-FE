@@ -3,5 +3,6 @@ export const routes = {
     home: "/",
     login:'/login',
     lending:'/lending',
-    market:'/market'
+    market:'/market',
+    staking:'/staking'
 }

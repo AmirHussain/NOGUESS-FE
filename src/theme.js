@@ -8,7 +8,7 @@ const theme = createTheme({
     drawerIndex: drawerIndex,
     
     drawerWidth: drawerWidth,
-    headerHeight: '80px',
+    headerHeight: '72px',
     components: {
         MuiAppBar: {
             styleOverrides: {

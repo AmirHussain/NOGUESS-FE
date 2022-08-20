@@ -93,6 +93,15 @@ export default function Home (props) {
             <ListItemText primary="Lending" />
           </ListItem>
         </NavLink>
+        <NavLink className={classes.linkClass} to={routes.staking} activeClassName={classes.linkClassActive}>
+          <ListItem button key={routes.staking}>
+            <ListItemIcon>
+              <StarBorderOutlined color="primary" />
+            </ListItemIcon>
+            <ListItemText primary="Staking" />
+          </ListItem>
+        </NavLink>
+
         <NavLink className={classes.linkClass} to="/bridge" activeClassName={classes.linkClassActive}>
           <ListItem button key="BlockchainBridge">
             <ListItemIcon>
