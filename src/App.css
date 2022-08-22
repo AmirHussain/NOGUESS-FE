@@ -131,10 +131,21 @@ body::-webkit-scrollbar {
   }
 
   .chainIcon{
-
+max-width: 43px;
      width: inherit;
       height: inherit;
       
     padding: 5px;
   
+  }
+
+  @media screen and (max-width: 600px) {
+    .networktext {
+      display: none;
+    }
+  }
+
+  .selectedNetworkIcon{
+    background: blue;
+    border-radius: 50%;
   }

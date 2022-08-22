@@ -169,10 +169,10 @@ function WalletConnecter() {
         }
     }, [provider])
 
-    const logout = ()=>{
+    const logout = () => {
         setAnchorEl(null);
         disconnect()
-        
+
     }
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -190,16 +190,18 @@ function WalletConnecter() {
         }
         return str;
     }
-    const networks = [{ name: 'Polygon', icon: '', chainId: 137 }, { name: 'BSC', icon: '', chainId: 56 }, { name: 'Ethereum', icon: '', chainId: 1 }]
+    const networks = [{ name: 'Polygon', icon: 'https://polygonscan.com/images/svg/brands/polygon.svg?v=1.3', chainId: 137 }, { name: 'BSC', icon: 'https://i.imgflip.com/6dky3c.png', chainId: 56 }, { name: 'Ethereum', icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/480px-Ethereum-icon-purple.svg.png', chainId: 1 }]
     const networkList = []
     networks.forEach(object => {
-        networkList.push(<Button color={object.chainId === chainId ? 'primary' : 'secondary'}>{object.name}</Button>)
+        networkList.push(<Button color={object.chainId === chainId ? 'primary' : 'secondary'}>
+            <img  class={object.chainId === chainId ? 'selectedNetworkIcon chainIcon' : 'chainIcon'} src={object.icon}  />
+            <text class="networktext"> {object.name}</text></Button >)
 
 
     })
     return (
         <div class="d-flex-evenly">
-            <ButtonGroup variant="contained" aria-label="outlined primary button group" onClick={switchNetwork}
+            <ButtonGroup variant="text" aria-label="text button group" onClick={switchNetwork}
                 sx={{ marginRight: '5px' }}
             >{networkList}
             </ButtonGroup>
