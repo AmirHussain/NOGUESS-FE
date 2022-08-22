@@ -115,6 +115,18 @@ const theme = createTheme({
     cardBackground:{
         background:'#0B0A0D !important',
         color:'#56525d !important',
+    },
+    modal:{
+            position: 'absolute',
+            magin: 'auto',
+            left: '',
+            width: 400,
+            background:'#0B0A0D !important',
+            color:'#56525d !important',
+            border: '2px solid #000',
+            boxShadow: 24,
+            p: 4,
+          
     }
 });
 

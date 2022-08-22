@@ -5,39 +5,7 @@ import { Button, Card, ButtonGroup, Menu, MenuItem, Fab, Divider, Popover } from
 import { ArrowDownward } from '@mui/icons-material';
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
-// import providerOptions from './providers'
-import WalletConnect from "@walletconnect/web3-provider";
-import CoinbaseWalletSDK from "@coinbase/wallet-sdk";
-import Torus from "@toruslabs/torus-embed";
-const providerOptions = {
-    coinbasewallet: {
-        package: CoinbaseWalletSDK,
-        options: {
-            appName: "Web 3 Modal Demo",
-            infuraId: process.env.INFURA_KEY
-        }
-    },
-    walletconnect: {
-        package: WalletConnect,
-        options: {
-            infuraId: process.env.INFURA_KEY
-        }
-    },
-    torus: {
-        package: Torus, // required
-        options: {
-            networkParams: {
-                host: "https://localhost:8545", // optional
-                chainId: 1337, // optional
-                networkId: 1337 // optional
-            },
-            config: {
-                buildEnv: "development" // optional
-            }
-        }
-    }
-};
-
+import providerOptions from '../walletConnect/providers'
 
 
 const useStyles = makeStyles({

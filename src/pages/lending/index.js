@@ -24,17 +24,16 @@ function Lending() {
     <>
       <Grid container direction="row" justifyContent="start" alignItems="flex-start" spacing={2} style={{ width: '100%' }}>
         <Grid item xs={12} sm={12} md={6}>
-          <Typography sx={{textAlign:'start'}}>
-            <h1>Supply Market</h1>
-            </Typography>
+          
         </Grid>
         <Grid item xs={12} sm={12} md={6}>
-          <Typography sx={{textAlign:'start'}}>
-            <h1>Borrom Market</h1></Typography>
         </Grid>
 
         {/* Boxes */}
         <Grid item xs={12} sm={12} md={6}>
+        <Typography sx={{textAlign:'start'}}>
+            <h1>Supply Market</h1>
+            </Typography>
           <Box className={classes.boxRoot} p={10}>
             <Stack direction="row" justifyContent="space-between">
               <Typography>0$</Typography>
@@ -53,6 +52,9 @@ function Lending() {
         </Grid>
 
         <Grid item xs={12} sm={12} md={6}>
+        <Typography sx={{textAlign:'start'}}>
+            <h1>Borrom Market</h1></Typography>
+
           <Box className={classes.boxRoot} p={10}>
             <Stack direction="row" justifyContent="space-between">
               <Typography>0$</Typography>
@@ -74,10 +76,15 @@ function Lending() {
 
         {/* Tables */}
         <Grid item xs={12} sm={12} md={6}>
+          <div>
         <CustomTable/>
+        </div>
         </Grid>
+        
         <Grid item xs={12} sm={12} md={6}>
+        <div>
         <CustomTable/>
+        </div>
         </Grid>
       </Grid>
     </>

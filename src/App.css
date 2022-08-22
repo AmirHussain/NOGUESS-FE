@@ -6,6 +6,9 @@
 .App-link {
     color: #61dafb;
 }
+html{
+  background: #3A383F;
+}
 
 body::-webkit-scrollbar {
     width: 12px;               /* width of the entire scrollbar */
@@ -43,4 +46,95 @@ body::-webkit-scrollbar {
   }
   .d-flex{
     display: flex;
+  }
+
+  .subHeading{
+    font-size: 18px;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .innerCard {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: left;
+    width: 100%;
+    border-radius: 6px;
+    background: rgb(11, 10, 13);
+    font-size: 16px;
+    margin: 0px;
+    padding: 0px;
+  }
+
+  .padding4{
+    padding: 4px 16px
+  }
+  .text{
+    padding: 32px 0px 32px 32px;
+  }
+  .image {
+    margin-left: auto !important;
+  }
+
+  .marginTop{
+    margin-top: 10px;
+  }
+
+  .tableHead{
+    width: 100%;
+    height: 50px;
+    grid-template-columns: repeat(6, 1fr);
+    justify-items: center;
+    background: rgb(29 27 34);
+    border-radius: 8px 8px 0px 0px;
+    padding: 16px 24px;
+    color: rgb(86, 82, 93);
+  }
+
+  .theadCell{
+    color: rgb(86, 82, 93);
+  }
+  
+  thead th {
+    color: rgb(86, 82, 93) !important;
+    font-weight: 600 !important;
+  }
+ tbody tr{
+    background: linear-gradient(104.89deg,#2d2934 69.31%,#d8426d 342.44%);
+    border-radius: 6px;
+    padding: 16px;
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 2fr 1.5fr;
+    align-items: center;
+    grid-gap: 16px;
+    color:white
+  }
+
+  tbody tr td {
+    color: white !important;
+  }
+  tbody tr th {
+    color: white !important;
+  }
+
+  .content-box{
+    background: #5d5a62;
+    color: white;
+    text-transform: initial;
+    font-size: 11px;
+    line-height: 1.91234;
+    /* margin: 4px 16px; */
+    padding: 5px;
+    border-radius: 0px 0px 4px 4px;
+  }
+
+  .chainIcon{
+
+     width: inherit;
+      height: inherit;
+      
+    padding: 5px;
+  
   }
