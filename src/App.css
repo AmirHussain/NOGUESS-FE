@@ -7,7 +7,7 @@
     color: #61dafb;
 }
 html{
-  background: #3A383F;
+  background: #EDF0F7;
 }
 
 body::-webkit-scrollbar {
@@ -19,7 +19,7 @@ body::-webkit-scrollbar {
     display: none;       /* color of the tracking area */
   }
   body::-webkit-scrollbar-track :hover {
-    background: #3A383F; 
+    background: #EDF0F7; 
     display: inline;       /* color of the tracking area */
   }
   
@@ -34,6 +34,10 @@ body::-webkit-scrollbar {
     justify-content: space-between;
   }
   
+  .d-flex-evenly{
+    display: flex;
+    justify-content: space-evenly;
+  }
   .d-flex-evenly{
     display: flex;
     justify-content: space-evenly;
@@ -54,18 +58,6 @@ body::-webkit-scrollbar {
     text-align: left;
   }
 
-  .innerCard {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: left;
-    width: 100%;
-    border-radius: 6px;
-    background: rgb(11, 10, 13);
-    font-size: 16px;
-    margin: 0px;
-    padding: 0px;
-  }
 
   .padding4{
     padding: 4px 16px
@@ -119,19 +111,10 @@ body::-webkit-scrollbar {
     color: white !important;
   }
 
-  .content-box{
-    background: #5d5a62;
-    color: white;
-    text-transform: initial;
-    font-size: 11px;
-    line-height: 1.91234;
-    /* margin: 4px 16px; */
-    padding: 5px;
-    border-radius: 0px 0px 4px 4px;
-  }
+  
 
   .chainIcon{
-max-width: 43px;
+max-width: 32px;
      width: inherit;
       height: inherit;
       
@@ -148,4 +131,8 @@ max-width: 43px;
   .selectedNetworkIcon{
     background: blue;
     border-radius: 50%;
+  }
+
+  .MuiListItemText-primary{
+    font-weight: 600 !important;
   }

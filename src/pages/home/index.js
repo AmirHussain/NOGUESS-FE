@@ -21,11 +21,11 @@ import Sidebar from "../../Components/sidebar"
 import { routes } from '../../routes';
 import theme from './../../theme';
 
-const drawerWidth = 240;
+const drawerWidth = theme.drawerWidth;
 const useStyles = makeStyles({
     content: {
-        background: '#3a383f',
-        color: 'white',
+        color: theme.darkText,
+        background: theme.contentBackGround,
         padding: '1%',
         position: 'relative',
         top: theme.headerHeight,
@@ -53,9 +53,12 @@ export default function Home() {
                     sx={{
                         flexGrow: 1,
                         p: 3,
-                        width: { sm: `calc(100% - ${drawerWidth}px)` },
-                        height: 'calc(100% - 72px)',
-                        display: 'block'
+                        width: { md: `calc(100% - ${drawerWidth}px)` },
+                        height: `calc(100% - ${theme.headerHeight})`,
+                        display: 'block',
+                        position: 'absolute',
+                        right: '0px'
+                    
                     }}
                     className={classes.content}
                 >

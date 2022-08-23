@@ -2,13 +2,103 @@
 import { responsiveFontSizes, createTheme } from '@mui/material/styles'
 
 const drawerWidth = 240;
-const drawerIndex=1000;
-const theme = createTheme({
+const drawerIndex = 1000;
+const headerBackground = '#FFFFFF !important';
+const headerText = 'black  !important';
+const SideHeaderBackground = '#1263BE !important';
+const SideHeaderText = 'white  !important';
+
+const DrawerBackground = '#2A303C !important';
+const DrawerText = '#21252F  !important';
+const contentBackGround = '#EDF0F7';
+const headerHeight = '66px';
+const darkText = '#343A40';
+const lightText = '#81757D';
+const lightBlueText = '#0665d0';
+const darkBlueText = '#022853';
+const cardBackground = 'white';
+const custome_theme = createTheme({
     spacing: 4,
     drawerIndex: drawerIndex,
-    
-    drawerWidth: drawerWidth,
-    headerHeight: '72px',
+    headerBackground,
+    headerText,
+    SideHeaderBackground,
+    SideHeaderText,
+    DrawerBackground,
+    DrawerText,
+    drawerWidth,
+    contentBackGround,
+    headerHeight,
+    darkText,
+    lightText,
+    lightBlueText,
+    darkBlueText,
+    cardBackground,
+    innerCard: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'left',
+        width: '100%',
+        borderRadius: '6px',
+        background: cardBackground,
+        fontSize: '16px',
+        margin: '0px',
+        padding: '0px',
+    },
+    textHighlighted: {
+        color: darkText,
+        fontSize: '16px',
+        fontWeight: 600
+
+    },
+    sectionHeading: {
+        color: darkText,
+        fontSize: '16px',
+        fontWeight: 600,
+        padding: '8px 0px 18px 0px',
+        textAlign: 'left'
+    },
+    textMutedBold: {
+        color: lightText,
+        fontSize: '12px',
+        fontWeight: 600,
+    },
+
+    textBold: {
+        color: darkText,
+        fontSize: '12px',
+        fontWeight: 600,
+    },
+    textMuted: {
+        color: lightText,
+        fontSize: '14px'
+    },
+    card: {
+        color: darkBlueText,
+        background: DrawerBackground
+    },
+    cardContent: {
+        background: 'white',
+        color: darkText,
+        textTransform: 'initial',
+        fontSize: '11px',
+        lineHeight: '1.91234',
+        /* margin: 4px 16px; */
+        padding: '5px',
+        borderRadius: '0px 0px 4px 4px'
+    },
+    avatar:{
+        height:'33px',
+        
+        width:'33px',
+    },
+    actionButton:{
+        color: lightText+' !important',
+        fontSize: '11px !important',
+        fontWeight: '800 !important',
+        background: '#2a303c24 !important',
+    },
     components: {
         MuiAppBar: {
             styleOverrides: {
@@ -66,8 +156,10 @@ const theme = createTheme({
             default: '#009900'//green
         },
         primary: {
-            main: '#2B37D4',//indigo
-            text: '#56525d'
+            main: '#D72A2A',//indigo
+            text: '#56525d',
+            light: '#2B37D4',
+            dark: 'white',
         },
         secondary: {
             main: '#E769A6',//pink
@@ -88,9 +180,9 @@ const theme = createTheme({
             primary: '#000000',//black
             secondary: '#FFFFFF',//white
         },
-        divider: '#3A383F'
+        divider: '#EDF0F7'
     },
-    
+
     drawer: {
         width: drawerWidth,
         zIndex: drawerIndex,
@@ -107,28 +199,28 @@ const theme = createTheme({
     walletConnect: {
         backgroundColor: '#4158D0',
         backgroundImage: 'linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)',
-        color:'white !important',
-        fontWeight:'600 !important',
-        padding:'10px 24px !important'
+        color: 'white !important',
+        fontWeight: '600 !important',
+        padding: '10px 24px !important'
 
     },
-    cardBackground:{
-        background:'#0B0A0D !important',
-        color:'#56525d !important',
+    cardBackground: {
+        background: '#0B0A0D !important',
+        color: '#56525d !important',
     },
-    modal:{
-            position: 'absolute',
-            magin: 'auto',
-            left: '',
-            width: 400,
-            background:'#0B0A0D !important',
-            color:'#56525d !important',
-            border: '2px solid #000',
-            boxShadow: 24,
-            p: 4,
-          
+    modal: {
+        position: 'absolute',
+        magin: 'auto',
+        left: '',
+        width: 400,
+        background: '#0B0A0D !important',
+        color: '#56525d !important',
+        border: '2px solid #000',
+        boxShadow: 24,
+        p: 4,
+
     }
 });
 
 
-export default theme;
+export default custome_theme;

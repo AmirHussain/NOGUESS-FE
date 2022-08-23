@@ -7,14 +7,14 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { routes } from "./routes"
 import { ThemeProvider } from '@mui/styles';
 import { CssBaseline } from '@mui/material'
-import theme from './theme';
+import custome_theme from './theme';
 import React from 'react'
 
 
 function App() {
   return (
     <React.Fragment>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={custome_theme}>
         <div className="App">
           <CssBaseline />
           <Router>

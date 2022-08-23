@@ -16,22 +16,15 @@ const useStyles = makeStyles({
         objectFit: 'scale-down'
     },
 
-    card: theme.cardBackground,
-    walletConnect: theme.walletConnect,
-    actionButton: {
-        color: 'white !important',
-        fontSize: '11px !important',
-        fontWeight: '800 !important',
-        background: '#0B0A0D !important',  /* fallback for old browsers */
-        // background: ' -webkit-linear-gradient(to left, #2c3e50, #2980b9)',  /* Chrome 10-25, Safari 5.1-6 */
-        // background: 'linear-gradient(to left, #2c3e50, #2980b9)' /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-
-    }
+    card: theme.card,
+    avatar:theme.avatar,
+    cardContent:theme.cardContent,
+    walletConnect: theme.walletConnect, 
+    actionButton:theme.actionButton
 });
 
 export default function Tiles(props) {
     const classes = useStyles();
-
     const dt = {
         'name': {
             title: '',
@@ -90,12 +83,11 @@ export default function Tiles(props) {
                                 <Avatar aria-label="Recipe" className={classes.avatar}>
                                     <img class="chainIcon"
                                         src="https://polygonscan.com/images/svg/brands/polygon.svg?v=1.3" />
-
                                 </Avatar>
                             }
                             title={row.name}
                         />
-                        <CardContent class="content-box">
+                        <CardContent className={classes.cardContent}>
                             <div class="d-flexSpaceBetween">  <span>APR IN REWARD:</span> <span>{row.apr}</span></div>
                             <div class="d-flexSpaceBetween"> <span>STAKING CYCLE</span> <span>{row.sc}</span></div>
                             <div class="d-flexSpaceBetween"> <span>START TIME:</span><span>{row.st}</span></div>

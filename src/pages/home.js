@@ -58,7 +58,7 @@ const useStyles = makeStyles({
     drawerPaper: theme.drawerPaper,
     drawerContainer:theme.drawerContainer,
     content: {
-        background: '#3a383f',
+        background: '#EDF0F7',
         color: 'white',
         padding: '1%',
         position: 'relative',
@@ -75,7 +75,7 @@ const useStyles = makeStyles({
         display: 'block'
     },
     linkClassActive: {
-        background: '#3A383F',
+        background: '#EDF0F7',
         color: 'white',
         fontWeight: 400
     },

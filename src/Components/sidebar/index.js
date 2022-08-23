@@ -23,34 +23,45 @@ const useStyles = makeStyles({
     flexShrink: 0,
   },
   drawerPaper: {
-    background: '#0b0a0d !important',
-    color: '#56525d !important',
+    backgroundColor: theme.DrawerBackground,
+    color: theme.DrawerText,
   },
   content: {
-    background: '#3a383f',
-    color: 'white',
-    padding: '1%',
-    position: 'relative',
-    top: theme.headerHeight,
-    overflow: 'auto',
+   margin: '0 auto',
+    padding:' 1.125rem 1.125rem 1px',
+    overflowX: 'hidden'
     // height:'calc(100% - '+theme.headerHeight+') !important'
   },
   linkClass: {
     textDecoration: 'none',
-    padding: '6px 23px 6px 14px',
-    color: theme.palette.primary.text,
-    fontWeight: 'bold',
-    margin: '6px 6px 6px 0px',
+    padding: '2px',
+    color: '#b4bccb !important',
+    fontWeight: 'bold !important',
     display: 'block',
+    alignItems: 'center',
+    fontSize: '.875rem',
+    lineHeight: '1.25rem',
+    letterSpacing: '.0125em',
+    borderRadius: '0.25rem',
   },
   linkClassActive: {
-    background: '#3A383F',
-    color: 'white',
-    fontWeight: 400,
+    background: '#21252f !important',
+    color: 'white  !important',
+    fontWeight: 600,
+  },
+  linkItem: {
+    padding: '4px !important'
+  },
+  linkText:{
+    fontWeight:600,
   },
   sideToolbar: {
-    color: 'white',
-    fontWeight: 500,
+    color: theme.SideHeaderText,
+    background: theme.SideHeaderBackground,
+    fontWeight: 600,
+  },
+  listItemIcon:{
+    minWidth: '35px !important'
   },
   divider:{
     borderColor:theme.palette.divider +' !important'  }
@@ -75,27 +86,27 @@ export default function Home (props) {
         <Pix color="primary" sx={{ fontSize: "40px" }} ></Pix>
         <Typography variant="h5">D Finance</Typography>
       </Toolbar>
-      <Divider className={classes.divider}/>
+      <div className={classes.content}>
       <List>
         <NavLink className={classes.linkClass} to="/market" activeClassName={classes.linkClassActive}>
-          <ListItem button key="Home">
-            <ListItemIcon>
+          <ListItem button key="Home" className={classes.linkItem}>
+            <ListItemIcon className={classes.listItemIcon}>
               <StarBorderOutlined color="primary"> : </StarBorderOutlined>
             </ListItemIcon>
-            <ListItemText primary="Home" />
+            <ListItemText primary="Home" className={classes.linkText}/>
           </ListItem>
         </NavLink>
         <NavLink className={classes.linkClass} to={routes.lending} activeClassName={classes.linkClassActive}>
-          <ListItem button key={routes.lending}>
-            <ListItemIcon>
+          <ListItem button key={routes.lending} className={classes.linkItem}>
+            <ListItemIcon className={classes.listItemIcon}>
               <StarBorderOutlined color="primary" />
             </ListItemIcon>
-            <ListItemText primary="Lending" />
+            <ListItemText primary="Lending"  className={classes.linkText}/>
           </ListItem>
         </NavLink>
         <NavLink className={classes.linkClass} to={routes.staking} activeClassName={classes.linkClassActive}>
-          <ListItem button key={routes.staking}>
-            <ListItemIcon>
+          <ListItem button key={routes.staking} className={classes.linkItem}>
+            <ListItemIcon className={classes.listItemIcon}>
               <StarBorderOutlined color="primary" />
             </ListItemIcon>
             <ListItemText primary="Staking" />
@@ -103,22 +114,23 @@ export default function Home (props) {
         </NavLink>
 
         <NavLink className={classes.linkClass} to="/bridge" activeClassName={classes.linkClassActive}>
-          <ListItem button key="BlockchainBridge">
-            <ListItemIcon>
+          <ListItem button key="BlockchainBridge" className={classes.linkItem}>
+            <ListItemIcon className={classes.listItemIcon}>
               <KingBed color="primary"> : </KingBed>
             </ListItemIcon>
-            <ListItemText primary="Bridge" />
+            <ListItemText primary="Bridge"  className={classes.linkText}/>
           </ListItem>
         </NavLink>
         <NavLink className={classes.linkClass} to="/governance" activeClassName={classes.linkClassActive}>
-          <ListItem button key="Governance">
-            <ListItemIcon>
+          <ListItem button key="Governance" className={classes.linkItem} >
+            <ListItemIcon className={classes.listItemIcon}>
               <MeetingRoom color="primary"> : </MeetingRoom>
             </ListItemIcon>
-            <ListItemText primary="Governance" />
+            <ListItemText primary="Governance"  className={classes.linkText}/>
           </ListItem>
         </NavLink>
       </List>
+      </div>
 
     </div>
   );

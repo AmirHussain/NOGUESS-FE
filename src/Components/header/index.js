@@ -23,8 +23,15 @@ const useStyles = makeStyles({
   },
   appBar: {
     zIndex: theme.drawerIndex + 1,
-    background: '#1D1B22 !important',
-    color: 'white !important',
+    background: theme.headerBackground,
+    color: theme.headerText,
+    fontStyle: 'bold',
+  },
+  
+  sideBarToolBar: {
+    zIndex: theme.drawerIndex + 1,
+    background: theme.SideHeaderBackground,
+    color: theme.SideHeaderText,
     fontStyle: 'bold',
   },
   drawer: {
@@ -39,7 +46,7 @@ const useStyles = makeStyles({
   },
   drawerContainer: {},
   content: {
-    background: '#3a383f',
+    background: '#FFFFFF',
     color: 'white',
     padding: '1%',
     position: 'relative',
@@ -56,7 +63,7 @@ const useStyles = makeStyles({
     display: 'block',
   },
   linkClassActive: {
-    background: '#3A383F',
+    background: '#EDF0F7',
     color: 'white',
     fontWeight: 400,
   },
@@ -104,7 +111,7 @@ function Header(props) {
           </Typography>
           <div><WalletConnecter /></div>
         </Toolbar>
-        <Divider className={classes.divider}></Divider>
+        {/* <Divider className={classes.divider}></Divider> */}
       </AppBar>
     </>
   );
