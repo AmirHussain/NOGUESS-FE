@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField } from '@mui/material';
+import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField } from '@mui/material';
 import { makeStyles } from '@mui/styles'
 import Tiles from '../../Components/tiles';
 import { Inbox, Mail } from '@mui/icons-material';
@@ -85,7 +85,7 @@ export default function Staking() {
                         </Card>
                     </Grid>
                 </Grid>
-                <div class="d-flex-evenly marginTop" sx={{ alignItems: 'baseline', textAlign: 'left', marginTop: '10px' }} >
+                <div className="d-flex-evenly marginTop" sx={{ alignItems: 'baseline', textAlign: 'left', marginTop: '10px' }} >
                     <div div className={classes.sectionHeading} md={4}>
                         Staking Programs
                     </div>

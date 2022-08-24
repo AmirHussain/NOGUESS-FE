@@ -1,10 +1,10 @@
 import React from 'react';
-import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, CardHeader, Avatar, IconButton, CardMedia, CardContent, CardActions, SvgIcon, Button } from '@mui/material';
+import { Grid, Box, Card,  CardHeader, Avatar, CardContent, Button } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import theme from '../../theme';
-import { ExpandMore, Favorite, MoreVert, Share } from '@mui/icons-material';
-const useStyles = makeStyles({
 
+
+const useStyles = makeStyles({
     listSection: {
         backgroundColor: 'inherit',
     },

@@ -10,8 +10,10 @@ const useStyles = makeStyles({
   boxRoot: {
     height: '180px',
     width: '100%',
-    background: '#0b0a0d',
+    // background: '#0b0a0d',
+    color: '#56525d !important',
     borderRadius: 8,
+    border:"2px solid #0B0A0D"
   },
   dividerRoot: {
     background: '#808080',
@@ -34,7 +36,7 @@ function Lending() {
         <Typography sx={{textAlign:'start'}}>
             <h1>Supply Market</h1>
             </Typography>
-          <Box className={classes.boxRoot} p={10}>
+          <Box className={classes.boxRoot} p={10} style={{background:"#ffffff"}}>
             <Stack direction="row" justifyContent="space-between">
               <Typography>0$</Typography>
               <Typography>0.03%</Typography>
@@ -55,7 +57,7 @@ function Lending() {
         <Typography sx={{textAlign:'start'}}>
             <h1>Borrom Market</h1></Typography>
 
-          <Box className={classes.boxRoot} p={10}>
+          <Box className={classes.boxRoot} p={10} style={{background:"#ffffff"}}>
             <Stack direction="row" justifyContent="space-between">
               <Typography>0$</Typography>
               <Typography>0.03%</Typography>

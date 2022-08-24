@@ -73,26 +73,12 @@ body::-webkit-scrollbar {
     margin-top: 10px;
   }
 
-  .tableHead{
-    width: 100%;
-    height: 50px;
-    grid-template-columns: repeat(6, 1fr);
-    justify-items: center;
-    background: rgb(29 27 34);
-    border-radius: 8px 8px 0px 0px;
-    padding: 16px 24px;
-    color: rgb(86, 82, 93);
-  }
-
-  .theadCell{
-    color: rgb(86, 82, 93);
-  }
   
-  thead th {
+  /* thead th {
     color: rgb(86, 82, 93) !important;
     font-weight: 600 !important;
-  }
- tbody tr{
+  } */
+ /* tbody tr{
     background: linear-gradient(104.89deg,#2d2934 69.31%,#d8426d 342.44%);
     border-radius: 6px;
     padding: 16px;
@@ -102,14 +88,14 @@ body::-webkit-scrollbar {
     align-items: center;
     grid-gap: 16px;
     color:white
-  }
+  } */
 
-  tbody tr td {
+  /* tbody tr td {
     color: white !important;
   }
   tbody tr th {
     color: white !important;
-  }
+  } */
 
   
 

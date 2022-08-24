@@ -164,6 +164,9 @@ const custome_theme = createTheme({
         secondary: {
             main: '#E769A6',//pink
         },
+        otherColors:{
+            main:'#C3FC00'
+        },
         error: {
             main: '#D72A2A',//red
         },
