@@ -1,8 +1,4 @@
 import React from 'react';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import ListSubheader from '@mui/material/ListSubheader';
 import { Favorite, Share } from '@mui/icons-material';
 import { Grid, Box, Typography, CardContent, Card, CardHeader, Avatar, IconButton, CardMedia, CardActions } from '@mui/material';
 import { makeStyles } from '@mui/styles';
