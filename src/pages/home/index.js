@@ -53,12 +53,12 @@ export default function Home() {
                     sx={{
                         flexGrow: 1,
                         p: 3,
-                        width: { md: `calc(100% - ${drawerWidth}px)` },
+                        width: { xs: "100%", md: `calc(100% - ${drawerWidth}px)` },
                         height: `calc(100% - ${theme.headerHeight})`,
                         display: 'block',
                         position: 'absolute',
                         right: '0px',
-                    
+
                     }}
                     className={classes.content}
                 >

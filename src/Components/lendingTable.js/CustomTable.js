@@ -61,7 +61,7 @@ export default function BasicTable(props) {
 
   return (
     <TableContainer component={Paper}>
-      <Table aria-label="simple table">
+      <Table aria-label="simple table" sx={{wordBreak: 'break-word'}}>
         <TableHead className={classes.tableHead}>
           <TableRow className={classes.theadRow}>
             <TableCell>ASSETS</TableCell>

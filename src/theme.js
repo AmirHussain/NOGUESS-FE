@@ -14,7 +14,7 @@ const DrawerText = '#21252F  !important';
 const contentBackGround = '#EDF0F7';
 const headerHeight = '66px';
 const footerHeight = '66px';
-const midContainerHeight = `calc(100% - ${(66*2)+'px'})`;
+const midContainerHeight = `calc(100% - ${(66 * 2) + 'px'})`;
 const darkText = '#343A40';
 const lightText = '#81757D';
 const lightBlueText = '#0665d0';
@@ -40,6 +40,23 @@ const custome_theme = createTheme({
     lightBlueText,
     darkBlueText,
     cardBackground,
+    rightDrawerHeader: {
+        /* The image used */
+        color: headerText,
+       backgroutnd:'none  !important',
+       backgroundColor:'transparent !important',
+        /* Add the blur effect */
+        backgroundBlendMode: 'screen',
+        zIndex: 100,
+        /* Full height */
+        height: (66 * 2) + 'px',
+
+        /* Center and scale the image nicely */
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+
+    },
     innerCard: {
         display: 'flex',
         alignItems: 'center',

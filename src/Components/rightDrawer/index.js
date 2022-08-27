@@ -10,9 +10,9 @@ import BorrowItem from '../../pages/lending/borrowItem';
 const useStyles = makeStyles({
     rightBar: {
         zIndex: theme.drawerIndex + 1,
-        background: theme.headerBackground,
         color: theme.headerText,
         fontStyle: 'bold',
+
     },
 
     listSection: {
@@ -30,6 +30,14 @@ const useStyles = makeStyles({
         background: '#050506',
         color: 'white'
     },
+    avatar: {
+        position: 'absolute  !important',
+        top: '100px  !important',
+        height: '52px  !important',
+        width: '52px  !important',
+        borderRadius: '4px !important',
+    },
+    rightDrawerHeader: theme.rightDrawerHeader,
     textHighlighted: theme.textHighlighted,
     sectionHeading: theme.sectionHeading,
     textMutedBold: theme.textMutedBold,
@@ -38,12 +46,38 @@ const useStyles = makeStyles({
     modal: theme.modal,
     drawer: theme.drawer,
     drawerPaper: theme.rightDrawerPaper,
-    textBold: theme.textBold
+    textBold: theme.textBold,
+    toolbarHeaderBackground: {
+        position: 'absolute',
+        height: '132px',
+        width: '100%',
+        display: 'block',
+        zIndex: '13',
+        opacity: 0.2,
+        backgroundPosition: 'center',
+        backgroundImage: '',
+        backgroundSize: '100%',
+        backgroundRepeat: 'no-repeat',
+        filter: 'blur(4px)',
+        background: 'url(https://polygonscan.com/images/svg/brands/polygon.svg?v=1.3)'
+
+    },
+    backgroundImage: {
+        backgroundPosition: 'center',
+        backgroundSize: '100%',
+        backgroundRepeat: 'no-repeat'
+    },
+    title: {
+        position: 'absolute',
+        top: '96px',
+        left: '80px',
+    }
 });
 
 export default function RightDrawer(params) {
     console.log(params)
     const classes = useStyles();
+
     return (
         <React.Fragment key="RIGHT1">
             <Button onClick={params.toggleDrawer}>RIGHT</Button>
@@ -62,14 +96,25 @@ export default function RightDrawer(params) {
                 anchor='right'
                 open={params.drawerOpen}
                 onClose={params.toggleDrawer}>
+                <div className={classes.toolbarHeaderBackground}
+                    sx={{}}
+                >
+                    {/* <img className={classes.backgroundImage} alt=""  src={params.icon} /> */}
 
+                </div>
                 <AppBar key="rightbar"
                     position="relative"
-                    className={classes.rightBar}
+                    className={classes.rightDrawerHeader}
+                    sx={{}}
+
                     color="primary"
 
                 >
-                    <Toolbar variant="dense" sx={{ height: theme.headerHeight }}>
+                    <Toolbar variant="dense" sx={{
+                        opacity: 1,
+                        filter: 'drop-shadow(2px 4px 6px black)',
+                        height: theme.headerHeight, marginbottom: '4px'
+                    }}>
                         <IconButton aria-label="open drawer" edge="start" onClick={params.toggleDrawer} >
                             <ArrowBack color="primary" />
                         </IconButton>
@@ -79,10 +124,14 @@ export default function RightDrawer(params) {
                             <img className="chainIcon" alt=""
                                 src={params.icon} />
                         </Avatar>
-                        <Typography variant="h6" className={classes.title}>
-                            {params.title}
+                        <Typography variant="h4" >
+                            {params.Opration}
                         </Typography>
+
                     </Toolbar>
+                    <Typography variant="h6" className={classes.title}>
+                        {params.title}
+                    </Typography>
                 </AppBar>
                 {params.component === "staking" && (
                     <StakeItem input={params}></StakeItem>

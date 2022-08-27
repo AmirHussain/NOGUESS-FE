@@ -62,7 +62,8 @@ export default function BorrowItem(params) {
                     p: 3,
                     height: `calc(100% - ${theme.headerHeight})`,
                     display: 'block',
-                    right: '0px'
+                    right: '0px',
+                    overflow:'auto',
 
                 }}
                 className={classes.content}
