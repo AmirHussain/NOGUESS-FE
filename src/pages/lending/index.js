@@ -105,7 +105,7 @@ function Lending() {
         </Grid>
       </Grid>
       {drawerOpen && (
-        <RightDrawer component={currentMethod} currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />
+        <RightDrawer Opration="Lending" component={currentMethod} currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />
       )}
     </>
   );

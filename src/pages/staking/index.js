@@ -113,7 +113,7 @@ export default function Staking() {
 
             </div>
             { drawerOpen && (
-            <RightDrawer component="staking" currentStake={currentStake} icon={currentStake.icon}  title={currentStake.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />
+            <RightDrawer Opration="Staking" component="staking" currentStake={currentStake} icon={currentStake.icon}  title={currentStake.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />
             )}
         </Box>
     );
