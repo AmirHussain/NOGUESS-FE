@@ -1,10 +1,11 @@
 import React from 'react';
+import {useLocation} from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
 import { AppBar, Toolbar, IconButton, Menu, MenuItem, Button, Typography, Divider, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { AccountCircle } from '@mui/icons-material';
 import WalletConnecter from '../walletConnect/walletConnect'
-
+import { routeHeaders } from '../../routes';
 import theme from './../../theme';
 
 const drawerWidth = 240;
@@ -79,6 +80,12 @@ borderColor:theme.palette.divider +' !important'
 function Header(props) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [headerText, setHeader] = React.useState(null);
+  let location = useLocation();
+
+  // React.useEffect(() => {
+  //   setHeader(location)
+  // }, [location]);
 
   let auth = true;
   const open = Boolean(anchorEl);
@@ -107,7 +114,7 @@ function Header(props) {
           </IconButton>
 
           <Typography variant="h6" className={classes.title}>
-            D Finance
+            {routeHeaders[location.pathname].name}
           </Typography>
           <div><WalletConnecter /></div>
         </Toolbar>

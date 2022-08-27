@@ -88,14 +88,14 @@ export default function Home (props) {
       </Toolbar>
       <div className={classes.content}>
       <List>
-        <NavLink className={classes.linkClass} to="/market" activeClassName={classes.linkClassActive}>
+        {/* <NavLink className={classes.linkClass} to="/market" activeClassName={classes.linkClassActive}>
           <ListItem button key="Home" className={classes.linkItem}>
             <ListItemIcon className={classes.listItemIcon}>
               <StarBorderOutlined color="primary"> : </StarBorderOutlined>
             </ListItemIcon>
             <ListItemText primary="Home" className={classes.linkText}/>
           </ListItem>
-        </NavLink>
+        </NavLink> */}
         <NavLink className={classes.linkClass} to={routes.lending} activeClassName={classes.linkClassActive}>
           <ListItem button key={routes.lending} className={classes.linkItem}>
             <ListItemIcon className={classes.listItemIcon}>

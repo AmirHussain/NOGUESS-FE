@@ -7,6 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { makeStyles } from '@mui/styles';
+import { Button } from '@mui/material';
 
 const useStyles = makeStyles({
   root: {},
@@ -23,10 +24,10 @@ const useStyles = makeStyles({
     border: '1px solid #E0E0E0',
   },
   theadRow: {
-  "& .MuiTableCell-root":{
-    color: 'white',
-    
-  }
+    "& .MuiTableCell-root": {
+      color: 'white',
+
+    }
   },
   tableHead: {
     background: '#2A303C',
@@ -39,8 +40,8 @@ const useStyles = makeStyles({
   },
 });
 
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
+function createData(name, calories, fat, carbs, protein, icon = '') {
+  return { name, calories, fat, carbs, protein, icon: icon || 'https://polygonscan.com/images/svg/brands/polygon.svg?v=1.3' };
 }
 
 const rows = [
@@ -51,8 +52,12 @@ const rows = [
   createData('Gingerbread', 356, 16.0, 'Button'),
 ];
 
-export default function BasicTable() {
+export default function BasicTable(props) {
   const classes = useStyles();
+  const openDrawer = (row) => {
+    props.action(row, props.component);
+  }
+
 
   return (
     <TableContainer component={Paper}>
@@ -62,7 +67,8 @@ export default function BasicTable() {
             <TableCell>ASSETS</TableCell>
             <TableCell align="right">SUPPLY APY</TableCell>
             <TableCell align="right">WALLET</TableCell>
-            <TableCell align="right">Button</TableCell>
+            <TableCell align="right">            Action
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -73,7 +79,15 @@ export default function BasicTable() {
               </TableCell>
               <TableCell align="right">{row.calories}</TableCell>
               <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
+              <TableCell align="right">
+                <Button variant="contained" size="small" className={classes.actionButton} onClick={() => openDrawer(row)}>
+                  {props.component === 'sellItem' ?
+                    'Sell' : 'Borrow'
+                  }
+
+                </Button>
+
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

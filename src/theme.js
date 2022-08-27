@@ -2,6 +2,7 @@
 import { responsiveFontSizes, createTheme } from '@mui/material/styles'
 
 const drawerWidth = 240;
+const rightDrawerWidth = '40%';
 const drawerIndex = 1000;
 const headerBackground = '#FFFFFF !important';
 const headerText = 'black  !important';
@@ -12,13 +13,15 @@ const DrawerBackground = '#2A303C !important';
 const DrawerText = '#21252F  !important';
 const contentBackGround = '#EDF0F7';
 const headerHeight = '66px';
+const footerHeight = '66px';
+const midContainerHeight = `calc(100% - ${(66*2)+'px'})`;
 const darkText = '#343A40';
 const lightText = '#81757D';
 const lightBlueText = '#0665d0';
 const darkBlueText = '#022853';
 const cardBackground = 'white';
 const custome_theme = createTheme({
-    spacing: 4,
+    spacing: (factor) => `${0.25 * factor}rem`,
     drawerIndex: drawerIndex,
     headerBackground,
     headerText,
@@ -27,8 +30,11 @@ const custome_theme = createTheme({
     DrawerBackground,
     DrawerText,
     drawerWidth,
+    rightDrawerWidth,
     contentBackGround,
     headerHeight,
+    midContainerHeight,
+    footerHeight,
     darkText,
     lightText,
     lightBlueText,
@@ -88,13 +94,13 @@ const custome_theme = createTheme({
         padding: '5px',
         borderRadius: '0px 0px 4px 4px'
     },
-    avatar:{
-        height:'33px',
-        
-        width:'33px',
+    avatar: {
+        height: '33px',
+
+        width: '33px',
     },
-    actionButton:{
-        color: lightText+' !important',
+    actionButton: {
+        color: lightText + ' !important',
         fontSize: '11px !important',
         fontWeight: '800 !important',
         background: '#2a303c24 !important',
@@ -164,8 +170,8 @@ const custome_theme = createTheme({
         secondary: {
             main: '#E769A6',//pink
         },
-        otherColors:{
-            main:'#C3FC00'
+        otherColors: {
+            main: '#C3FC00'
         },
         error: {
             main: '#D72A2A',//red
@@ -195,6 +201,12 @@ const custome_theme = createTheme({
     drawerPaper: {
         background: '#0b0a0d !important',
         color: '#56525d !important',
+    },
+
+
+    rightDrawerPaper: {
+        background: contentBackGround + ' !important',
+        color: darkText + ' !important',
     },
     drawerContainer: {
 

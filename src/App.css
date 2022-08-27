@@ -48,6 +48,12 @@ body::-webkit-scrollbar {
     justify-content: space-around;
 
   }
+  .d-flexCenter{
+    display: flex;
+    justify-content: center;
+
+  }
+
   .d-flex{
     display: flex;
   }

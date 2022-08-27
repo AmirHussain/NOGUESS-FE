@@ -4,6 +4,7 @@ import { makeStyles } from '@mui/styles';
 
 //components
 import CustomTable from "../../Components/lendingTable.js/CustomTable"
+import RightDrawer from '../../Components/rightDrawer';
 
 const useStyles = makeStyles({
   root: {},
@@ -13,30 +14,44 @@ const useStyles = makeStyles({
     // background: '#0b0a0d',
     color: '#56525d !important',
     borderRadius: 8,
-    border:"2px solid #0B0A0D"
+    border: "2px solid #0B0A0D"
   },
   dividerRoot: {
     background: '#808080',
   },
+
 });
 
 function Lending() {
   const classes = useStyles();
+
+  const [currentMethod, setCurrentMethod] = React.useState('sellItem');
+  const [currentRow, setCurrentRow] = React.useState({});
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
+  };
+  const OpenDrawer = (row, method) => {
+    toggleDrawer();
+    setCurrentRow(row);
+
+    setCurrentMethod(method);
+  }
   return (
     <>
       <Grid container direction="row" justifyContent="start" alignItems="flex-start" spacing={2} style={{ width: '100%' }}>
         <Grid item xs={12} sm={12} md={6}>
-          
+
         </Grid>
         <Grid item xs={12} sm={12} md={6}>
         </Grid>
 
         {/* Boxes */}
         <Grid item xs={12} sm={12} md={6}>
-        <Typography sx={{textAlign:'start'}}>
+          <Typography sx={{ textAlign: 'start' }}>
             <h1>Supply Market</h1>
-            </Typography>
-          <Box className={classes.boxRoot} p={10} style={{background:"#ffffff"}}>
+          </Typography>
+          <Box className={classes.boxRoot} p={10} style={{ background: "#ffffff" }}>
             <Stack direction="row" justifyContent="space-between">
               <Typography>0$</Typography>
               <Typography>0.03%</Typography>
@@ -54,10 +69,10 @@ function Lending() {
         </Grid>
 
         <Grid item xs={12} sm={12} md={6}>
-        <Typography sx={{textAlign:'start'}}>
+          <Typography sx={{ textAlign: 'start' }}>
             <h1>Borrom Market</h1></Typography>
 
-          <Box className={classes.boxRoot} p={10} style={{background:"#ffffff"}}>
+          <Box className={classes.boxRoot} p={10} style={{ background: "#ffffff" }}>
             <Stack direction="row" justifyContent="space-between">
               <Typography>0$</Typography>
               <Typography>0.03%</Typography>
@@ -79,16 +94,19 @@ function Lending() {
         {/* Tables */}
         <Grid item xs={12} sm={12} md={6}>
           <div>
-        <CustomTable/>
-        </div>
+            <CustomTable action={OpenDrawer} component="sellItem" />
+          </div>
         </Grid>
-        
+
         <Grid item xs={12} sm={12} md={6}>
-        <div>
-        <CustomTable/>
-        </div>
+          <div>
+            <CustomTable action={OpenDrawer} component="borrowItem" />
+          </div>
         </Grid>
       </Grid>
+      {drawerOpen && (
+        <RightDrawer component={currentMethod} currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />
+      )}
     </>
   );
 }

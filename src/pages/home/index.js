@@ -57,7 +57,7 @@ export default function Home() {
                         height: `calc(100% - ${theme.headerHeight})`,
                         display: 'block',
                         position: 'absolute',
-                        right: '0px'
+                        right: '0px',
                     
                     }}
                     className={classes.content}
@@ -66,11 +66,10 @@ export default function Home() {
                     <Container maxWidth="xl">
                         <Switch>
                             <Route path="/bridge" exact component={Bridge}></Route>
-                            <Route path="/market" exact component={Market}></Route>
                             <Route path="/staking" exact component={Staking}></Route>
 
                             <Route path="/governance" exact component={Governance}></Route>
-                            <Route path="/" exact component={Market}></Route>
+                            <Route path="/" exact component={Lending}></Route>
                             <Route path="/lending" exact component={Lending}></Route>
                         </Switch>
                     </Container>
