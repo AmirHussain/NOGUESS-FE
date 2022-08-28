@@ -37,7 +37,7 @@ const useStyles = makeStyles({
     textBold: theme.textBold
 });
 
-export default function SellItem(params) {
+export default function SupplyItem(params) {
     console.log(params)
     const currentRow = params.input.currentRow
     const classes = useStyles();

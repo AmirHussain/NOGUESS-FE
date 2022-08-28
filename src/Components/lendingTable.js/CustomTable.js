@@ -7,7 +7,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { makeStyles } from '@mui/styles';
-import { Button } from '@mui/material';
+import { Button, Link } from '@mui/material';
+import theme from '../../theme'
+import Asset from '../asset';
 
 const useStyles = makeStyles({
   root: {},
@@ -38,6 +40,7 @@ const useStyles = makeStyles({
     // borderRadius: '8px 8px 0px 0px',
     padding: '16px 24px',
   },
+  actionButton: theme.actionButton2
 });
 
 function createData(name, calories, fat, carbs, protein, icon = '') {
@@ -57,11 +60,23 @@ export default function BasicTable(props) {
   const openDrawer = (row) => {
     props.action(row, props.component);
   }
+  const [openAsset, setOpenAsset] = React.useState(false);
+
+  const [currentRow, setCurrentRow] = React.useState(false);
+
+  const SetAndOpenAsset = (row) => {
+    setCurrentRow(row)
+    setOpenAsset(true);
+  };
+
+  const handleCloseAsset = () => {
+    setOpenAsset(false);
+  };
 
 
   return (
     <TableContainer component={Paper}>
-      <Table aria-label="simple table" sx={{wordBreak: 'break-word'}}>
+      <Table aria-label="simple table" sx={{ wordBreak: 'break-word' }}>
         <TableHead className={classes.tableHead}>
           <TableRow className={classes.theadRow}>
             <TableCell>ASSETS</TableCell>
@@ -74,15 +89,15 @@ export default function BasicTable(props) {
         <TableBody>
           {rows.map((row) => (
             <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} className={classes.tableRow}>
-              <TableCell component="th" scope="row">
-                {row.name}
+              <TableCell sx={{ cursor: 'pointer' }} component="th" scope="row" onClick={() => SetAndOpenAsset(row)}>
+                <Link sx={{ cursor: 'pointer' ,textDecoration:'none'}}>{row.name}</Link>
               </TableCell>
               <TableCell align="right">{row.calories}</TableCell>
               <TableCell align="right">{row.fat}</TableCell>
               <TableCell align="right">
                 <Button variant="contained" size="small" className={classes.actionButton} onClick={() => openDrawer(row)}>
-                  {props.component === 'sellItem' ?
-                    'Sell' : 'Borrow'
+                  {props.component === 'SupplyItem' ?
+                    'Supply' : 'Borrow'
                   }
 
                 </Button>
@@ -92,6 +107,9 @@ export default function BasicTable(props) {
           ))}
         </TableBody>
       </Table>
+      <Asset currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} open={openAsset} handleClose={handleCloseAsset}></Asset>
+
     </TableContainer>
+
   );
 }

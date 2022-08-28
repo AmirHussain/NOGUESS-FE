@@ -1,7 +1,8 @@
 import React from 'react';
-import { Grid, Box, Card, CardHeader, Avatar, CardContent, Button } from '@mui/material';
+import { Grid, Box, Card, CardHeader, Avatar, CardContent, Button, Link } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import theme from '../../theme';
+import Asset from '../asset';
 
 
 const useStyles = makeStyles({
@@ -20,7 +21,7 @@ const useStyles = makeStyles({
     avatar: theme.avatar,
     cardContent: theme.cardContent,
     walletConnect: theme.walletConnect,
-    actionButton: theme.actionButton
+    actionButton: theme.actionButton2
 });
 
 export default function Tiles(props) {
@@ -77,28 +78,41 @@ export default function Tiles(props) {
         props.action(row);
     }
 
+    const [openAsset, setOpenAsset] = React.useState(false);
+
+    const [currentRow, setCurrentRow] = React.useState(false);
+
+    const SetAndOpenAsset = (row) => {
+        setCurrentRow(row)
+        setOpenAsset(true);
+    };
+
+    const handleCloseAsset = () => {
+        setOpenAsset(false);
+    };
+
     return (
 
         <Grid container direction="row" justifyContent="start" alignItems="flex-start" spacing={2} style={{ width: '100%' }}>
             {rows.map((row, index) => (
                 <Grid item xs={6} sm={4} md={3} key={index + "-card"}>
                     <Card className={classes.card} sx={{ boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)' }}>
-                        <CardHeader sx={{ color: 'white', fontWeight: 600, textAlign: 'left', padding: '5px' }}
+                        <CardHeader onClick={() => SetAndOpenAsset(row)} sx={{ color: 'white', fontWeight: 600, textAlign: 'left', padding: '5px' }}
                             avatar={
-                                <Avatar aria-label="Recipe" className={classes.avatar}>
+                                <Avatar  sx={{ cursor: 'pointer' }}  aria-label="Recipe" className={classes.avatar}>
                                     <img className="chainIcon" alt=""
                                         src={row.icon} />
                                 </Avatar>
                             }
-                            title={row.name}
-                            subheader={row.apr}
+                            title={<Link sx={{ cursor: 'pointer' ,textDecoration:'none'}} >{row.name}</Link>}
+
                         />
                         <CardContent className={classes.cardContent}>
                             <div className="d-flexSpaceBetween">  <span>APR IN REWARD:</span> <span>{row.apr}</span></div>
                             <div className="d-flexSpaceBetween"> <span>STAKING CYCLE</span> <span>{row.sc}</span></div>
                             <div className="d-flexSpaceBetween"> <span>START TIME:</span><span>{row.st}</span></div>
                             <div className="d-flexSpaceBetween"> <span>YOUR BALANCE</span><span>{row.b}</span></div>
-                            <div className="d-flexSpaceBetween">  <b></b> <span><Button variant="text" size="small" className={classes.actionButton} onClick={() =>openDrawer(row)}>Stake Now</Button></span></div>
+                            <div className="d-flexSpaceBetween">  <b></b> <span><Button variant="text" size="small" className={classes.actionButton} onClick={() => openDrawer(row)}>Stake Now</Button></span></div>
                         </CardContent>
 
 
@@ -106,6 +120,7 @@ export default function Tiles(props) {
                 </Grid>
             ))}
 
+            <Asset currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} open={openAsset} handleClose={handleCloseAsset}></Asset>
         </Grid>
 
     );

@@ -150,7 +150,7 @@ export default function Home() {
                     <Pix color="primary" sx={{ fontSize: 40 }} />
                 </IconButton>
                 <Typography variant="h5">
-                    D Finance
+                    Flute Finance
                 </Typography>
             </Toolbar>
             <Divider className={classes.divider} />
@@ -215,7 +215,7 @@ export default function Home() {
                             </IconButton>
 
                             <Typography variant="h6" className={classes.title}>
-                                D Finance
+                            Flute Finance
                             </Typography>
                             {loggedIn && (
                                 <div>

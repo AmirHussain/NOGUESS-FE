@@ -84,7 +84,7 @@ export default function Home (props) {
     <div>
       <Toolbar variant="dense" sx={{ height: theme.headerHeight }} className={classes.sideToolbar}>
         <Pix color="primary" sx={{ fontSize: "40px" }} ></Pix>
-        <Typography variant="h5">D Finance</Typography>
+        <Typography variant="div" sx={{textTransform:'upperCase'}}>Flute Finance</Typography>
       </Toolbar>
       <div className={classes.content}>
       <List>

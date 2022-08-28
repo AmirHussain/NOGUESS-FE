@@ -94,7 +94,7 @@ function Lending() {
         {/* Tables */}
         <Grid item xs={12} sm={12} md={6}>
           <div>
-            <CustomTable action={OpenDrawer} component="sellItem" />
+            <CustomTable action={OpenDrawer} component="SupplyItem" />
           </div>
         </Grid>
 

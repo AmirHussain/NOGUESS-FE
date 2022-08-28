@@ -9,7 +9,7 @@ import providerOptions from '../walletConnect/providers'
 
 
 const useStyles = makeStyles({
-    walletConnect: theme.walletConnect,
+    walletConnect: theme.actionButton,
     drawer: theme.drawer,
     drawerPaper: theme.drawerPaper,
     drawerContainer: theme.drawerContainer,
@@ -76,7 +76,7 @@ function WalletConnecter() {
         try {
             await library.provider.request({
                 method: "wallet_switchEthereumChain",
-                // params: [{ chainId: toHex(network) }]
+                params: [{ chainId:ethers.utils.hexlify(chainId)}]
             });
         } catch (switchError) {
             if (switchError.code === 4902) {
@@ -193,8 +193,9 @@ function WalletConnecter() {
     const networks = [{ name: 'Polygon', icon: 'https://polygonscan.com/images/svg/brands/polygon.svg?v=1.3', chainId: 137 }, { name: 'BSC', icon: 'https://i.imgflip.com/6dky3c.png', chainId: 56 }, { name: 'Ethereum', icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/480px-Ethereum-icon-purple.svg.png', chainId: 1 }]
     const networkList = []
     networks.forEach(object => {
-        networkList.push(<Button key={object.chainId } color={object.chainId === chainId ? 'primary' : 'secondary'}>
-            <img  alt=""className={object.chainId === chainId ? 'selectedNetworkIcon chainIcon' : 'chainIcon'} src={object.icon}  />
+        networkList.push(<Button key={object.chainId} sx={{ fontWeight: object.chainId === chainId ? 600 : 400 }}
+            click={() => setChainId(object.chainId)}>
+            <img alt="" className={object.chainId === chainId ? 'selectedNetworkIcon chainIcon' : 'chainIcon'} src={object.icon} />
             <div className="networktext"> {object.name}</div></Button >)
 
 
@@ -203,7 +204,7 @@ function WalletConnecter() {
         <div className="d-flex-evenly">
             <ButtonGroup variant="text" aria-label="text button group" onClick={switchNetwork}
                 sx={{ marginRight: '5px' }}>
-                    {networkList}
+                {networkList}
             </ButtonGroup>
             {!account ?
                 <Button variant="text" className={classes.walletConnect} onClick={connectWallet}>Connect</Button>

@@ -5,7 +5,7 @@ import Tiles from '../../Components/tiles';
 import { ArrowBack, Inbox, Mail } from '@mui/icons-material';
 import theme from '../../theme'
 import StakeItem from '../../pages/staking/stakeItem';
-import SellItem from '../../pages/lending/sellItem';
+import SupplyItem from '../../pages/lending/supplyItem';
 import BorrowItem from '../../pages/lending/borrowItem';
 const useStyles = makeStyles({
     rightBar: {
@@ -137,8 +137,8 @@ export default function RightDrawer(params) {
                     <StakeItem input={params}></StakeItem>
                 )}
 
-                {params.component === "sellItem" && (
-                    <SellItem input={params}></SellItem>
+                {params.component === "SupplyItem" && (
+                    <SupplyItem input={params}></SupplyItem>
                 )}
 
                 {params.component === "borrowItem" && (

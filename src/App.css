@@ -116,6 +116,7 @@ max-width: 32px;
 
   @media screen and (max-width: 600px) {
     .networktext {
+      margin-left: 2px;
       display: none;
     }
   }

@@ -21,6 +21,8 @@ const useStyles = makeStyles({
   title: {
     flexGrow: 1,
     textAlign: 'left',
+    color:theme.darkBlueText,
+    fontWeight:600
   },
   appBar: {
     zIndex: theme.drawerIndex + 1,
@@ -112,10 +114,7 @@ function Header(props) {
           <IconButton aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2, display: { md: 'none' } }}>
             <MenuRoundedIcon color="primary"/>
           </IconButton>
-
-          <Typography variant="h6" className={classes.title}>
-            {routeHeaders[location.pathname].name}
-          </Typography>
+          <Typography variant="div" sx={{textTransform:'upperCase'}} className={classes.title}> {routeHeaders[location.pathname].name}</Typography>
           <div><WalletConnecter /></div>
         </Toolbar>
         {/* <Divider className={classes.divider}></Divider> */}

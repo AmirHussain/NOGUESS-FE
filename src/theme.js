@@ -43,8 +43,8 @@ const custome_theme = createTheme({
     rightDrawerHeader: {
         /* The image used */
         color: headerText,
-       backgroutnd:'none  !important',
-       backgroundColor:'transparent !important',
+        backgroutnd: 'none  !important',
+        backgroundColor: 'transparent !important',
         /* Add the blur effect */
         backgroundBlendMode: 'screen',
         zIndex: 100,
@@ -116,12 +116,12 @@ const custome_theme = createTheme({
 
         width: '33px',
     },
-    actionButton: {
-        color: lightText + ' !important',
-        fontSize: '11px !important',
-        fontWeight: '800 !important',
-        background: '#2a303c24 !important',
-    },
+    // actionButton: {
+    //     color: lightText + ' !important',
+    //     fontSize: '11px !important',
+    //     fontWeight: '800 !important',
+    //     background: '#2a303c24 !important',
+    // },
     components: {
         MuiAppBar: {
             styleOverrides: {
@@ -179,13 +179,16 @@ const custome_theme = createTheme({
             default: '#009900'//green
         },
         primary: {
-            main: '#D72A2A',//indigo
+            main: '#1976d2',//indigo
             text: '#56525d',
-            light: '#2B37D4',
-            dark: 'white',
+            light: '#1976d2',
+            dark: '#1976d2',
         },
         secondary: {
-            main: '#E769A6',//pink
+            main: '#1976d2',//indigo
+            text: '#1976d2',
+            light: '#1976d2',
+            dark: '#1976d2',
         },
         otherColors: {
             main: '#C3FC00'
@@ -228,12 +231,20 @@ const custome_theme = createTheme({
     drawerContainer: {
 
     },
-    walletConnect: {
+    actionButton: {
         backgroundColor: '#4158D0',
         backgroundImage: 'linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)',
         color: 'white !important',
         fontWeight: '600 !important',
         padding: '10px 24px !important'
+
+    },
+    actionButton2: {
+        backgroundColor: '#4158D0',
+        backgroundImage: 'linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)',
+        color: 'white !important',
+        fontWeight: '600 !important',
+       
 
     },
     cardBackground: {
