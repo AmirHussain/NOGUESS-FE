@@ -40,16 +40,11 @@ function Lending() {
   return (
     <>
       <Grid container direction="row" justifyContent="start" alignItems="flex-start" spacing={2} style={{ width: '100%' }}>
-        <Grid item xs={12} sm={12} md={6}>
-
-        </Grid>
-        <Grid item xs={12} sm={12} md={6}>
-        </Grid>
 
         {/* Boxes */}
         <Grid item xs={12} sm={12} md={6}>
-          <Typography sx={{ textAlign: 'start' }}>
-            <h1>Supply Market</h1>
+          <Typography varient="h3" sx={{ textAlign: 'start', marginBottom: '5px !important', fontWeight: 600 }}>
+            Supply Market
           </Typography>
           <Box className={classes.boxRoot} p={10} style={{ background: "#ffffff" }}>
             <Stack direction="row" justifyContent="space-between">
@@ -69,8 +64,8 @@ function Lending() {
         </Grid>
 
         <Grid item xs={12} sm={12} md={6}>
-          <Typography sx={{ textAlign: 'start' }}>
-            <h1>Borrom Market</h1></Typography>
+          <Typography varient="h3" sx={{ textAlign: 'start', marginBottom: '5px !important', fontWeight: 600 }}>
+            Borrom Market</Typography>
 
           <Box className={classes.boxRoot} p={10} style={{ background: "#ffffff" }}>
             <Stack direction="row" justifyContent="space-between">
