@@ -1,12 +1,14 @@
 import React from 'react';
-import {useLocation} from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
-import { AppBar, Toolbar, IconButton, Menu, MenuItem, Button, Typography, Divider, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Menu, MenuItem, Button, Typography, Divider, ListItem, ListItemIcon, ListItemText, Avatar } from '@mui/material';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { AccountCircle } from '@mui/icons-material';
 import WalletConnecter from '../walletConnect/walletConnect'
 import { routeHeaders } from '../../routes';
+
 import theme from './../../theme';
+
 
 const drawerWidth = 240;
 const useStyles = makeStyles({
@@ -21,8 +23,8 @@ const useStyles = makeStyles({
   title: {
     flexGrow: 1,
     textAlign: 'left',
-    color:theme.darkBlueText,
-    fontWeight:600
+    color: theme.darkBlueText,
+    fontWeight: 600
   },
   appBar: {
     zIndex: theme.drawerIndex + 1,
@@ -30,7 +32,7 @@ const useStyles = makeStyles({
     color: theme.headerText,
     fontStyle: 'bold',
   },
-  
+
   sideBarToolBar: {
     zIndex: theme.drawerIndex + 1,
     background: theme.SideHeaderBackground,
@@ -74,9 +76,10 @@ const useStyles = makeStyles({
     color: 'white',
     fontWeight: 500,
   },
-  divider:{
-borderColor:theme.palette.divider +' !important'
-  }
+  divider: {
+    borderColor: theme.palette.divider + ' !important'
+  },
+  sideBarIcons: theme.sideBarIcons
 });
 
 function Header(props) {
@@ -108,13 +111,16 @@ function Header(props) {
         position="fixed"
         className={classes.appBar}
         color="primary"
-        sx={{width: { md: `calc(100% - ${drawerWidth}px)` },ml: { sm: `${drawerWidth}px` }}}
+        sx={{ width: { md: `calc(100% - ${drawerWidth}px)` }, ml: { sm: `${drawerWidth}px` } }}
       >
         <Toolbar variant="dense" sx={{ height: theme.headerHeight }}>
           <IconButton aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2, display: { md: 'none' } }}>
-            <MenuRoundedIcon color="primary"/>
+            <MenuRoundedIcon color="primary" />
           </IconButton>
-          <Typography variant="div" sx={{textTransform:'upperCase'}} className={classes.title}> {routeHeaders[location.pathname].name}</Typography>
+          
+            <img className="chainIcon" alt=""
+              src={routeHeaders[location.pathname].icon} />
+          <Typography variant="div" sx={{ textTransform: 'upperCase' }} className={classes.title}> {routeHeaders[location.pathname].name}</Typography>
           <div><WalletConnecter /></div>
         </Toolbar>
         {/* <Divider className={classes.divider}></Divider> */}

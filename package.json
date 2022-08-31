@@ -30,7 +30,8 @@
     "walletconnect": "^1.7.8",
     "web-vitals": "^1.1.2",
     "web3": "^1.5.2",
-    "web3modal": "^1.9.8"
+    "web3modal": "^1.9.8",
+    "webpack": "4.44.2"
   },
   "scripts": {
     "start": "react-scripts start",

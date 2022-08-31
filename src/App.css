@@ -129,3 +129,7 @@ max-width: 32px;
   .MuiListItemText-primary{
     font-weight: 600 !important;
   }
+
+  button.MuiButtonBase-root{
+   
+  }

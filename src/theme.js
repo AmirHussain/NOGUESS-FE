@@ -153,7 +153,13 @@ const custome_theme = createTheme({
         },
 
     },
-
+    sideBarIcons:{
+        width: '2em',
+        background: contentBackGround,
+        padding: '2px',
+        margin: '4px',
+        borderRadius: '4px'
+    },
     typography: {
         fontFamily: [
             'Roboto',
