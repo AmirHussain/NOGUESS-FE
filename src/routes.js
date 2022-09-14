@@ -12,12 +12,12 @@ export const routes = {
 }
 
 export const routeHeaders = {
-    "/": { name: "Lending", icon:lendingIcon },
-    '/login':  { name: "Login", icon:lendingIcon },
-    '/lending': { name: "Lending", icon:lendingIcon } ,
-    '/market': { name: "Market", icon:lendingIcon } ,
-    '/staking':  { name: "Staking", icon:stakingIcon },
-    '/governance': { name: "Governance", icon:governanceIcon } ,
-    '/bridge':  { name: "Bridge", icon:bridgeIcon }
+    "/": { name: "Lending", icon: lendingIcon },
+    '/login': { name: "Login", icon: lendingIcon },
+    '/lending': { name: "Lending", icon: lendingIcon },
+    '/market': { name: "Market", icon: lendingIcon },
+    '/staking': { name: "Staking", icon: stakingIcon },
+    '/governance': { name: "Governance", icon: governanceIcon },
+    '/bridge': { name: "Bridge", icon: bridgeIcon }
 
 }

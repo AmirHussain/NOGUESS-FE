@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import theme from '../../theme';
 import { makeStyles } from '@mui/styles';
 import { Button, Card, ButtonGroup, Menu, MenuItem, Fab, Divider, Popover } from '@mui/material';
 import { ArrowDownward } from '@mui/icons-material';
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
+import { useSelector, useDispatch } from 'react-redux';
+import { loginUser, logoutUser } from '../../redux/store/actions/user';
+
 import providerOptions from '../walletConnect/providers'
 
 
@@ -26,8 +29,12 @@ const web3Modal = new Web3Modal({
     cacheProvider: true, // optional
     providerOptions // required
 });
+export const Web3ProviderContext = createContext();
+
 function WalletConnecter() {
     const classes = useStyles();
+    const dispatch = useDispatch();
+
     const [provider, setProvider] = useState();
     const [library, setLibrary] = useState();
     const [account, setAccount] = useState();
@@ -50,7 +57,10 @@ function WalletConnecter() {
             const network = await library.getNetwork();
             setProvider(provider);
             setLibrary(library);
-            if (accounts) setAccount(accounts[0]);
+            if (accounts) {
+                setAccount(accounts[0]);
+                dispatch(loginUser({ address: accounts[0] }));
+            }
             setChainId(network.chainId);
         } catch (error) {
             setError(error);
@@ -62,8 +72,8 @@ function WalletConnecter() {
         //   const signer = provider.getSigner();
 
     }
-    const handleNetwork = (e) => {
-        const id = e.target.value;
+    const handleNetwork = (id) => {
+        setChainId(id)
         setNetwork(Number(id));
     };
 
@@ -76,7 +86,7 @@ function WalletConnecter() {
         try {
             await library.provider.request({
                 method: "wallet_switchEthereumChain",
-                params: [{ chainId:ethers.utils.hexlify(chainId)}]
+                params: [{ chainId: ethers.utils.hexlify(chainId) }]
             });
         } catch (switchError) {
             if (switchError.code === 4902) {
@@ -143,7 +153,10 @@ function WalletConnecter() {
         if (provider?.on) {
             const handleAccountsChanged = (accounts) => {
                 console.log("accountsChanged", accounts);
-                if (accounts) setAccount(accounts[0]);
+                if (accounts) {
+                    setAccount(accounts[0]);
+                    dispatch(loginUser({ address: accounts[0] }));
+                }
             };
 
             const handleChainChanged = (_hexChainId) => {
@@ -153,6 +166,7 @@ function WalletConnecter() {
             const handleDisconnect = () => {
                 console.log("disconnect", error);
                 disconnect();
+                dispatch(logoutUser());
             };
 
             provider.on("accountsChanged", handleAccountsChanged);
@@ -171,7 +185,8 @@ function WalletConnecter() {
 
     const logout = () => {
         setAnchorEl(null);
-        disconnect()
+        disconnect();
+        dispatch(logoutUser());
 
     }
 
@@ -194,48 +209,56 @@ function WalletConnecter() {
     const networkList = []
     networks.forEach(object => {
         networkList.push(<Button key={object.chainId} sx={{ fontWeight: object.chainId === chainId ? 600 : 400 }}
-            click={() => setChainId(object.chainId)}>
+            onClick={() => handleNetwork(object.chainId)}>
             <img alt="" className={object.chainId === chainId ? 'selectedNetworkIcon chainIcon' : 'chainIcon'} src={object.icon} />
             <div className="networktext"> {object.name}</div></Button >)
 
 
     })
     return (
-        <div className="d-flex-evenly">
-            <ButtonGroup variant="text" aria-label="text button group" onClick={switchNetwork}
-                sx={{ marginRight: '5px' }}>
-                {networkList}
-            </ButtonGroup>
-            {!account ?
-                <Button variant="text" className={classes.walletConnect} onClick={connectWallet}>Connect</Button>
-                :
-                <div>
-                    <Fab variant="extended"
-                        aria-controls={open ? 'basic-menu' : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={open ? 'true' : undefined}
-                        onClick={handleClick}
-                    >
-                        {start_and_end(account)}
-                        <ArrowDownward sx={{ ml: 1 }} />
+        <Web3ProviderContext.Provider
+            value={{
+                provider,
+                disconnect,
+                connect: connectWallet
+            }}
+        >
+            <div className="d-flex-evenly">
+                <ButtonGroup variant="text" aria-label="text button group" onClick={switchNetwork}
+                    sx={{ marginRight: '5px' }}>
+                    {networkList}
+                </ButtonGroup>
+                {!account ?
+                    <Button variant="text" className={classes.walletConnect} onClick={connectWallet}>Connect</Button>
+                    :
+                    <div>
+                        <Fab variant="extended"
+                            aria-controls={open ? 'basic-menu' : undefined}
+                            aria-haspopup="true"
+                            aria-expanded={open ? 'true' : undefined}
+                            onClick={handleClick}
+                        >
+                            {start_and_end(account)}
+                            <ArrowDownward sx={{ ml: 1 }} />
 
-                    </Fab>
-                    <Menu
-                        id="basic-menu"
-                        anchorEl={anchorEl}
-                        open={open}
-                        onClose={handleClose}
-                        MenuListProps={{
-                            'aria-labelledby': 'basic-button',
-                        }}
-                    >
-                        <MenuItem >{account}</MenuItem>
-                        <MenuItem onClick={logout}>Logout</MenuItem>
-                    </Menu>
-                </div>
-            }
+                        </Fab>
+                        <Menu
+                            id="basic-menu"
+                            anchorEl={anchorEl}
+                            open={open}
+                            onClose={handleClose}
+                            MenuListProps={{
+                                'aria-labelledby': 'basic-button',
+                            }}
+                        >
+                            <MenuItem >{account}</MenuItem>
+                            <MenuItem onClick={logout}>Logout</MenuItem>
+                        </Menu>
+                    </div>
+                }
 
-        </div>
+            </div>
+        </Web3ProviderContext.Provider>
     );
 }
 

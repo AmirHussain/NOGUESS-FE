@@ -3,22 +3,22 @@
   "name": "Flute Finanace By (Digital Uprisers)",
   "icons": [
     {
-      "src": "favicon.png",
+      "src": "favicon.svg",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "faviconx32.png",
+      "src": "favicon.svg",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "faviconx32.png",
+      "src": "favicon.svg",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/lending",
   "display": "standalone",
   "theme_color": "#21252F",
   "background_color": "#2A303C"

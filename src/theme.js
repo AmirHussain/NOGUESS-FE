@@ -153,6 +153,11 @@ const custome_theme = createTheme({
         },
 
     },
+    headerIcon:{
+        width: '4em',
+        fill:'white',
+        paddingRight:'4px'
+    },
     sideBarIcons:{
         width: '2em',
         background: contentBackGround,

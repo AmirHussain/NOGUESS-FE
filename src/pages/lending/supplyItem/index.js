@@ -1,8 +1,11 @@
-import React from 'react';
-import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar, FormControl, InputLabel, Input } from '@mui/material';
+import React, { useContext, useState } from 'react';
+import { Box, Card, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar, FormControl, InputLabel, Input } from '@mui/material';
 import { makeStyles } from '@mui/styles'
 import { ArrowBack, Inbox, Mail } from '@mui/icons-material';
-import theme from '../../../theme'
+import theme from '../../../theme';
+import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
+import { abis, asyncContractCall, contractAddresses, makeContract } from '../../../contracts/useContracts';
+
 const useStyles = makeStyles({
     rightBar: {
         zIndex: theme.drawerIndex + 1,
@@ -41,6 +44,17 @@ export default function SupplyItem(params) {
     console.log(params)
     const currentRow = params.input.currentRow
     const classes = useStyles();
+    const { connect } = useContext(Web3ProviderContext);
+    const [tranxHash, settranxHash] = useState('');
+
+    const startSupply = async () => {
+        const { provider, signer } = await connect();
+        const multiSaleContract = makeContract(contractAddresses.lending, abis.multiSale, signer);
+        const result = await multiSaleContract.NewOffer(signer.address, 1, 0.01);
+        settranxHash(result.hash);
+        const waitResult = await result.wait(12);
+
+    }
     return (
         <React.Fragment key="RIGHTContent">
 
@@ -50,10 +64,10 @@ export default function SupplyItem(params) {
                 sx={{
                     flexGrow: 1,
                     p: 3,
-                    height:theme.midContainerHeight,
+                    height: theme.midContainerHeight,
                     display: 'block',
                     right: '0px',
-                    overflow:'auto'
+                    overflow: 'auto'
 
                 }}
                 className={classes.content}
@@ -99,7 +113,7 @@ export default function SupplyItem(params) {
             </Box>
 
             <Toolbar variant="dense" className="d-flexCenter" sx={{ height: theme.headerHeight, background: theme.headerBackground }}>
-                <Button variant="contained">Supply</Button>
+                <Button variant="contained" onClick={startSupply()}>Supply</Button>
             </Toolbar>
 
         </React.Fragment>

@@ -1,10 +1,10 @@
 // lib imports
-import {useEffect,useState} from 'react';
+import { useEffect, useState } from 'react';
 import { makeStyles } from '@mui/styles';
 import { Drawer, Box, Toolbar, List, Typography, Divider, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 
 import { NavLink } from 'react-router-dom';
-import { KingBed, MeetingRoom, StarBorderOutlined, ViewList, AccountCircle, AccessibleForwardIcon ,Pix} from '@mui/icons-material';
+import { KingBed, MeetingRoom, StarBorderOutlined, ViewList, AccountCircle, AccessibleForwardIcon, Pix } from '@mui/icons-material';
 
 import landingIcon from '../../assets/svg/1.svg';
 import stakingIcon from '../../assets/svg/2.svg';
@@ -16,10 +16,11 @@ import sIcon from '../../assets/svg/5.svg';
 //constants
 import { routes } from '../../routes';
 import theme from './../../theme';
+import {Icons} from './../../icons';
 
 const drawerWidth = 240;
 const useStyles = makeStyles({
-  
+
   drawer: {
     width: drawerWidth,
     zIndex: theme.drawerIndex,
@@ -31,8 +32,8 @@ const useStyles = makeStyles({
     color: theme.DrawerText,
   },
   content: {
-   margin: '0 auto',
-    padding:' 1.125rem 1.125rem 1px',
+    margin: '0 auto',
+    padding: ' 1.125rem 1.125rem 1px',
     overflowX: 'hidden'
     // height:'calc(100% - '+theme.headerHeight+') !important'
   },
@@ -56,23 +57,25 @@ const useStyles = makeStyles({
   linkItem: {
     padding: '4px !important'
   },
-  linkText:{
-    fontWeight:600,
+  linkText: {
+    fontWeight: 600,
   },
   sideToolbar: {
     color: theme.SideHeaderText,
     background: theme.SideHeaderBackground,
     fontWeight: 600,
   },
-  listItemIcon:{
+  listItemIcon: {
     minWidth: '35px !important'
   },
-  sideBarIcons:theme.sideBarIcons,
-  divider:{
-    borderColor:theme.palette.divider +' !important'  }
+  sideBarIcons: theme.sideBarIcons,
+  headerIcon:theme.headerIcon,
+  divider: {
+    borderColor: theme.palette.divider + ' !important'
+  }
 });
 
-export default function Home (props) {
+export default function Home(props) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   //  props.mobileOpen=!mobileOpen
@@ -88,83 +91,84 @@ export default function Home (props) {
   const drawer = (
     <div>
       <Toolbar variant="dense" sx={{ height: theme.headerHeight }} className={classes.sideToolbar}>
-        <Pix color="primary" sx={{ fontSize: "40px" }} ></Pix>
-        <Typography variant="div" sx={{textTransform:'upperCase'}}>Flute Finance</Typography>
+        <img className={classes.headerIcon} src={Icons.flutewhite1} alt=""></img>
+        {/* <Pix color="primary"  ></Pix> */}
+        <Typography variant="div" sx={{ textTransform: 'upperCase' }}> Finance</Typography>
       </Toolbar>
       <div className={classes.content}>
-      <List>
-        <NavLink className={classes.linkClass} to={routes.lending} activeClassName={classes.linkClassActive}>
-          <ListItem button key={routes.lending} className={classes.linkItem}>
-           <img className={classes.sideBarIcons} src={landingIcon} alt=''></img>
-            <ListItemText primary="Lending"  className={classes.linkText}/>
-          </ListItem>
-        </NavLink>
-        <NavLink className={classes.linkClass} to={routes.staking} activeClassName={classes.linkClassActive}>
-          <ListItem button key={routes.staking} className={classes.linkItem}>
-            
-            <img className={classes.sideBarIcons} src={stakingIcon} alt=''></img>
+        <List  onClick={()=>{handleDrawerToggle()}}>
+          <NavLink className={classes.linkClass}  to={routes.lending} activeClassName={classes.linkClassActive}>
+            <ListItem button key={routes.lending} className={classes.linkItem}>
+              <img className={classes.sideBarIcons} src={landingIcon} alt=''></img>
+              <ListItemText primary="Lending" className={classes.linkText} />
+            </ListItem>
+          </NavLink>
+          <NavLink className={classes.linkClass} to={routes.staking} activeClassName={classes.linkClassActive}>
+            <ListItem button key={routes.staking} className={classes.linkItem}>
 
-            <ListItemText primary="Staking" />
-          </ListItem>
-        </NavLink>
-        <NavLink className={classes.linkClass} to="/bridge" activeClassName={classes.linkClassActive}>
-          <ListItem button key="BlockchainBridge" className={classes.linkItem}>
-            
-            <img className={classes.sideBarIcons} src={bridgeIcon} alt=''></img>
-            <ListItemText primary="Bridge"  className={classes.linkText}/>
-          </ListItem>
-        </NavLink>
-        <NavLink className={classes.linkClass} to="/governance" activeClassName={classes.linkClassActive}>
-          <ListItem button key="Governance" className={classes.linkItem} >
-            
-            <img className={classes.sideBarIcons} src={governanceIcon} alt=''></img>
-            <ListItemText primary="Governance"  className={classes.linkText}/>
-          </ListItem>
-        </NavLink>
-      </List>
+              <img className={classes.sideBarIcons} src={stakingIcon} alt=''></img>
+
+              <ListItemText primary="Staking" />
+            </ListItem>
+          </NavLink>
+          <NavLink className={classes.linkClass} to="/bridge" activeClassName={classes.linkClassActive}>
+            <ListItem button key="BlockchainBridge" className={classes.linkItem}>
+
+              <img className={classes.sideBarIcons} src={bridgeIcon} alt=''></img>
+              <ListItemText primary="Bridge" className={classes.linkText} />
+            </ListItem>
+          </NavLink>
+          <NavLink className={classes.linkClass} to="/governance" activeClassName={classes.linkClassActive}>
+            <ListItem button key="Governance" className={classes.linkItem} >
+
+              <img className={classes.sideBarIcons} src={governanceIcon} alt=''></img>
+              <ListItemText primary="Governance" className={classes.linkText} />
+            </ListItem>
+          </NavLink>
+        </List>
       </div>
 
     </div>
   );
   return (
-      <>
-        <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }} aria-label="mailbox folders">
-          <Drawer
-            className={classes.drawer}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            variant="temporary"
-            open={props.mobileOpen}
-            onClose={handleDrawerToggle}
-            sx={{
-              display: { xs: 'block', sm: 'block', md: 'none' },
-              '& .MuiDrawer-paper': {
-                boxSizing: 'border-box',
-                width: drawerWidth,
-              },
-            }}
-          >
-            {drawer}
-          </Drawer>
-          <Drawer
-            className={classes.drawer}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            variant="permanent"
-            sx={{
-              display: { xs: 'none', sm: 'none', md: 'block' },
-              '& .MuiDrawer-paper': {
-                boxSizing: 'border-box',
-                width: drawerWidth,
-              },
-            }}
-          >
-            {drawer}
-          </Drawer>
-        </Box>
-      </>
-   
+    <>
+      <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }} aria-label="mailbox folders">
+        <Drawer
+          className={classes.drawer}
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+          variant="temporary"
+          open={props.mobileOpen}
+          onClose={handleDrawerToggle}
+          sx={{
+            display: { xs: 'block', sm: 'block', md: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
+        <Drawer
+          className={classes.drawer}
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+          variant="permanent"
+          sx={{
+            display: { xs: 'none', sm: 'none', md: 'block' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
+      </Box>
+    </>
+
   );
 }

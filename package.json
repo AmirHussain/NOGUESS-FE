@@ -16,8 +16,10 @@
     "@testing-library/user-event": "^12.8.3",
     "@toruslabs/torus-embed": "^1.27.3",
     "@types/react-redux": "^7.1.18",
+    "@usedapp/core": "^1.1.5",
     "dotenv": "^16.0.1",
-    "ethers": "^4.0.4",
+    "ethers": "5.7.0",
+    "ethers-utils": "^2.1.11",
     "firebase-tools": "^11.6.0",
     "highcharts": "^10.2.0",
     "highcharts-react-official": "^3.1.0",
@@ -38,7 +40,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy-dev": "react-scripts build firebase deploy"
+    "deploy-dev": "react-scripts build && firebase deploy"
   },
   "eslintConfig": {
     "extends": [
