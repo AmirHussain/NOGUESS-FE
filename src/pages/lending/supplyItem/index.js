@@ -3,8 +3,8 @@ import { Box, Card, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon
 import { makeStyles } from '@mui/styles'
 import { ArrowBack, Inbox, Mail } from '@mui/icons-material';
 import theme from '../../../theme';
-import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
 import { abis, asyncContractCall, contractAddresses, makeContract } from '../../../contracts/useContracts';
+import { Web3Provider, Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
 
 const useStyles = makeStyles({
     rightBar: {
@@ -49,16 +49,14 @@ export default function SupplyItem(params) {
 
     const startSupply = async () => {
         const { provider, signer } = await connect();
-        const multiSaleContract = makeContract(contractAddresses.lending, abis.multiSale, signer);
-        const result = await multiSaleContract.NewOffer(signer.address, 1, 0.01);
+        const multiSaleContract = makeContract('0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0', abis.lending, signer);
+        const result = await multiSaleContract.withdraw();
         settranxHash(result.hash);
         const waitResult = await result.wait(12);
 
     }
     return (
         <React.Fragment key="RIGHTContent">
-
-
             <Box
                 component="main"
                 sx={{
@@ -113,7 +111,7 @@ export default function SupplyItem(params) {
             </Box>
 
             <Toolbar variant="dense" className="d-flexCenter" sx={{ height: theme.headerHeight, background: theme.headerBackground }}>
-                <Button variant="contained" onClick={startSupply()}>Supply</Button>
+                <Button variant="contained" onClick={startSupply}>Supply</Button>
             </Toolbar>
 
         </React.Fragment>

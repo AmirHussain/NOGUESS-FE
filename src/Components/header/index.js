@@ -8,6 +8,7 @@ import WalletConnecter from '../walletConnect/walletConnect'
 import { routeHeaders } from '../../routes';
 
 import theme from './../../theme';
+import ConnectWallet from '../walletConnect/login';
 
 
 const drawerWidth = 240;
@@ -121,7 +122,7 @@ function Header(props) {
             <img className="chainIcon" alt=""
               src={routeHeaders[location.pathname].icon} />
           <Typography variant="div" sx={{ textTransform: 'upperCase' }} className={classes.title}> {routeHeaders[location.pathname].name}</Typography>
-          <div><WalletConnecter /></div>
+          <div><ConnectWallet /></div>
         </Toolbar>
         {/* <Divider className={classes.divider}></Divider> */}
       </AppBar>

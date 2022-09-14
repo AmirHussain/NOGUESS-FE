@@ -31,7 +31,7 @@ const web3Modal = new Web3Modal({
 });
 export const Web3ProviderContext = createContext();
 
-function WalletConnecter() {
+export function Web3Provider({ children }) {
     const classes = useStyles();
     const dispatch = useDispatch();
 
@@ -39,6 +39,8 @@ function WalletConnecter() {
     const [library, setLibrary] = useState();
     const [account, setAccount] = useState();
     const [signature, setSignature] = useState("");
+    const [signer, setSigner] = useState("");
+
     const [error, setError] = useState("");
     const [chainId, setChainId] = useState();
     const [network, setNetwork] = useState();
@@ -62,14 +64,14 @@ function WalletConnecter() {
                 dispatch(loginUser({ address: accounts[0] }));
             }
             setChainId(network.chainId);
+
+            setSigner(library.getSigner())
         } catch (error) {
             setError(error);
         }
 
-        //   const instance = await web3Modal.connect();
+        return { provider:library,signer}
 
-        //   const provider = new ethers.providers.Web3Provider(instance);
-        //   const signer = provider.getSigner();
 
     }
     const handleNetwork = (id) => {
@@ -182,84 +184,22 @@ function WalletConnecter() {
             };
         }
     }, [provider])
-
-    const logout = () => {
-        setAnchorEl(null);
-        disconnect();
-        dispatch(logoutUser());
-
-    }
-
-    const [anchorEl, setAnchorEl] = useState(null);
-    const open = Boolean(anchorEl);
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    function start_and_end(str) {
-        if (str && str.length > 35) {
-            return str.substr(0, 5) + '...' + str.substr(str.length - 5, str.length);
-        }
-        return str;
-    }
-    const networks = [{ name: 'Polygon', icon: 'https://polygonscan.com/images/svg/brands/polygon.svg?v=1.3', chainId: 137 }, { name: 'BSC', icon: 'https://i.imgflip.com/6dky3c.png', chainId: 56 }, { name: 'Ethereum', icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/480px-Ethereum-icon-purple.svg.png', chainId: 1 }]
-    const networkList = []
-    networks.forEach(object => {
-        networkList.push(<Button key={object.chainId} sx={{ fontWeight: object.chainId === chainId ? 600 : 400 }}
-            onClick={() => handleNetwork(object.chainId)}>
-            <img alt="" className={object.chainId === chainId ? 'selectedNetworkIcon chainIcon' : 'chainIcon'} src={object.icon} />
-            <div className="networktext"> {object.name}</div></Button >)
-
-
-    })
     return (
         <Web3ProviderContext.Provider
             value={{
                 provider,
                 disconnect,
-                connect: connectWallet
+                chainId,
+                account,
+                connect: connectWallet,
+                handleNetwork,
+                switchNetwork
             }}
         >
-            <div className="d-flex-evenly">
-                <ButtonGroup variant="text" aria-label="text button group" onClick={switchNetwork}
-                    sx={{ marginRight: '5px' }}>
-                    {networkList}
-                </ButtonGroup>
-                {!account ?
-                    <Button variant="text" className={classes.walletConnect} onClick={connectWallet}>Connect</Button>
-                    :
-                    <div>
-                        <Fab variant="extended"
-                            aria-controls={open ? 'basic-menu' : undefined}
-                            aria-haspopup="true"
-                            aria-expanded={open ? 'true' : undefined}
-                            onClick={handleClick}
-                        >
-                            {start_and_end(account)}
-                            <ArrowDownward sx={{ ml: 1 }} />
+            {
+                children
+            }
 
-                        </Fab>
-                        <Menu
-                            id="basic-menu"
-                            anchorEl={anchorEl}
-                            open={open}
-                            onClose={handleClose}
-                            MenuListProps={{
-                                'aria-labelledby': 'basic-button',
-                            }}
-                        >
-                            <MenuItem >{account}</MenuItem>
-                            <MenuItem onClick={logout}>Logout</MenuItem>
-                        </Menu>
-                    </div>
-                }
-
-            </div>
         </Web3ProviderContext.Provider>
     );
 }
-
-export default WalletConnecter;
