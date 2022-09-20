@@ -1,9 +1,13 @@
 import { useContractCall } from '@usedapp/core';
 import { ethers } from 'ethers';
-import { lendingAbi } from './abi/abi';
+import { lendingAbi,wethAbi } from './abi/abi';
 
 const abis = {
   lending: new ethers.utils.Interface(lendingAbi),
+  WETH: new ethers.utils.Interface(wethAbi),
+  fWETH: new ethers.utils.Interface(wethAbi),
+  DAI: new ethers.utils.Interface(wethAbi),
+  fDAI: new ethers.utils.Interface(wethAbi),
 };
 
 const contractAddresses = {

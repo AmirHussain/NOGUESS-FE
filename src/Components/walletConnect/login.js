@@ -5,6 +5,7 @@ import { makeStyles } from '@mui/styles';
 
 import theme from '../../theme';
 import { Web3ProviderContext } from "./walletConnect";
+import { Icons } from "../../icons";
 
 const useStyles = makeStyles({
     walletConnect: theme.actionButton,
@@ -14,10 +15,10 @@ const useStyles = makeStyles({
     cardBackground: theme.cardBackground
 });
 function ConnectWallet() {
-    const { handleNetwork, chainId, connect, account, disconnect, switchNetwork } = useContext(Web3ProviderContext);
+    const { handleNetwork, chainId, connectWallet, account, disconnect, switchNetwork } = useContext(Web3ProviderContext);
 
     const classes = useStyles();
-    const networks = [{ name: 'Polygon', icon: 'https://polygonscan.com/images/svg/brands/polygon.svg?v=1.3', chainId: 1337 }, { name: 'BSC', icon: 'https://i.imgflip.com/6dky3c.png', chainId: 56 }, { name: 'Ethereum', icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/480px-Ethereum-icon-purple.svg.png', chainId: 1 }]
+    const networks = [{ name: 'Polygon', icon: Icons.polygon, chainId: 5 }, { name: 'BSC', icon: 'https://i.imgflip.com/6dky3c.png', chainId: 56 }, { name: 'Ethereum', icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/480px-Ethereum-icon-purple.svg.png', chainId: 1 }]
     const networkList = []
     networks.forEach(object => {
         networkList.push(<Button key={object.chainId} sx={{ fontWeight: object.chainId === chainId ? 600 : 400 }}
@@ -58,7 +59,7 @@ function ConnectWallet() {
                 {networkList}
             </ButtonGroup>
             {!account ?
-                <Button variant="text" className={classes.walletConnect} onClick={connect}>Connect</Button>
+                <Button variant="text" className={classes.walletConnect} onClick={connectWallet}>Connect</Button>
                 :
                 <div>
                     <Fab variant="extended"

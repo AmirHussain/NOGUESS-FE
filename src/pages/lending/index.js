@@ -3,8 +3,9 @@ import React from 'react';
 import { makeStyles } from '@mui/styles';
 
 //components
-import CustomTable from "../../Components/lendingTable.js/CustomTable"
 import RightDrawer from '../../Components/rightDrawer';
+import SupplyTable from '../../Components/lendingTable.js/supplyTable';
+import BorrowTable from '../../Components/lendingTable.js/borrowTable';
 
 const useStyles = makeStyles({
   root: {},
@@ -89,13 +90,13 @@ function Lending() {
         {/* Tables */}
         <Grid item xs={12} sm={12} md={6}>
           <div>
-            <CustomTable action={OpenDrawer} component="SupplyItem" />
+            <SupplyTable action={OpenDrawer} component="SupplyItem" />
           </div>
         </Grid>
 
         <Grid item xs={12} sm={12} md={6}>
           <div>
-            <CustomTable action={OpenDrawer} component="borrowItem" />
+            <BorrowTable action={OpenDrawer} component="borrowItem" />
           </div>
         </Grid>
       </Grid>

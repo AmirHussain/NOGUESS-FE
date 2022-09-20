@@ -53,13 +53,8 @@ const useStyles = makeStyles({
         width: '100%',
         display: 'block',
         zIndex: '13',
-        opacity: 0.2,
-        backgroundPosition: 'center',
-        backgroundImage: '',
-        backgroundSize: '100%',
-        backgroundRepeat: 'no-repeat',
+        opacity: 0.5,
         filter: 'blur(4px)',
-        background: 'url(https://polygonscan.com/images/svg/brands/polygon.svg?v=1.3)'
 
     },
     backgroundImage: {
@@ -97,7 +92,12 @@ export default function RightDrawer(params) {
                 open={params.drawerOpen}
                 onClose={params.toggleDrawer}>
                 <div className={classes.toolbarHeaderBackground}
-                    sx={{}}
+                    style={{
+                        background: 'url(' + params.currentRow?.token?.icon + ')',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: '300px 100px'
+                    }}
                 >
                     {/* <img className={classes.backgroundImage} alt=""  src={params.icon} /> */}
 
@@ -122,7 +122,7 @@ export default function RightDrawer(params) {
                             sx={{ marginRight: '10px' }}
                         >
                             <img className="chainIcon" alt=""
-                                src={params.icon} />
+                                src={params.currentRow?.token?.icon} />
                         </Avatar>
                         <Typography variant="h4" >
                             {params.Opration}

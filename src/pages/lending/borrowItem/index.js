@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar, FormControl, InputLabel, Input } from '@mui/material';
 import { makeStyles } from '@mui/styles'
 import { ArrowBack, Inbox, Mail } from '@mui/icons-material';
@@ -8,6 +8,9 @@ import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
+import { abis, makeContract } from '../../../contracts/useContracts';
+import { ethers } from 'ethers';
+import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
 const useStyles = makeStyles({
     rightBar: {
         zIndex: theme.drawerIndex + 1,
@@ -51,6 +54,30 @@ export default function BorrowItem(params) {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
+    const { connect } = useContext(Web3ProviderContext);
+
+    const [tranxHash, settranxHash] = useState('');
+
+
+    const redeemItem = async () => {
+        try {
+            const { provider, signer } = await connect();
+            const lendingContract = makeContract('0x7da3D57DC26e6F5EBa359eaCaeE3AA258973d974', abis.lending, signer);
+            const weth = makeContract(currentRow.token.address, currentRow.token.abi, signer);
+            await weth.approve(lendingContract.address, ethers.utils.parseEther('50'))
+
+            const result = await lendingContract.lend(currentRow.token.symbol, ethers.utils.parseEther('50'), '2', currentRow.token.address);
+            settranxHash(result.hash);
+            const waitResult = await result.wait(12);
+            alert('Lended amount 50')
+            params.toggleDrawer()
+
+        } catch (err) {
+            alert('error occured' + err.message)
+            params.toggleDrawer()
+        }
+
+    }
     return (
         <React.Fragment key="RIGHTContent">
 
@@ -165,7 +192,7 @@ export default function BorrowItem(params) {
 
 
                             <div variant="dense" className="d-flexCenter" sx={{ height: theme.headerHeight }}>
-                                <Button variant="contained">Supply</Button>
+                                <Button variant="contained">Redeem</Button>
                             </div>
                         </TabPanel>
                         <TabPanel value="3">Item Three</TabPanel>

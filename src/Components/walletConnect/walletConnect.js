@@ -188,10 +188,12 @@ export function Web3Provider({ children }) {
         <Web3ProviderContext.Provider
             value={{
                 provider,
+                signer,
+                setSigner,
                 disconnect,
                 chainId,
                 account,
-                connect: connectWallet,
+                connectWallet,
                 handleNetwork,
                 switchNetwork
             }}

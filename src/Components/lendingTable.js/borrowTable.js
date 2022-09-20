@@ -10,6 +10,11 @@ import { makeStyles } from '@mui/styles';
 import { Button, Link } from '@mui/material';
 import theme from '../../theme'
 import Asset from '../asset';
+import { Tokens } from '../../token-icons';
+import { abis, makeContract } from '../../contracts/useContracts';
+import { ethers } from 'ethers';
+import { Web3ProviderContext } from '../walletConnect/walletConnect';
+
 
 const useStyles = makeStyles({
   root: {},
@@ -43,19 +48,10 @@ const useStyles = makeStyles({
   actionButton: theme.actionButton2
 });
 
-function createData(name, calories, fat, carbs, protein, icon = '') {
-  return { name, calories, fat, carbs, protein, icon: icon || 'https://polygonscan.com/images/svg/brands/polygon.svg?v=1.3' };
-}
 
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 'Button'),
-  createData('Ice cream sandwich', 237, 9.0, 'Button'),
-  createData('Eclair', 262, 16.0, 'Button'),
-  createData('Cupcake', 305, 3.7, 'Button'),
-  createData('Gingerbread', 356, 16.0, 'Button'),
-];
 
-export default function BasicTable(props) {
+
+export default function BorrowTable(props) {
   const classes = useStyles();
   const openDrawer = (row) => {
     props.action(row, props.component);
@@ -63,12 +59,36 @@ export default function BasicTable(props) {
   const [openAsset, setOpenAsset] = React.useState(false);
 
   const [currentRow, setCurrentRow] = React.useState(false);
+  const { connectWallet } = React.useContext(Web3ProviderContext);
 
+  const getSupplyDetailsFromContract = async (currency) => {
+    const { provider, signer } = await connectWallet();
+    const lendingContract = makeContract('0x7da3D57DC26e6F5EBa359eaCaeE3AA258973d974', abis.lending, signer);
+    const result = await lendingContract.lendedAssetDetails(currency.symbol);
+    alert('Lended amount 50')
+  }
   const SetAndOpenAsset = (row) => {
     setCurrentRow(row)
     setOpenAsset(true);
   };
-
+  function createSupplyData(token, rate, collateral) {
+    return { token, rate, collateral };
+  }
+  const SupplyRows = [
+    createSupplyData(Tokens.WETH, 159, 6.0, 'Button'),
+    createSupplyData(Tokens.fWETH, 159, 6.0, 'Button'),
+    createSupplyData(Tokens.dai, 159, 6.0, 'Button'),
+    createSupplyData(Tokens.fDAI, 159, 6.0, 'Button'),
+  ];
+  function createData(token, rate, collateral) {
+    return { token, rate, collateral };
+  }
+  const rows = [
+    createData(Tokens.WETH, 159, 6.0, 'Button'),
+    createData(Tokens.fWETH, 159, 6.0, 'Button'),
+    createData(Tokens.dai, 159, 6.0, 'Button'),
+    createData(Tokens.fDAI, 159, 6.0, 'Button'),
+  ];
   const handleCloseAsset = () => {
     setOpenAsset(false);
   };
@@ -76,11 +96,11 @@ export default function BasicTable(props) {
 
   return (
     <TableContainer component={Paper}>
-      <Table aria-label="simple table" sx={{ wordBreak: 'break-word' }}>
+      <Table aria-label="simple table" >
         <TableHead className={classes.tableHead}>
           <TableRow className={classes.theadRow}>
             <TableCell>ASSETS</TableCell>
-            <TableCell align="right">SUPPLY APY</TableCell>
+            <TableCell align="right">APY</TableCell>
             <TableCell align="right">WALLET</TableCell>
             <TableCell align="right">            Action
             </TableCell>
@@ -90,10 +110,10 @@ export default function BasicTable(props) {
           {rows.map((row) => (
             <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} className={classes.tableRow}>
               <TableCell sx={{ cursor: 'pointer' }} component="th" scope="row" onClick={() => SetAndOpenAsset(row)}>
-                <Link sx={{ cursor: 'pointer' ,textDecoration:'none'}}>{row.name}</Link>
+                <Link sx={{ cursor: 'pointer', textDecoration: 'none' }}>{row.token?.name}</Link>
               </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
+              <TableCell align="right">{row.rate}</TableCell>
+              <TableCell align="right">{row.facollateralt}</TableCell>
               <TableCell align="right">
                 <Button variant="contained" size="small" className={classes.actionButton} onClick={() => openDrawer(row)}>
                   {props.component === 'SupplyItem' ?
@@ -101,7 +121,6 @@ export default function BasicTable(props) {
                   }
 
                 </Button>
-
               </TableCell>
             </TableRow>
           ))}
