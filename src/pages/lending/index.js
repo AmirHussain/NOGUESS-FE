@@ -29,8 +29,11 @@ function Lending() {
   const [currentMethod, setCurrentMethod] = React.useState('sellItem');
   const [currentRow, setCurrentRow] = React.useState({});
   const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const toggleDrawer = () => {
+  const [reload, setReload] = React.useState(false);
+
+  const toggleDrawer = (reload = false) => {
     setDrawerOpen(!drawerOpen);
+    setReload(reload);
   };
   const OpenDrawer = (row, method) => {
     toggleDrawer();
@@ -90,7 +93,7 @@ function Lending() {
         {/* Tables */}
         <Grid item xs={12} sm={12} md={6}>
           <div>
-            <SupplyTable action={OpenDrawer} component="SupplyItem" />
+            <SupplyTable action={OpenDrawer} reload={reload} component="SupplyItem" />
           </div>
         </Grid>
 
@@ -101,7 +104,7 @@ function Lending() {
         </Grid>
       </Grid>
       {drawerOpen && (
-        <RightDrawer Opration="Lending" component={currentMethod} currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />
+        <RightDrawer Opration="Lending" component={currentMethod}  currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />
       )}
     </>
   );

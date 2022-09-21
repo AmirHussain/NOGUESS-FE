@@ -129,7 +129,12 @@ export default function SupplyTable(props) {
   const handleCloseAsset = () => {
     setOpenAsset(false);
   };
-
+  React.useEffect(() => {
+    console.log(props?.reload)
+    if (props?.reload) {
+      setSupplyTable()
+    }
+  }, [props?.reload])
 
   return (
     <TableContainer component={Paper}>

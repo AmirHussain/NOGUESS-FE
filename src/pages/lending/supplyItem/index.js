@@ -84,11 +84,11 @@ export default function SupplyItem(params) {
         try {
             const lendingContract = makeContract('0x7da3D57DC26e6F5EBa359eaCaeE3AA258973d974', abis.lending, signer);
             const result = await lendingContract.redeem(currentRow.token.symbol, ethers.utils.parseEther(row.tokenAmount), currentRow.token.address,row.id );
-            params?.input?.toggleDrawer()
+            params?.input?.toggleDrawer(true)
 
         } catch (err) {
             alert('error occured' + err.message)
-            params?.input?.toggleDrawer()
+            params?.input?.toggleDrawer(false)
         }
 
     }
@@ -98,18 +98,18 @@ export default function SupplyItem(params) {
             const lendingContract = makeContract('0x7da3D57DC26e6F5EBa359eaCaeE3AA258973d974', abis.lending, signer);
             const weth = makeContract(currentRow.token.address, currentRow.token.abi, signer);
            const wethResult= await weth.approve(lendingContract.address, ethers.utils.parseEther(amount));
-            const waitResult = await wethResult.wait(12);
+            // const waitResult = await wethResult.wait(12);
             const result = await lendingContract.lend(currentRow.token.symbol, ethers.utils.parseEther(amount), lockDuration, currentRow.token.address);
             settranxHash(result.hash);
             alert('Lended amount 50')
-            params?.input?.toggleDrawer()
-
+            params?.input?.toggleDrawer(true)
         } catch (err) {
             alert('error occured' + err.message)
-            params?.input?.toggleDrawer()
+            params?.input?.toggleDrawer(false)
         }
 
     }
+    
     const [value, setValue] = React.useState('1');
 
     const handleChange = (event, newValue) => {
