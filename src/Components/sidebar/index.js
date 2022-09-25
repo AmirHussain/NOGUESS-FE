@@ -93,7 +93,6 @@ export default function Home(props) {
       <Toolbar variant="dense" sx={{ height: theme.headerHeight }} className={classes.sideToolbar}>
         <img className={classes.headerIcon} src={Icons.flutewhite1} alt=""></img>
         {/* <Pix color="primary"  ></Pix> */}
-        <Typography variant="div" sx={{ textTransform: 'upperCase' }}> Finance</Typography>
       </Toolbar>
       <div className={classes.content}>
         <List  onClick={()=>{handleDrawerToggle()}}>

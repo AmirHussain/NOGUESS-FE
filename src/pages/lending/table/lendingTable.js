@@ -7,13 +7,13 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { makeStyles } from '@mui/styles';
-import { Button, Link } from '@mui/material';
-import theme from '../../theme'
-import Asset from '../asset';
-import { Tokens } from '../../token-icons';
-import { abis, makeContract } from '../../contracts/useContracts';
+import { Button } from '@mui/material';
 import { ethers } from 'ethers';
-import { Web3ProviderContext } from '../walletConnect/walletConnect';
+import theme from '../../../theme';
+import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
+import { abis, contractAddresses, makeContract } from '../../../contracts/useContracts';
+import { Tokens } from '../../../token-icons';
+import Asset from '../../../Components/asset';
 
 
 const useStyles = makeStyles({
@@ -53,8 +53,8 @@ const useStyles = makeStyles({
 
 export default function SupplyTable(props) {
   const classes = useStyles();
-  const openDrawer = (row) => {
-    props.action(row, props.component);
+  const openDrawer = (row, component) => {
+    props.action(row, component);
   }
   const [openAsset, setOpenAsset] = React.useState(false);
   const [updateTable, setUpdateTable] = React.useState(false);
@@ -87,16 +87,21 @@ export default function SupplyTable(props) {
   }, [signer]); // Empty array means to only run once on mount.
 
   const getSupplyDetailsFromContract = async (currency, rowindex) => {
-    if (!signer) {
+    try {
+      if (!signer) {
+        return { amount: 0, rowindex }
+      }
+      const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
+      const result = await lendingContract.getLenderShare(currency.symbol);
+      if (result) {
+        return { amount: ethers.utils.formatEther(result), rowindex }
+      }
       return { amount: 0, rowindex }
+
+    } catch (err) {
+      return { amount: 0, rowindex }
+
     }
-    const lendingContract = makeContract('0x7da3D57DC26e6F5EBa359eaCaeE3AA258973d974', abis.lending, signer);
-    const result = await lendingContract.getLenderShare(currency.symbol);
-    debugger
-    if (result) {
-      return { amount: ethers.utils.formatEther(result), rowindex }
-    }
-    return { amount: 0, rowindex }
 
   }
   const SetAndOpenAsset = (row) => {
@@ -111,19 +116,26 @@ export default function SupplyTable(props) {
 
       const rows = []
       setSupplyRows([])
-      if (Tokens) {
-        let rowadded = 0
-        const keys = Object.keys(Tokens).map(key => key)
-        for (var rowindex = 0; rowindex < (keys.length); rowindex++) {
-          // eslint-disable-next-line no-loop-func
-          getSupplyDetailsFromContract(Tokens[keys[rowindex]], rowindex).then((resp) => {
-            const row = createSupplyData(Tokens[keys[resp.rowindex]], 0, 159, 6.0, 'Button')
-            row.supplyAmount = resp.amount
-            setSupplyRows(current => [...current, row]);
-            console.log(SupplyRows)
-          })
+      setTimeout(() => {
+        if (Tokens) {
+          let rowadded = 0
+          const keys = Object.keys(Tokens).map(key => key)
+          for (var rowindex = 0; rowindex < (keys.length); rowindex++) {
+            // eslint-disable-next-line no-loop-func
+            if (!Tokens[keys[rowindex]].isPedgeToken) {
+
+              getSupplyDetailsFromContract(Tokens[keys[rowindex]], rowindex).then((resp) => {
+                const row = createSupplyData(Tokens[keys[resp.rowindex]], 0, 159, 6.0, 'Button')
+                row.supplyAmount = resp.amount
+                setSupplyRows(current => [...current, row]);
+                console.log(SupplyRows)
+              })
+
+            }
+          }
         }
-      }
+
+      })
     })
   };
   const handleCloseAsset = () => {
@@ -141,27 +153,33 @@ export default function SupplyTable(props) {
       <Table aria-label="simple table" >
         <TableHead className={classes.tableHead}>
           <TableRow className={classes.theadRow}>
+            <TableCell align="center" width="10%"></TableCell>
             <TableCell>ASSETS</TableCell>
             <TableCell align="right">APY</TableCell>
             <TableCell align="right">WALLET</TableCell>
-            <TableCell align="right">            Action
+            <TableCell align="right" >            Action
             </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {SupplyRows.map((row) => (
             <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} className={classes.tableRow}>
-              <TableCell sx={{ cursor: 'pointer' }} component="th" scope="row" onClick={() => SetAndOpenAsset(row)}>
-                <Link sx={{ cursor: 'pointer', textDecoration: 'none' }}>{row.token?.name}</Link>
-              </TableCell>
+              <TableCell align="center" > <img onClick={() => SetAndOpenAsset(row)} sx={{ cursor: 'pointer' }} className="chainIcon" alt="" src={row.token.icon} /></TableCell>
+              <TableCell component="th" scope="row" >   {row.token?.name}  </TableCell>
               <TableCell align="right">{row.rate}</TableCell>
               <TableCell align="right">{row.supplyAmount}</TableCell>
-              <TableCell align="right">
-                <Button variant="contained" size="small" className={classes.actionButton} onClick={() => openDrawer(row)}>
+              <TableCell align="right" >
+                <Button variant="contained" size="small" sx={{ marginRight: '10px!important' }}
+                  className={classes.actionButton} onClick={() => openDrawer(row, 'SupplyItem')}>
                   {
                     `${row.supplyAmount && row.supplyAmount > 0 ? 'Supply/Redeem' : ' Supply'}`
                   }
 
+                </Button>
+                <Button variant="contained" size="small" className={classes.actionButton} onClick={() => openDrawer(row, 'borrowItem')}>
+                  {
+                    `${row.supplyAmount && row.supplyAmount > 0 ? 'Supply/Repay' : ' Borrow'}`
+                  }
                 </Button>
               </TableCell>
             </TableRow>

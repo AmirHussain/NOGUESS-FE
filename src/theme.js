@@ -8,7 +8,7 @@ const headerBackground = '#FFFFFF !important';
 const headerText = 'black  !important';
 const SideHeaderBackground = '#1263BE !important';
 const SideHeaderText = 'white  !important';
-
+const TabsBackground='#bdbdbd !important';
 const DrawerBackground = '#2A303C !important';
 const DrawerText = '#21252F  !important';
 const contentBackGround = '#EDF0F7';
@@ -20,7 +20,7 @@ const lightText = '#81757D';
 const lightBlueText = '#0665d0';
 const darkBlueText = '#022853';
 const cardBackground = 'white';
-const custome_theme = createTheme({
+const theme = createTheme({
     spacing: (factor) => `${0.25 * factor}rem`,
     drawerIndex: drawerIndex,
     headerBackground,
@@ -39,6 +39,7 @@ const custome_theme = createTheme({
     lightText,
     lightBlueText,
     darkBlueText,
+    TabsBackground,
     cardBackground,
     rightDrawerHeader: {
         /* The image used */
@@ -277,4 +278,4 @@ const custome_theme = createTheme({
 });
 
 
-export default custome_theme;
+export default theme;

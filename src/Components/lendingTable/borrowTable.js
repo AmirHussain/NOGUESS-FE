@@ -14,6 +14,7 @@ import { Tokens } from '../../token-icons';
 import { abis, makeContract } from '../../contracts/useContracts';
 import { ethers } from 'ethers';
 import { Web3ProviderContext } from '../walletConnect/walletConnect';
+require('dotenv').config();
 
 
 const useStyles = makeStyles({
@@ -63,7 +64,7 @@ export default function BorrowTable(props) {
 
   const getSupplyDetailsFromContract = async (currency) => {
     const { provider, signer } = await connectWallet();
-    const lendingContract = makeContract('0x7da3D57DC26e6F5EBa359eaCaeE3AA258973d974', abis.lending, signer);
+    const lendingContract = makeContract(process.env.LENDING_CONTRACT_ADDRESS, abis.lending, signer);
     const result = await lendingContract.lendedAssetDetails(currency.symbol);
     alert('Lended amount 50')
   }

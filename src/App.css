@@ -133,3 +133,16 @@ max-width: 32px;
   button.MuiButtonBase-root{
    
   }
+
+  .MuiTabs-flexContainer {
+    display:flex  !important;
+    justify-content:space-around !important;
+    font-weight: 600 !important;
+  }
+
+  
+  .MuiTabs-flexContainer > button {
+    font-weight: inherit;
+    width: 100%;
+    background-color:#E0E0E0
+  }

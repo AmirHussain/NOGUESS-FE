@@ -4,8 +4,7 @@ import { makeStyles } from '@mui/styles';
 
 //components
 import RightDrawer from '../../Components/rightDrawer';
-import SupplyTable from '../../Components/lendingTable.js/supplyTable';
-import BorrowTable from '../../Components/lendingTable.js/borrowTable';
+import SupplyTable from './table/lendingTable';
 
 const useStyles = makeStyles({
   root: {},
@@ -91,20 +90,15 @@ function Lending() {
 
 
         {/* Tables */}
-        <Grid item xs={12} sm={12} md={6}>
+        <Grid item xs={12} sm={12} md={12}>
           <div>
             <SupplyTable action={OpenDrawer} reload={reload} component="SupplyItem" />
           </div>
         </Grid>
 
-        <Grid item xs={12} sm={12} md={6}>
-          <div>
-            <BorrowTable action={OpenDrawer} component="borrowItem" />
-          </div>
-        </Grid>
       </Grid>
       {drawerOpen && (
-        <RightDrawer Opration="Lending" component={currentMethod}  currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />
+        <RightDrawer Opration={currentMethod==='SupplyItem'?'Supply':'Borrow'} component={currentMethod}  currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />
       )}
     </>
   );
