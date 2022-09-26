@@ -1,0 +1,5 @@
+let alert=[]
+
+export {
+    alert
+}

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Box, Card, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar, FormControl, InputLabel, Input, Tab, ButtonGroup, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Grid } from '@mui/material';
+import { Box, Card, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar, FormControl, InputLabel, Input, Tab, ButtonGroup, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Grid, Backdrop, Alert, AlertTitle, Stack, Snackbar } from '@mui/material';
 import { makeStyles } from '@mui/styles'
 import { ArrowBack, Inbox, Mail } from '@mui/icons-material';
 import theme from '../../../theme';
@@ -8,7 +8,7 @@ import { Web3Provider, Web3ProviderContext } from '../../../Components/walletCon
 import { ethers } from 'ethers';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Tokens } from '../../../token-icons';
-import { bigToDecimal } from '../../../contracts/utils';
+import { bigToDecimal } from '../../../utils/utils';
 require('dotenv').config();
 
 const useStyles = makeStyles({
@@ -51,6 +51,9 @@ export default function SupplyItem(params) {
     const classes = useStyles();
     const { connectWallet, signer, account } = useContext(Web3ProviderContext);
     const [tranxHash, settranxHash] = useState('');
+    const [alerts, setAlerts] = useState([]);
+
+    const [inProgress, setInProgress] = useState(false);
 
     const [supplyDetails, setSupplyDetails] = useState([]);
 
@@ -86,15 +89,30 @@ export default function SupplyItem(params) {
 
     const redeemAmount = async (row) => {
         try {
+            setInProgress(true)
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
             const fweth = makeContract(Tokens[currentRow.token.pedgeToken].address, currentRow.token.abi, signer);
+
+            setAlerts(current => [...current,
+            { severity: 'info', title: 'Aprroval', description: 'Approval of transaction in progress' }
+            ]);
+
             const wethResult = await fweth.approve(lendingContract.address, ethers.utils.parseEther(row.tokenAmount));
+            setAlerts(current => [...current,
+            { severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' }]);
+            setAlerts(current => [...current,
+            { severity: 'info', title: 'Supply', description: 'Supply in progress' }]);
             const result = await lendingContract.redeem(currentRow.token.symbol, ethers.utils.parseEther(row.tokenAmount), currentRow.token.address, row.id, { gasLimit: 1000000 });
             await result.wait(1)
+            setAlerts(current => [...current,
+            { severity: 'success', title: 'Supply', description: 'Supply completed successfully' }]);
+            setInProgress(false)
             params?.input?.toggleDrawer(true)
 
         } catch (err) {
-            alert('error occured' + err.message)
+            setAlerts(current => [...current,
+            { severity: 'error', title: 'Redeem', description: err.message }]);
+            setInProgress(false)
             params?.input?.toggleDrawer(false)
         }
 
@@ -102,17 +120,33 @@ export default function SupplyItem(params) {
 
     const startSupply = async () => {
         try {
+
+            setInProgress(true)
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
             const weth = makeContract(currentRow.token.address, currentRow.token.abi, signer);
+            setAlerts(current => [...current,
+            { severity: 'info', title: 'Approval', description: 'Approval of transaction in progress' }]);
             const wethResult = await weth.approve(lendingContract.address, ethers.utils.parseEther(amount));
+
+            setAlerts(current => [...current,
+            { severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully' }]);
+
+            setAlerts(current => [...current,
+            { severity: 'info', title: 'Supply', description: 'Supply in progress' }]);
             const result = await lendingContract.lend(currentRow.token.symbol, ethers.utils.parseEther(amount), lockDuration, currentRow.token.address, Tokens[currentRow.token.pedgeToken].address, { gasLimit: 1000000 });
+
             settranxHash(result.hash);
             await result.wait(1)
-            alert('Lended amount 50')
+            setAlerts(current => [...current,
+            { severity: 'success', title: 'Supply', description: 'Supply completed successfully' }]);
+            setInProgress(false)
             params?.input?.toggleDrawer(true)
+
         } catch (err) {
-            alert('error occured' + err.message)
-            params?.input?.toggleDrawer(false)
+            setAlerts(current => [...current,
+            { severity: 'error', title: 'Supply', description: err.message }]);
+            setInProgress(false);
+            params?.input?.toggleDrawer(false);
         }
 
     }
@@ -127,6 +161,21 @@ export default function SupplyItem(params) {
 
     return (
         <React.Fragment key="RIGHTContent">
+            <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={inProgress}
+            ></Backdrop>
+            {
+                alerts.map((alert) => (
+                    <Stack spacing={2} sx={{ float:'left',zIndex:11000}}>
+                        
+                        <Alert variant="outlined" sx={{background:'white'}}severity={alert.severity}>
+                            <AlertTitle>{alert.title}</AlertTitle>
+                            {alert.description} — <strong>view on blockexplorer!</strong>
+                        </Alert>
+                    </Stack>
+                ))
+            }
             <Box
                 component="main"
                 sx={{
@@ -169,7 +218,7 @@ export default function SupplyItem(params) {
                                 textColor="inherit"
                                 fontWeight="inherit"
                                 aria-label="lab API tabs example" centered
-                              >
+                            >
                                 <Tab label="Supply Now" value="1" />
                                 <Tab label="Redeem" value="2" />
                             </TabList>
@@ -276,9 +325,9 @@ export default function SupplyItem(params) {
                                                             Redeem
                                                         </Button>
                                                     )
-                                                    
+
                                                 }
-                                                {row.redeem &&('Redeemed')}</TableCell>
+                                                    {row.redeem && ('Redeemed')}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
@@ -288,6 +337,7 @@ export default function SupplyItem(params) {
                     </TabContext>
                 </Card>
             </Box>
+
 
         </React.Fragment >
     );
