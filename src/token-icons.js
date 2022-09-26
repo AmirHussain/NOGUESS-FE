@@ -11,7 +11,7 @@ export const Tokens = {
 }
 
 export const TokenAggregators = [
-    { collatralToken: Tokens.WETH.symbol, loanToken: Tokens.dai.symbol, collateralAggregator: '0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e', loanAggregator: '0x0d79df66BE487753B02D015Fb622DED7f0E9798d', decimals:8 },
-    { collatralToken: Tokens.dai.symbol, loanToken: Tokens.WETH.symbol, collateralAggregator: '0x0d79df66BE487753B02D015Fb622DED7f0E9798d', loanAggregator: '0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e', decimals: 8 }
+    { collatralToken: Tokens.WETH.symbol, collateralAggregator: '0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e', decimals: 8 },
+    { collatralToken: Tokens.dai.symbol, collateralAggregator: '0x0d79df66BE487753B02D015Fb622DED7f0E9798d', decimals: 8 }
 
 ]

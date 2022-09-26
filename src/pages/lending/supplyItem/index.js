@@ -8,6 +8,7 @@ import { Web3Provider, Web3ProviderContext } from '../../../Components/walletCon
 import { ethers } from 'ethers';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Tokens } from '../../../token-icons';
+import { bigToDecimal } from '../../../contracts/utils';
 require('dotenv').config();
 
 const useStyles = makeStyles({
@@ -68,8 +69,8 @@ export default function SupplyItem(params) {
                 const supply = {
                     id,
                     redeem: details.isRedeem,
-                    startDay: ethers.utils.formatUnits(details.startDay, 6),
-                    endDay: ethers.utils.formatUnits(details.endDay, 6),
+                    startDay: bigToDecimal(details.startDay, 18),
+                    endDay: bigToDecimal(details.endDay, 18),
                     tokenAmount: ethers.utils.formatEther(details.tokenAmount),
                     SuppliedAmount: ethers.utils.formatEther(details.SuppliedAmount)
                 }
@@ -89,7 +90,7 @@ export default function SupplyItem(params) {
             const fweth = makeContract(Tokens[currentRow.token.pedgeToken].address, currentRow.token.abi, signer);
             const wethResult = await fweth.approve(lendingContract.address, ethers.utils.parseEther(row.tokenAmount));
             const result = await lendingContract.redeem(currentRow.token.symbol, ethers.utils.parseEther(row.tokenAmount), currentRow.token.address, row.id, { gasLimit: 1000000 });
-            await result.wait(2)
+            await result.wait(1)
             params?.input?.toggleDrawer(true)
 
         } catch (err) {
@@ -106,7 +107,7 @@ export default function SupplyItem(params) {
             const wethResult = await weth.approve(lendingContract.address, ethers.utils.parseEther(amount));
             const result = await lendingContract.lend(currentRow.token.symbol, ethers.utils.parseEther(amount), lockDuration, currentRow.token.address, Tokens[currentRow.token.pedgeToken].address, { gasLimit: 1000000 });
             settranxHash(result.hash);
-            await result.wait(2)
+            await result.wait(1)
             alert('Lended amount 50')
             params?.input?.toggleDrawer(true)
         } catch (err) {

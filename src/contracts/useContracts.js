@@ -11,7 +11,7 @@ const abis = {
 };
 
 const contractAddresses = {
-  lending: '0x8eaAe20Ec129EdFd08b5238611f1241a88A28aab'
+  lending: '0x3C0bbe05a15ce6bf5Be1Be51c800739BBaC74ba1'
 };
 
 const useCustomContractCall = (abi, contractAddress, method, args, transformFunc) => {

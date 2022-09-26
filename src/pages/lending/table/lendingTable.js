@@ -92,14 +92,21 @@ export default function SupplyTable(props) {
         return { amount: 0, rowindex }
       }
       const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
-      const result = await lendingContract.getLenderShare(currency.symbol);
-      if (result) {
-        return { amount: ethers.utils.formatEther(result), rowindex }
+      const supplyResult = await lendingContract.getLenderShare(currency.symbol);
+      const borrowResult = await lendingContract.getBorrowerShare(currency.symbol);
+      let supplyAmount = 0;
+      let borrowAmount = 0;
+      if (supplyResult) {
+        supplyAmount = ethers.utils.formatEther(supplyResult)
       }
-      return { amount: 0, rowindex }
+
+      if (borrowResult) {
+        borrowAmount = ethers.utils.formatEther(borrowResult)
+      }
+      return { amount: supplyAmount, borrowAmount, rowindex }
 
     } catch (err) {
-      return { amount: 0, rowindex }
+      return { amount: 0, borrowAmount: 0, rowindex }
 
     }
 
@@ -127,6 +134,7 @@ export default function SupplyTable(props) {
               getSupplyDetailsFromContract(Tokens[keys[rowindex]], rowindex).then((resp) => {
                 const row = createSupplyData(Tokens[keys[resp.rowindex]], 0, 159, 6.0, 'Button')
                 row.supplyAmount = resp.amount
+                row.borrowAmount = resp.borrowAmount
                 setSupplyRows(current => [...current, row]);
                 console.log(SupplyRows)
               })
@@ -156,9 +164,9 @@ export default function SupplyTable(props) {
             <TableCell align="center" width="10%"></TableCell>
             <TableCell>ASSETS</TableCell>
             <TableCell align="right">APY</TableCell>
-            <TableCell align="right">WALLET</TableCell>
-            <TableCell align="right" >            Action
-            </TableCell>
+            <TableCell align="right">Supply</TableCell>
+            <TableCell align="right">Borrow</TableCell>
+            <TableCell align="right">Action </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -167,18 +175,20 @@ export default function SupplyTable(props) {
               <TableCell align="center" > <img onClick={() => SetAndOpenAsset(row)} sx={{ cursor: 'pointer' }} className="chainIcon" alt="" src={row.token.icon} /></TableCell>
               <TableCell component="th" scope="row" >   {row.token?.name}  </TableCell>
               <TableCell align="right">{row.rate}</TableCell>
-              <TableCell align="right">{row.supplyAmount}</TableCell>
+              <TableCell align="right">{row.supplyAmount || '0.00'}</TableCell>
+              <TableCell align="right">{row.borrowAmount || '0.00'}</TableCell>
+
               <TableCell align="right" >
                 <Button variant="contained" size="small" sx={{ marginRight: '10px!important' }}
                   className={classes.actionButton} onClick={() => openDrawer(row, 'SupplyItem')}>
                   {
-                    `${row.supplyAmount && row.supplyAmount > 0 ? 'Supply/Redeem' : ' Supply'}`
+                    `${row.supplyAmount && row.supplyAmount > 0 ? 'Supply / Redeem' : ' Supply'}`
                   }
 
                 </Button>
                 <Button variant="contained" size="small" className={classes.actionButton} onClick={() => openDrawer(row, 'borrowItem')}>
                   {
-                    `${row.supplyAmount && row.supplyAmount > 0 ? 'Supply/Repay' : ' Borrow'}`
+                    `${row.borrowAmount && row.borrowAmount > 0 ? 'Borrow / Repay' : ' Borrow'}`
                   }
                 </Button>
               </TableCell>

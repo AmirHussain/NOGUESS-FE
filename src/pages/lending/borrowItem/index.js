@@ -12,6 +12,7 @@ import { abis, contractAddresses, makeContract } from '../../../contracts/useCon
 import { ethers } from 'ethers';
 import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
 import { TokenAggregators, Tokens } from '../../../token-icons';
+import { bigToDecimal, bigToDecimalUints, decimalToBig } from '../../../contracts/utils';
 require('dotenv').config();
 const MenuProps = {
     PaperProps: {
@@ -63,31 +64,17 @@ export default function BorrowItem(params) {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
-    const { connect, signer } = useContext(Web3ProviderContext);
+    const { connect, signer, account } = useContext(Web3ProviderContext);
 
     const [tranxHash, settranxHash] = useState('');
     const [collateral, setColleteral] = useState('');
+    const [decimals, setDecimals] = useState(0);
+
+    const [colleteralAmount, setColleteralAmount] = useState();
+    const [availableAmount, setAvailableAmount] = useState(0);
+
     const tokens = Object.keys(Tokens)
 
-    const repayItem = async () => {
-        try {
-            const { provider, signer } = await connect();
-            const lendingContract = makeContract(process.env.LENDING_CONTRACT_ADDRESS, abis.lending, signer);
-            const weth = makeContract(currentRow.token.address, currentRow.token.abi, signer);
-            await weth.approve(lendingContract.address, ethers.utils.parseEther('50'))
-
-            const result = await lendingContract.lend(currentRow.token.symbol, ethers.utils.parseEther('50'), '2', currentRow.token.address);
-            settranxHash(result.hash);
-            const waitResult = await result.wait(12);
-            alert('Lended amount 50')
-            params.toggleDrawer()
-
-        } catch (err) {
-            alert('error occured' + err.message)
-            params.toggleDrawer()
-        }
-
-    }
 
     const handleCollateralChange = (event) => {
         const {
@@ -99,6 +86,7 @@ export default function BorrowItem(params) {
     };
 
     const [borrowDetails, setBorrowDetails] = useState([]);
+
 
     const getBorrowDetailsFromContract = async () => {
         setBorrowDetails([])
@@ -113,11 +101,12 @@ export default function BorrowItem(params) {
             ids.forEach(async (id) => {
                 const details = await lendingContract.getBorrowerDetails(id);
                 const Borrow = {
+                    ...details,
                     id,
-                    repay: details.isrepay,
-                    startDay: ethers.utils.formatUnits(details.startDay, 6),
-                    endDay: ethers.utils.formatUnits(details.endDay, 6),
-                    tokenAmount: ethers.utils.formatEther(details.tokenAmount)
+                    repaid: details.hasRepaid,
+                    startDay: bigToDecimal(details.borrowDay),
+                    endDay: bigToDecimal(details.endDay),
+                    loanAmount: bigToDecimal(details.loanAmount)
                 }
                 setBorrowDetails(current => [...current, Borrow]);
             });
@@ -125,26 +114,29 @@ export default function BorrowItem(params) {
 
 
     }
+
+    React.useEffect(() => {
+        getBorrowDetailsFromContract()
+    }, [])
+
     const startBorrow = async () => {
         try {
             const collateralToken = Tokens[collateral];
             const loanToken = currentRow.token;
-            const aggregators = TokenAggregators.find((aggregator) => aggregator.collatralToken === collateralToken.symbol && aggregator.loanToken === loanToken.symbol);
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
-            const weth = makeContract(collateralToken.address, collateralToken.abi, signer);
-            const wethResult = await weth.approve(lendingContract.address, ethers.utils.parseEther(amount));
+            const collateralContract = makeContract(collateralToken.address, collateralToken.abi, signer);
+            const collateralAggregators = TokenAggregators.find((aggregator) => aggregator.collatralToken === collateralToken.symbol);
+            const loanAggregators = TokenAggregators.find((aggregator) => aggregator.collatralToken === loanToken.symbol);
+            let collateralValue = await lendingContract.getColateralAmount(loanAggregators.collateralAggregator, collateralAggregators.collateralAggregator, decimalToBig(amount ));
+            console.log("colletaralAmount =>",collateralValue)
+            await collateralContract.approve(lendingContract.address, collateralValue)
             const result = await lendingContract.borrow(
-                loanToken.symbol,
-                ethers.utils.parseEther(amount),
-                loanToken.address,
-                aggregators.loanAggregator,
-                collateralToken.symbol,
-                collateralToken.address,
-                aggregators.collateralAggregator,
-                aggregators.decimals,
-                { gasLimit: 1000000 });
+                loanToken.symbol, ethers.utils.parseEther(amount), loanToken.address,
+                collateralToken.symbol, collateralToken.address, collateralValue, { gasLimit: 1000000 }
+            );
+
             settranxHash(result.hash);
-            await result.wait(0)
+            await result.wait(1)
             alert('borrow amount')
             params?.input?.toggleDrawer(true)
         } catch (err) {
@@ -156,21 +148,69 @@ export default function BorrowItem(params) {
     const repayAmount = async (row) => {
         try {
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
-            const fweth = makeContract(Tokens[currentRow.token.pedgeToken].address, currentRow.token.abi, signer);
-            const wethResult = await fweth.approve(lendingContract.address, ethers.utils.parseEther(row.tokenAmount));
-            const result = await lendingContract.repay(currentRow.token.symbol, ethers.utils.parseEther(row.tokenAmount), currentRow.token.address, row.id, { gasLimit: 1000000 });
-            await result.wait(2)
+            const tokenKeys=Object.keys(Tokens);
+            let collateralToken;
+            tokenKeys.forEach((key)=>{
+               if( Tokens[key].symbol===row.collateralToken){
+                collateralToken=Tokens[key];
+               }
+            });           
+         
+            const collateralContract = makeContract(collateralToken.address, collateralToken.abi, signer);
+            await collateralContract.approve(lendingContract.address, decimalToBig(row["loanAmount"]));
+            const result = await lendingContract.repay(
+                row['loanToken'],decimalToBig(row["loanAmount"]), currentRow.token.address,
+                collateralToken.address, row.id, { gasLimit: 1000000 });
+            await result.wait(1)
             params?.input?.toggleDrawer(true)
 
         } catch (err) {
             alert('error occured' + err.message)
-            params?.input?.toggleDrawer(false)
+            params?.input?.toggleDrawer(true)
         }
 
     }
+
+    const setCollateralAmountOfToken = async () => {
+        try {
+            if (amount && collateral) {
+                const collateralToken = Tokens[collateral];
+                const loanToken = currentRow.token;
+                const collateralAggregators = TokenAggregators.find((aggregator) => aggregator.collatralToken === collateralToken.symbol);
+                const loanAggregators = TokenAggregators.find((aggregator) => aggregator.collatralToken === loanToken.symbol);
+                if (collateralAggregators && loanAggregators) {
+                    setDecimals(collateralAggregators.decimals)
+                    const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
+                    let collateralValue = await lendingContract.getColateralAmount(loanAggregators.collateralAggregator, collateralAggregators.collateralAggregator, decimalToBig(amount ));
+                    console.log(collateralValue,bigToDecimal(collateralValue))
+                    setColleteralAmount(bigToDecimal(collateralValue).toString())
+                } else {
+                    alert('No aggregator found for token ' + collateral)
+                }
+            }
+
+        } catch (err) {
+            alert('error occured' + err.message)
+        }
+    }
     React.useEffect(() => {
-        getBorrowDetailsFromContract()
-    }, [])
+        setCollateralAmountOfToken()
+    }, [amount, collateral]);
+
+    const setCurrentUserCollateralTokenBalance = async () => {
+        if (collateral) {
+            const collateralToken = Tokens[collateral];
+            const tokenContract = makeContract(collateralToken.address, collateralToken.abi, signer);
+            const availableTokenAmount = await tokenContract.balanceOf(account)
+            setAvailableAmount(bigToDecimal(availableTokenAmount))
+        }
+    }
+
+    React.useEffect(() => {
+        setCurrentUserCollateralTokenBalance()
+    }, [collateral])
+
+
 
     return (
         <React.Fragment key="RIGHTContent">
@@ -288,8 +328,15 @@ export default function BorrowItem(params) {
                                                 }
                                             />
                                         </FormControl>
-                                    </Grid></Grid>
-                                <div><p sx={{ fontSize: '11px' }}>Minimum: <b>10 BNB</b> Maximum: <b>500BNB</b></p></div>
+                                    </Grid>
+                                    <Grid item xs={12} sm={12} md={12}>
+                                        Amount to be collateralized {colleteralAmount/Math.pow(10, 18)}  / {availableAmount} {collateral}
+                                    </Grid>
+                                    <Grid item xs={12} sm={12} md={12}>
+                                        <div><p sx={{ fontSize: '11px' }}>Minimum: <b>10 BNB</b> Maximum: <b>500BNB</b></p></div>
+                                    </Grid>
+                                </Grid>
+
                             </Card>
 
 
@@ -315,17 +362,22 @@ export default function BorrowItem(params) {
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                             >
                                                 <TableCell component="th" scope="row">
-                                                    {row.tokenAmount}
+                                                    {row.loanAmount}
                                                 </TableCell>
                                                 <TableCell align="right">{row.startDay}</TableCell>
                                                 <TableCell align="right">{row.endDay}</TableCell>
                                                 <TableCell align="right">{
-                                                    !row.repay && (
+                                                    !row.hasRepaid && (
                                                         <Button onClick={() => repayAmount(row)}>
                                                             Repay
                                                         </Button>
                                                     )
-                                                }</TableCell>
+                                                }
+                                                    {
+                                                        row.hasRepaid && (
+                                                            <div>Repaid</div>
+                                                        )
+                                                    }</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
