@@ -132,7 +132,7 @@ export default function SupplyTable(props) {
             if (!Tokens[keys[rowindex]].isPedgeToken) {
 
               getSupplyDetailsFromContract(Tokens[keys[rowindex]], rowindex).then((resp) => {
-                const row = createSupplyData(Tokens[keys[resp.rowindex]], 0, 159, 6.0, 'Button')
+                const row = createSupplyData(Tokens[keys[resp.rowindex]], 0, 1.3, 6.0, 'Button')
                 row.supplyAmount = resp.amount
                 row.borrowAmount = resp.borrowAmount
                 setSupplyRows(current => [...current, row]);
@@ -161,7 +161,6 @@ export default function SupplyTable(props) {
       <Table aria-label="simple table" >
         <TableHead className={classes.tableHead}>
           <TableRow className={classes.theadRow}>
-            <TableCell align="center" width="10%"></TableCell>
             <TableCell>ASSETS</TableCell>
             <TableCell align="right">APY</TableCell>
             <TableCell align="right">Supply</TableCell>
@@ -172,11 +171,10 @@ export default function SupplyTable(props) {
         <TableBody>
           {SupplyRows.map((row) => (
             <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} className={classes.tableRow}>
-              <TableCell align="center" > <img onClick={() => SetAndOpenAsset(row)} sx={{ cursor: 'pointer' }} className="chainIcon" alt="" src={row.token.icon} /></TableCell>
-              <TableCell component="th" scope="row" >   {row.token?.name}  </TableCell>
-              <TableCell align="right">{row.rate}</TableCell>
-              <TableCell align="right">{row.supplyAmount || '0.00'}</TableCell>
-              <TableCell align="right">{row.borrowAmount || '0.00'}</TableCell>
+              <TableCell component="th" scope="row" onClick={() => SetAndOpenAsset(row)} sx={{ cursor: 'pointer', display: 'flex' }} > &nbsp;&nbsp; <img className="chainIcon" alt="" src={row.token.icon} /> <h4>{row.token?.name} </h4>  </TableCell>
+              <TableCell align="right"><h4> {row.rate} %</h4></TableCell>
+              <TableCell align="right"><h5>{row.supplyAmount || '0.00'} {row.token.symbol}</h5></TableCell>
+              <TableCell align="right"><h5>{row.borrowAmount || '0.00'} {row.token.symbol}</h5></TableCell>
 
               <TableCell align="right" >
                 <Button variant="contained" size="small" sx={{ marginRight: '10px!important' }}

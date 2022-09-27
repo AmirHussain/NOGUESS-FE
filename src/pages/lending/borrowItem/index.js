@@ -132,11 +132,11 @@ export default function BorrowItem(params) {
             const collateralAggregators = TokenAggregators.find((aggregator) => aggregator.collatralToken === collateralToken.symbol);
             const loanAggregators = TokenAggregators.find((aggregator) => aggregator.collatralToken === loanToken.symbol);
             let collateralValue = await lendingContract.getColateralAmount(loanAggregators.collateralAggregator, collateralAggregators.collateralAggregator, decimalToBig(amount));
-            console.log("colletaralAmount =>", collateralValue)
+            console.log("colletaralAmount =>", Number(collateralValue)/Math.pow(10, 36))
             setAlerts(current => [...current,
                 { severity: 'info', title: 'Approval', description: 'Approval of transaction in progress' }]);
-              
-            await collateralContract.approve(lendingContract.address, collateralValue)
+                const collateralValueInDaiUnits=Number(collateralValue)/Math.pow(10, 36)
+            await collateralContract.approve(lendingContract.address, decimalToBig(collateralValueInDaiUnits.toString()))
             setAlerts(current => [...current,
                 { severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully' }]);
     
@@ -144,8 +144,8 @@ export default function BorrowItem(params) {
                 { severity: 'info', title: 'Borrow', description: 'Borrow in progress' }]);
                
             const result = await lendingContract.borrow(
-                loanToken.symbol, ethers.utils.parseEther(amount), loanToken.address,
-                collateralToken.symbol, collateralToken.address, collateralValue, { gasLimit: 1000000 }
+                loanToken.symbol, decimalToBig(amount), loanToken.address,
+                collateralToken.symbol, collateralToken.address, decimalToBig(collateralValueInDaiUnits.toString()), { gasLimit: 1000000 }
             );
 
             settranxHash(result.hash);
@@ -216,7 +216,7 @@ export default function BorrowItem(params) {
                     const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
                     let collateralValue = await lendingContract.getColateralAmount(loanAggregators.collateralAggregator, collateralAggregators.collateralAggregator, decimalToBig(amount));
                     console.log(collateralValue, bigToDecimal(collateralValue))
-                    setColleteralAmount(bigToDecimal(collateralValue).toString())
+                    setColleteralAmount(Number(collateralValue)/Math.pow(10, 18))
                 } else {
                     alert('No aggregator found for token ' + collateral)
                 }
@@ -289,12 +289,14 @@ export default function BorrowItem(params) {
                 </Card>
 
                 <Card className={classes.innerCard} sx={{
-                    display: 'block !important', padding: '10px',
-                    fontSize: '11px',
+                    display: 'block !important',
+                    padding: '4px',
+                    fontSize: '12px',
+                    fontWeight: '600',
                     fontStretch: 'semi-expanded',
                     background: theme.TabsBackground,
                     color: theme.lightBlueText + ' !important',
-                    margin: '10px',
+                    marginTop: '10px',
                     width: 'auto'
                 }}>
 
@@ -377,7 +379,7 @@ export default function BorrowItem(params) {
                                         </FormControl>
                                     </Grid>
                                     <Grid item xs={12} sm={12} md={12}>
-                                        Amount to be collateralized {colleteralAmount / Math.pow(10, 18)}  / {availableAmount} {collateral}
+                                      <h4>  Amount to be collateralized {colleteralAmount / Math.pow(10, 18)}  / {availableAmount} {collateral}</h4>
                                     </Grid>
                                     <Grid item xs={12} sm={12} md={12}>
                                         <div><p sx={{ fontSize: '11px' }}>Minimum: <b>10 BNB</b> Maximum: <b>500BNB</b></p></div>

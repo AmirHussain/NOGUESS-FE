@@ -143,6 +143,16 @@ max-width: 32px;
   
   .MuiTabs-flexContainer > button {
     font-weight: inherit;
-    width: 100%;
-    background-color:#E0E0E0
+  }
+
+  .MuiTabPanel-root{
+    padding:0px !important;
+  }
+
+  .MuiTabs-indicator{
+    display: none !important;
+  }
+
+  .MuiBox-root{
+    border: 0px solid !important;
   }

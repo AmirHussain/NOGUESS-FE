@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Box, Card, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar, FormControl, InputLabel, Input, Tab, ButtonGroup, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Grid, Backdrop, Alert, AlertTitle, Stack, Snackbar } from '@mui/material';
 import { makeStyles } from '@mui/styles'
-import { ArrowBack, Inbox, Mail } from '@mui/icons-material';
+import { ArrowBack, DoneAll, Inbox, Mail } from '@mui/icons-material';
 import theme from '../../../theme';
 import { abis, asyncContractCall, contractAddresses, makeContract } from '../../../contracts/useContracts';
 import { Web3Provider, Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
@@ -9,6 +9,7 @@ import { ethers } from 'ethers';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Tokens } from '../../../token-icons';
 import { bigToDecimal } from '../../../utils/utils';
+import moment from 'moment/moment';
 require('dotenv').config();
 
 const useStyles = makeStyles({
@@ -72,8 +73,9 @@ export default function SupplyItem(params) {
                 const supply = {
                     id,
                     redeem: details.isRedeem,
-                    startDay: bigToDecimal(details.startDay, 18),
-                    endDay: bigToDecimal(details.endDay, 18),
+                    startDay: formatDate(details.startDay),
+                    endDay: formatDate(details.endDay),
+                    differnce: getDifference(new Date(Number(details.startDay)), new Date(Number(details.endDay))),
                     tokenAmount: ethers.utils.formatEther(details.tokenAmount),
                     SuppliedAmount: ethers.utils.formatEther(details.SuppliedAmount)
                 }
@@ -82,6 +84,15 @@ export default function SupplyItem(params) {
         }
 
 
+    }
+
+    const getDifference = (startDay, endDay) => {
+        var a = moment(endDay);
+        var b = moment(startDay);
+        return a.diff(b)/3600
+    }
+    const formatDate = (date) => {
+        return moment(new Date(Number(date))).format('MMMM Do YYYY, h:mm:ss a')
     }
     React.useEffect(() => {
         getSupplyDetailsFromContract()
@@ -97,15 +108,15 @@ export default function SupplyItem(params) {
             { severity: 'info', title: 'Aprroval', description: 'Approval of transaction in progress' }
             ]);
 
-            const wethResult = await fweth.approve(lendingContract.address, ethers.utils.parseEther(row.tokenAmount));
+            const wethResult = await fweth.approve(lendingContract.address, decimalToBig(row.tokenAmount));
             setAlerts(current => [...current,
             { severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' }]);
             setAlerts(current => [...current,
-            { severity: 'info', title: 'Supply', description: 'Supply in progress' }]);
-            const result = await lendingContract.redeem(currentRow.token.symbol, ethers.utils.parseEther(row.tokenAmount), currentRow.token.address, row.id, { gasLimit: 1000000 });
+            { severity: 'info', title: 'Redeem', description: 'Redeem in progress' }]);
+            const result = await lendingContract.redeem(currentRow.token.symbol, decimalToBig(row.tokenAmount), currentRow.token.address, row.id, { gasLimit: 1000000 });
             await result.wait(1)
             setAlerts(current => [...current,
-            { severity: 'success', title: 'Supply', description: 'Supply completed successfully' }]);
+            { severity: 'success', title: 'Redeem', description: 'Redeem completed successfully' }]);
             setInProgress(false)
             params?.input?.toggleDrawer(true)
 
@@ -126,14 +137,14 @@ export default function SupplyItem(params) {
             const weth = makeContract(currentRow.token.address, currentRow.token.abi, signer);
             setAlerts(current => [...current,
             { severity: 'info', title: 'Approval', description: 'Approval of transaction in progress' }]);
-            const wethResult = await weth.approve(lendingContract.address, ethers.utils.parseEther(amount));
+            const wethResult = await weth.approve(lendingContract.address, decimalToBig(amount));
 
             setAlerts(current => [...current,
             { severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully' }]);
 
             setAlerts(current => [...current,
             { severity: 'info', title: 'Supply', description: 'Supply in progress' }]);
-            const result = await lendingContract.lend(currentRow.token.symbol, ethers.utils.parseEther(amount), lockDuration, currentRow.token.address, Tokens[currentRow.token.pedgeToken].address, { gasLimit: 1000000 });
+            const result = await lendingContract.lend(currentRow.token.symbol, decimalToBig(amount), lockDuration, currentRow.token.address, Tokens[currentRow.token.pedgeToken].address, { gasLimit: 1000000 });
 
             settranxHash(result.hash);
             await result.wait(1)
@@ -167,9 +178,9 @@ export default function SupplyItem(params) {
             ></Backdrop>
             {
                 alerts.map((alert) => (
-                    <Stack spacing={2} sx={{ float:'left',zIndex:11000}}>
-                        
-                        <Alert variant="outlined" sx={{background:'white'}}severity={alert.severity}>
+                    <Stack spacing={2} sx={{ float: 'left', zIndex: 11000 }}>
+
+                        <Alert variant="outlined" sx={{ background: 'white' }} severity={alert.severity}>
                             <AlertTitle>{alert.title}</AlertTitle>
                             {alert.description} — <strong>view on blockexplorer!</strong>
                         </Alert>
@@ -201,17 +212,17 @@ export default function SupplyItem(params) {
                     <div className="d-flexSpaceBetween"> <span>WALLET:</span> <span>{currentRow.supplyAmount}</span></div>
                 </Card>
                 <Card className={classes.innerCard} sx={{
-                    display: 'block !important', padding: '10px',
+                    display: 'block !important', padding: '4px',
                     fontSize: '12px',
                     fontWeight: '600',
                     fontStretch: 'semi-expanded',
                     background: theme.TabsBackground,
                     color: theme.lightBlueText + ' !important',
-                    margin: '10px',
+                    marginTop: '10px',
                     width: 'auto'
                 }}>
 
-                    <TabContext value={value}>
+                    <TabContext variant="fullWidth" value={value}>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <TabList onChange={handleChange}
                                 indicatorColor="main"
@@ -302,10 +313,10 @@ export default function SupplyItem(params) {
                                 <Table aria-label="simple table">
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell>Amount</TableCell>
+                                            <TableCell>Supply Amount</TableCell>
                                             <TableCell align="right">Start</TableCell>
                                             <TableCell align="right">End</TableCell>
-                                            <TableCell align="right">Action</TableCell>
+                                            <TableCell align="right">Redeem</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -315,19 +326,30 @@ export default function SupplyItem(params) {
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                             >
                                                 <TableCell component="th" scope="row">
-                                                    {row.SuppliedAmount}
+                                                    <h4> {row.SuppliedAmount}</h4>
                                                 </TableCell>
-                                                <TableCell align="right">{row.startDay}</TableCell>
-                                                <TableCell align="right">{row.endDay}</TableCell>
+                                                <TableCell align="right"> <h4> {row.startDay} </h4></TableCell>
+                                                <TableCell align="right"> <h4> {row.endDay} </h4></TableCell>
                                                 <TableCell align="right">{
-                                                    !row.redeem && (
-                                                        <Button onClick={() => redeemAmount(row)}>
+                                                    !row.redeem && row.differnce <= 0 && (
+
+                                                        <Button variant="contained"  onClick={() => redeemAmount(row)}>
                                                             Redeem
                                                         </Button>
+
+
                                                     )
 
                                                 }
-                                                    {row.redeem && ('Redeemed')}</TableCell>
+                                                    {
+                                                        !row.redeem && row.differnce > 0 && (
+
+                                                            <h4>After {row.differnce} days </h4>
+
+                                                        )
+
+                                                    }
+                                                    {row.redeem && (<DoneAll></DoneAll>)}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
