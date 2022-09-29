@@ -4,14 +4,14 @@ import { abis } from './contracts/useContracts';
 
 
 export const Tokens = {
-    WETH: { name: 'Wrapped Ether', symbol: 'WETH', address: '0x21c639bBC0ce1be64a442dc495867a4F1D2122d0', icon: polygon, abi: abis.WETH, pedgeToken: 'fWETH', isPedgeToken: false },
-    fWETH: { name: 'Pledged Wrapped Ether', symbol: 'fWETH', address: '0x4a52E515b61ae9BEE3f32B8EFBaE8978fC0Bf703', icon: ethereum, abi: abis.fWETH, pedgeToken: 'fWETH', isPedgeToken: true },
-    dai: { name: 'Dai Stable Coin', symbol: 'DAI', address: '0xC7C2a6b1026387F241a9F312b98d4A0843bf442c', icon: ethereum, abi: abis.DAI, pedgeToken: 'fDAI', isPedgeToken: false },
-    fDAI: { name: 'Pledged Dai Stable Coin', symbol: 'fDAI', address: '0x8076040fC2BC15c4033A12D2e4a19901fFa3C648', icon: ethereum, abi: abis.fDAI, pedgeToken: 'fDAI', isPedgeToken: true },
+    WETH: { name: 'Wrapped Ether', symbol: 'WETH', address: '0xFb156f075E7F00c80abEBFD4BaB3b9258F5D8B13', icon: polygon, abi: abis.WETH, pedgeToken: 'fWETH', isPedgeToken: false },
+    fWETH: { name: 'Pledged Wrapped Ether', symbol: 'fWETH', address: '0x933458F3F0154c3141b044eB77D20a409e614028', icon: ethereum, abi: abis.fWETH, pedgeToken: 'fWETH', isPedgeToken: true },
+    dai: { name: 'Dai Stable Coin', symbol: 'DAI', address: '0xe00FDE46D3fA6dFa89D513C0E076F75aE5E2573C', icon: ethereum, abi: abis.DAI, pedgeToken: 'fDAI', isPedgeToken: false },
+    fDAI: { name: 'Pledged Dai Stable Coin', symbol: 'fDAI', address: '0xd3Ff113B615104E2eD6821ed6eEe318bdEb7B83A', icon: ethereum, abi: abis.fDAI, pedgeToken: 'fDAI', isPedgeToken: true },
 }
 
 export const TokenAggregators = [
-    { collatralToken: Tokens.WETH.symbol, collateralAggregator: '0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e', decimals: 8 },
-    { collatralToken: Tokens.dai.symbol, collateralAggregator: '0x0d79df66BE487753B02D015Fb622DED7f0E9798d', decimals: 8 }
+    { tokenSymbol: Tokens.WETH.symbol, aggregator: '0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e', decimals: 8 },
+    { tokenSymbol: Tokens.dai.symbol, aggregator: '0x0d79df66BE487753B02D015Fb622DED7f0E9798d', decimals: 8 }
 
 ]

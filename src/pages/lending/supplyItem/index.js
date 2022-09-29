@@ -8,8 +8,9 @@ import { Web3Provider, Web3ProviderContext } from '../../../Components/walletCon
 import { ethers } from 'ethers';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Tokens } from '../../../token-icons';
-import { bigToDecimal } from '../../../utils/utils';
+import { bigToDecimal, decimalToBig } from '../../../utils/utils';
 import moment from 'moment/moment';
+import { FluteAlertContext } from '../../../Components/Alert';
 require('dotenv').config();
 
 const useStyles = makeStyles({
@@ -51,8 +52,9 @@ export default function SupplyItem(params) {
     const currentRow = params.input.currentRow
     const classes = useStyles();
     const { connectWallet, signer, account } = useContext(Web3ProviderContext);
+    const { setAlert, setAlertToggle } = useContext(FluteAlertContext);
+
     const [tranxHash, settranxHash] = useState('');
-    const [alerts, setAlerts] = useState([]);
 
     const [inProgress, setInProgress] = useState(false);
 
@@ -89,7 +91,7 @@ export default function SupplyItem(params) {
     const getDifference = (startDay, endDay) => {
         var a = moment(endDay);
         var b = moment(startDay);
-        return a.diff(b)/3600
+        return a.diff(b) / 3600
     }
     const formatDate = (date) => {
         return moment(new Date(Number(date))).format('MMMM Do YYYY, h:mm:ss a')
@@ -104,25 +106,20 @@ export default function SupplyItem(params) {
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
             const fweth = makeContract(Tokens[currentRow.token.pedgeToken].address, currentRow.token.abi, signer);
 
-            setAlerts(current => [...current,
-            { severity: 'info', title: 'Aprroval', description: 'Approval of transaction in progress' }
-            ]);
+            setAlert({ severity: 'info', title: 'Aprroval', description: 'Approval of transaction in progress' }
+            );
 
             const wethResult = await fweth.approve(lendingContract.address, decimalToBig(row.tokenAmount));
-            setAlerts(current => [...current,
-            { severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' }]);
-            setAlerts(current => [...current,
-            { severity: 'info', title: 'Redeem', description: 'Redeem in progress' }]);
+            setAlert({ severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' });
+            setAlert({ severity: 'info', title: 'Redeem', description: 'Redeem in progress' });
             const result = await lendingContract.redeem(currentRow.token.symbol, decimalToBig(row.tokenAmount), currentRow.token.address, row.id, { gasLimit: 1000000 });
             await result.wait(1)
-            setAlerts(current => [...current,
-            { severity: 'success', title: 'Redeem', description: 'Redeem completed successfully' }]);
+            setAlert({ severity: 'success', title: 'Redeem', description: 'Redeem completed successfully' });
             setInProgress(false)
             params?.input?.toggleDrawer(true)
 
         } catch (err) {
-            setAlerts(current => [...current,
-            { severity: 'error', title: 'Redeem', description: err.message }]);
+            setAlert({ severity: 'error', title: 'Redeem', description: err.message });
             setInProgress(false)
             params?.input?.toggleDrawer(false)
         }
@@ -135,27 +132,22 @@ export default function SupplyItem(params) {
             setInProgress(true)
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
             const weth = makeContract(currentRow.token.address, currentRow.token.abi, signer);
-            setAlerts(current => [...current,
-            { severity: 'info', title: 'Approval', description: 'Approval of transaction in progress' }]);
+            setAlert({ severity: 'info', title: 'Approval', description: 'Approval of transaction in progress' });
             const wethResult = await weth.approve(lendingContract.address, decimalToBig(amount));
 
-            setAlerts(current => [...current,
-            { severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully' }]);
+            setAlert({ severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully' });
 
-            setAlerts(current => [...current,
-            { severity: 'info', title: 'Supply', description: 'Supply in progress' }]);
+            setAlert({ severity: 'info', title: 'Supply', description: 'Supply in progress' });
             const result = await lendingContract.lend(currentRow.token.symbol, decimalToBig(amount), lockDuration, currentRow.token.address, Tokens[currentRow.token.pedgeToken].address, { gasLimit: 1000000 });
 
             settranxHash(result.hash);
             await result.wait(1)
-            setAlerts(current => [...current,
-            { severity: 'success', title: 'Supply', description: 'Supply completed successfully' }]);
+            setAlert({ severity: 'success', title: 'Supply', description: 'Supply completed successfully' });
             setInProgress(false)
             params?.input?.toggleDrawer(true)
 
         } catch (err) {
-            setAlerts(current => [...current,
-            { severity: 'error', title: 'Supply', description: err.message }]);
+            setAlert({ severity: 'error', title: 'Supply', description: err.message });
             setInProgress(false);
             params?.input?.toggleDrawer(false);
         }
@@ -172,21 +164,7 @@ export default function SupplyItem(params) {
 
     return (
         <React.Fragment key="RIGHTContent">
-            <Backdrop
-                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-                open={inProgress}
-            ></Backdrop>
-            {
-                alerts.map((alert) => (
-                    <Stack spacing={2} sx={{ float: 'left', zIndex: 11000 }}>
-
-                        <Alert variant="outlined" sx={{ background: 'white' }} severity={alert.severity}>
-                            <AlertTitle>{alert.title}</AlertTitle>
-                            {alert.description} — <strong>view on blockexplorer!</strong>
-                        </Alert>
-                    </Stack>
-                ))
-            }
+          
             <Box
                 component="main"
                 sx={{
@@ -333,7 +311,7 @@ export default function SupplyItem(params) {
                                                 <TableCell align="right">{
                                                     !row.redeem && row.differnce <= 0 && (
 
-                                                        <Button variant="contained"  onClick={() => redeemAmount(row)}>
+                                                        <Button variant="contained" onClick={() => redeemAmount(row)}>
                                                             Redeem
                                                         </Button>
 

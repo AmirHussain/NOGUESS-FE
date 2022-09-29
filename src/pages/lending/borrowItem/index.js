@@ -13,6 +13,7 @@ import { ethers } from 'ethers';
 import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
 import { TokenAggregators, Tokens } from '../../../token-icons';
 import { bigToDecimal, bigToDecimalUints, decimalToBig } from '../../../utils/utils';
+import { FluteAlertContext } from '../../../Components/Alert';
 require('dotenv').config();
 const MenuProps = {
     PaperProps: {
@@ -69,7 +70,7 @@ export default function BorrowItem(params) {
     const [tranxHash, settranxHash] = useState('');
     const [collateral, setColleteral] = useState('');
     const [decimals, setDecimals] = useState(0);
-    const [alerts, setAlerts] = useState([]);
+    const { setAlert, setAlertToggle } = useContext(FluteAlertContext);
     const [inProgress, setInProgress] = useState(false);
 
     const [colleteralAmount, setColleteralAmount] = useState();
@@ -123,42 +124,37 @@ export default function BorrowItem(params) {
 
     const startBorrow = async () => {
         try {
-            
+
             setInProgress(true)
             const collateralToken = Tokens[collateral];
             const loanToken = currentRow.token;
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
             const collateralContract = makeContract(collateralToken.address, collateralToken.abi, signer);
-            const collateralAggregators = TokenAggregators.find((aggregator) => aggregator.collatralToken === collateralToken.symbol);
-            const loanAggregators = TokenAggregators.find((aggregator) => aggregator.collatralToken === loanToken.symbol);
-            let collateralValue = await lendingContract.getColateralAmount(loanAggregators.collateralAggregator, collateralAggregators.collateralAggregator, decimalToBig(amount));
-            console.log("colletaralAmount =>", Number(collateralValue)/Math.pow(10, 36))
-            setAlerts(current => [...current,
-                { severity: 'info', title: 'Approval', description: 'Approval of transaction in progress' }]);
-                const collateralValueInDaiUnits=Number(collateralValue)/Math.pow(10, 36)
-            await collateralContract.approve(lendingContract.address, decimalToBig(collateralValueInDaiUnits.toString()))
-            setAlerts(current => [...current,
-                { severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully' }]);
-    
-                setAlerts(current => [...current,
-                { severity: 'info', title: 'Borrow', description: 'Borrow in progress' }]);
-               
+            await setCollateralAmountOfToken()
+
+            setAlert({ severity: 'info', title: 'Approval', description: 'Approval of transaction in progress' });
+
+            await collateralContract.approve(lendingContract.address, decimalToBig(colleteralAmount.toString()))
+            setAlert({ severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully' });
+
+            setAlert({ severity: 'info', title: 'Borrow', description: 'Borrow in progress' });
+            console.log('Borrow Params', loanToken.symbol, decimalToBig(amount.toString()), loanToken.address,
+                collateralToken.symbol, collateralToken.address, decimalToBig(colleteralAmount.toString()), { gasLimit: 1000000 }
+            )
             const result = await lendingContract.borrow(
-                loanToken.symbol, decimalToBig(amount), loanToken.address,
-                collateralToken.symbol, collateralToken.address, decimalToBig(collateralValueInDaiUnits.toString()), { gasLimit: 1000000 }
+                loanToken.symbol, decimalToBig(amount.toString()), loanToken.address,
+                collateralToken.symbol, collateralToken.address, decimalToBig(colleteralAmount.toString()), { gasLimit: 1000000 }
             );
 
             settranxHash(result.hash);
             await result.wait(1)
-            setAlerts(current => [...current,
-                { severity: 'success', title: 'Supply', description: 'Supply completed successfully' }]);
+            setAlert({ severity: 'success', title: 'Supply', description: 'Supply completed successfully' });
 
-            
+
             setInProgress(false)
             params?.input?.toggleDrawer(true)
         } catch (err) {
-            setAlerts(current => [...current,
-                { severity: 'error', title: 'Borrow', description: err.message }]);
+            setAlert({ severity: 'error', title: 'Borrow', description: err.message });
             setInProgress(false)
             params?.input?.toggleDrawer(false)
         }
@@ -175,30 +171,24 @@ export default function BorrowItem(params) {
                     collateralToken = Tokens[key];
                 }
             });
-            setAlerts(current => [...current,
-                { severity: 'info', title: 'Aprroval', description: 'Approval of transaction in progress' }
-            ]);
-    
-            const collateralContract = makeContract(collateralToken.address, collateralToken.abi, signer);
-            await collateralContract.approve(lendingContract.address, decimalToBig(row["loanAmount"]));
-            setAlerts(current => [...current,
-                { severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' }]);
-                setAlerts(current => [...current,
-                { severity: 'info', title: 'Repay', description: 'Repay in progress' }]);
+            setAlert({ severity: 'info', title: 'Aprroval', description: 'Approval of transaction in progress' });
+
+            const loanTokenContract = makeContract(currentRow.token.address, collateralToken.abi, signer);
+            await loanTokenContract.approve(lendingContract.address, decimalToBig(row["loanAmount"]));
+            setAlert({ severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' });
+            setAlert({ severity: 'info', title: 'Repay', description: 'Repay in progress' });
             const result = await lendingContract.repay(
                 row['loanToken'], decimalToBig(row["loanAmount"]), currentRow.token.address,
                 collateralToken.address, row.id, { gasLimit: 1000000 });
             await result.wait(1)
-            setAlerts(current => [...current,
-                { severity: 'success', title: 'Repay', description: 'Repay completed successfully' }]);
-    
+            setAlert({ severity: 'success', title: 'Repay', description: 'Repay completed successfully' });
+
             setInProgress(false)
             params?.input?.toggleDrawer(true)
 
         } catch (err) {
             setInProgress(false)
-            setAlerts(current => [...current,
-                { severity: 'error', title: 'Repay', description: err.message }]);
+            setAlert({ severity: 'error', title: 'Repay', description: err.message });
             params?.input?.toggleDrawer(true)
         }
 
@@ -209,14 +199,26 @@ export default function BorrowItem(params) {
             if (amount && collateral) {
                 const collateralToken = Tokens[collateral];
                 const loanToken = currentRow.token;
-                const collateralAggregators = TokenAggregators.find((aggregator) => aggregator.collatralToken === collateralToken.symbol);
-                const loanAggregators = TokenAggregators.find((aggregator) => aggregator.collatralToken === loanToken.symbol);
+                const collateralAggregators = TokenAggregators.find((aggregator) => aggregator.tokenSymbol === collateralToken.symbol);
+                const loanAggregators = TokenAggregators.find((aggregator) => aggregator.tokenSymbol === loanToken.symbol);
                 if (collateralAggregators && loanAggregators) {
                     setDecimals(collateralAggregators.decimals)
                     const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
-                    let collateralValue = await lendingContract.getColateralAmount(loanAggregators.collateralAggregator, collateralAggregators.collateralAggregator, decimalToBig(amount));
-                    console.log(collateralValue, bigToDecimal(collateralValue))
-                    setColleteralAmount(Number(collateralValue)/Math.pow(10, 18))
+                    const loanBigUnitPriceInUSD = await lendingContract.getAggregatorPrice(loanAggregators.aggregator);
+                    console.log('loanBigUnitPriceInUSD', loanBigUnitPriceInUSD);
+                    const loanUnitPriceInUSD = ethers.utils.formatUnits(loanBigUnitPriceInUSD, loanAggregators.decimals);
+                    console.log('loanUnitPriceInUSD', loanUnitPriceInUSD);
+                    const totalLoanInUSD = Number(loanUnitPriceInUSD) * Number(amount);
+                    console.log('totalLoanInUSD', totalLoanInUSD);
+                    const collateralBigUnitPriceInUSD = await lendingContract.getAggregatorPrice(collateralAggregators.aggregator);
+                    console.log('collateralBigUnitPriceInUSD', collateralBigUnitPriceInUSD);
+                    const collateralUnitPriceInUSD = ethers.utils.formatUnits(collateralBigUnitPriceInUSD, loanAggregators.decimals);
+                    console.log('collateralUnitPriceInUSD', collateralUnitPriceInUSD);
+                    const totalCollateralInUSD = Number(loanUnitPriceInUSD) * Number(100) / 70;
+                    console.log('totalCollateralInUSD', totalCollateralInUSD);
+                    // let collateralValue = await lendingContract.getColateralAmount(loanAggregators.aggregator, collateralAggregators.aggregator, decimalToBig(amount));
+                    console.log(totalCollateralInUSD, totalCollateralInUSD)
+                    setColleteralAmount(totalCollateralInUSD)
                 } else {
                     alert('No aggregator found for token ' + collateral)
                 }
@@ -247,22 +249,6 @@ export default function BorrowItem(params) {
 
     return (
         <React.Fragment key="RIGHTContent">
-
-            <Backdrop
-                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-                open={inProgress}
-            ></Backdrop>
-            {
-                alerts.map((alert) => (
-                    <Stack spacing={2} sx={{ float: 'left', zIndex: 11000 }}>
-
-                        <Alert variant="outlined" sx={{ background: 'white' }} severity={alert.severity}>
-                            <AlertTitle>{alert.title}</AlertTitle>
-                            {alert.description} — <strong>view on blockexplorer!</strong>
-                        </Alert>
-                    </Stack>
-                ))
-            }
             <Box
                 component="main"
                 sx={{
@@ -342,11 +328,13 @@ export default function BorrowItem(params) {
                                                             src={Tokens[collateral]?.icon} />
                                                     </Avatar>} >
                                                 {tokens.map((token) => (
-                                                    <MenuItem key={token} value={token}>
-                                                        <img className="chainIcon" alt=""
-                                                            src={Tokens[token].icon} />
-                                                        <ListItemText primary={Tokens[token].name} />
-                                                    </MenuItem>
+                                                    !token.isPedgeToken && (
+                                                        <MenuItem key={token} value={token}>
+                                                            <img className="chainIcon" alt=""
+                                                                src={Tokens[token].icon} />
+                                                            <ListItemText primary={Tokens[token].name} />
+                                                        </MenuItem>
+                                                    )
                                                 ))}
                                             </Select>
                                         </FormControl>
@@ -379,7 +367,7 @@ export default function BorrowItem(params) {
                                         </FormControl>
                                     </Grid>
                                     <Grid item xs={12} sm={12} md={12}>
-                                      <h4>  Amount to be collateralized {colleteralAmount / Math.pow(10, 18)}  / {availableAmount} {collateral}</h4>
+                                        <h4>  Amount to be collateralized {colleteralAmount}  / {availableAmount} {collateral}</h4>
                                     </Grid>
                                     <Grid item xs={12} sm={12} md={12}>
                                         <div><p sx={{ fontSize: '11px' }}>Minimum: <b>10 BNB</b> Maximum: <b>500BNB</b></p></div>
