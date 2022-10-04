@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar, FormControl, InputLabel, Input, Select, MenuItem, OutlinedInput, TableHead, Backdrop, Stack, Alert, AlertTitle } from '@mui/material';
+import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar, FormControl, InputLabel, Input, Select, MenuItem, OutlinedInput, TableHead, Backdrop, Stack, Alert, AlertTitle, Popover } from '@mui/material';
 import { makeStyles } from '@mui/styles'
 import { ArrowBack, Inbox, Mail } from '@mui/icons-material';
 import theme from '../../../theme';
@@ -11,7 +11,7 @@ import TabPanel from '@mui/lab/TabPanel';
 import { abis, contractAddresses, makeContract } from '../../../contracts/useContracts';
 import { ethers } from 'ethers';
 import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
-import { TokenAggregators, Tokens } from '../../../token-icons';
+import { IntrestRateModal, TokenAggregators, Tokens } from '../../../token-icons';
 import { bigToDecimal, bigToDecimalUints, decimalToBig } from '../../../utils/utils';
 import { FluteAlertContext } from '../../../Components/Alert';
 require('dotenv').config();
@@ -21,6 +21,19 @@ const MenuProps = {
             width: 250,
         },
     },
+};
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '100%',
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    pt: 2,
+    px: 4,
+    pb: 3,
 };
 const useStyles = makeStyles({
     rightBar: {
@@ -62,6 +75,8 @@ export default function BorrowItem(params) {
     const classes = useStyles();
     const [value, setValue] = React.useState('1');
     const [amount, setAmount] = useState("0.00");
+    const [repayAmountValue, setRepayAmountValue] = useState("0.00");
+
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
@@ -108,9 +123,11 @@ export default function BorrowItem(params) {
                     id,
                     repaid: details.hasRepaid,
                     startDay: bigToDecimal(details.borrowDay),
+                    borrowAmount: Number(bigToDecimal(details.borrowAmount)),
                     endDay: bigToDecimal(details.endDay),
-                    loanAmount: bigToDecimal(details.loanAmount)
+                    loanAmount: Number(bigToDecimal(details.loanAmount))
                 }
+                console.log(Borrow);
                 setBorrowDetails(current => [...current, Borrow]);
             });
         }
@@ -141,9 +158,10 @@ export default function BorrowItem(params) {
             console.log('Borrow Params', loanToken.symbol, decimalToBig(amount.toString()), loanToken.address,
                 collateralToken.symbol, collateralToken.address, decimalToBig(colleteralAmount.toString()), { gasLimit: 1000000 }
             )
+            console.log(currentRow.borrowAPY || '0')
             const result = await lendingContract.borrow(
                 loanToken.symbol, decimalToBig(amount.toString()), loanToken.address,
-                collateralToken.symbol, collateralToken.address, decimalToBig(colleteralAmount.toString()), { gasLimit: 1000000 }
+                collateralToken.symbol, collateralToken.address, decimalToBig(colleteralAmount.toString()), decimalToBig(currentRow.borrowAPY.toString() || '0'), false, { gasLimit: 1000000 }
             );
 
             settranxHash(result.hash);
@@ -160,8 +178,20 @@ export default function BorrowItem(params) {
         }
 
     }
+    const [redeemRow, setRedeemRow] = React.useState({});
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = (event) => {
+        setRedeemRow(event)
+        setOpen(true);
+        setRepayAmountValue(event.loanAmount + (event.loanAmount * event.borrowAPY))
+    };
+    const handleClose = () => {
+        setOpen(false);
+    };
+
     const repayAmount = async (row) => {
         try {
+            handleClose()
             setInProgress(true)
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
             const tokenKeys = Object.keys(Tokens);
@@ -174,12 +204,12 @@ export default function BorrowItem(params) {
             setAlert({ severity: 'info', title: 'Aprroval', description: 'Approval of transaction in progress' });
 
             const loanTokenContract = makeContract(currentRow.token.address, collateralToken.abi, signer);
-            await loanTokenContract.approve(lendingContract.address, decimalToBig(row["loanAmount"]));
+            await loanTokenContract.approve(lendingContract.address, decimalToBig(repayAmountValue.toString()));
             setAlert({ severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' });
             setAlert({ severity: 'info', title: 'Repay', description: 'Repay in progress' });
             const result = await lendingContract.repay(
-                row['loanToken'], decimalToBig(row["loanAmount"]), currentRow.token.address,
-                collateralToken.address, row.id, { gasLimit: 1000000 });
+                row['loanToken'], decimalToBig(repayAmountValue.toString()), currentRow.token.address,
+                collateralToken.address, row.id, IntrestRateModal, { gasLimit: 1000000 });
             await result.wait(1)
             setAlert({ severity: 'success', title: 'Repay', description: 'Repay completed successfully' });
 
@@ -214,7 +244,7 @@ export default function BorrowItem(params) {
                     console.log('collateralBigUnitPriceInUSD', collateralBigUnitPriceInUSD);
                     const collateralUnitPriceInUSD = ethers.utils.formatUnits(collateralBigUnitPriceInUSD, loanAggregators.decimals);
                     console.log('collateralUnitPriceInUSD', collateralUnitPriceInUSD);
-                    const totalCollateralInUSD = Number(loanUnitPriceInUSD) * Number(100) / 70;
+                    const totalCollateralInUSD = Number(totalLoanInUSD) * Number(100) / 70;
                     console.log('totalCollateralInUSD', totalCollateralInUSD);
                     // let collateralValue = await lendingContract.getColateralAmount(loanAggregators.aggregator, collateralAggregators.aggregator, decimalToBig(amount));
                     console.log(totalCollateralInUSD, totalCollateralInUSD)
@@ -386,7 +416,8 @@ export default function BorrowItem(params) {
                                 <Table aria-label="simple table">
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell>Amount</TableCell>
+                                            <TableCell>Borrowed</TableCell>
+                                            <TableCell>Remaining</TableCell>
                                             <TableCell align="right">Start</TableCell>
                                             <TableCell align="right">End</TableCell>
                                             <TableCell align="right">Action</TableCell>
@@ -399,19 +430,25 @@ export default function BorrowItem(params) {
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                             >
                                                 <TableCell component="th" scope="row">
+                                                    {row.borrowAmount}
+                                                </TableCell>
+                                                <TableCell component="th" scope="row">
                                                     {row.loanAmount}
                                                 </TableCell>
                                                 <TableCell align="right">{row.startDay}</TableCell>
                                                 <TableCell align="right">{row.endDay}</TableCell>
                                                 <TableCell align="right">{
-                                                    !row.hasRepaid && (
-                                                        <Button onClick={() => repayAmount(row)}>
+                                                    row.loanAmount > 0 && (
+                                                        <div> <Button onClick={() => handleOpen(row)}>
                                                             Repay
                                                         </Button>
+
+                                                        </div>
+
                                                     )
                                                 }
                                                     {
-                                                        row.hasRepaid && (
+                                                        row.loanAmount <= 0 && (
                                                             <div>Repaid</div>
                                                         )
                                                     }</TableCell>
@@ -419,13 +456,53 @@ export default function BorrowItem(params) {
                                         ))}
                                     </TableBody>
                                 </Table>
+
                             </TableContainer>
                         </TabPanel>
                     </TabContext>
                 </Card>
             </Box>
+            <Modal
 
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="child-modal-title"
+                aria-describedby="child-modal-description"
+            >
+                <Box sx={{ ...style, width: 'auto' }}>
+                    <Typography id="transition-modal-title" variant="h6" component="h2">
+                        Redeem Token
+                    </Typography>
+                    <Typography sx={{ mt: 2 }}>
+                        Amount Borrowed: {redeemRow.borrowAmount}
+                    </Typography>
+                    <Typography sx={{ mt: 2 }}>
+                        Remaining: {redeemRow.loanAmount}
+                    </Typography>
+                    <Typography sx={{ mt: 2 }}>
+                        Amount To Pay: {redeemRow.loanAmount + (redeemRow.loanAmount * currentRow.borrowAPY)}
+                    </Typography>
+                    <Typography sx={{ mt: 2 }}>
+                        <FormControl variant="outlined" sx={{ m: 1, width: 300 }}>
+                            <InputLabel htmlFor="RepayID">
+                                Repay Amount
+                            </InputLabel>
+                            <OutlinedInput
+                                label="Repay Amount"
+                                value={repayAmountValue}
+                                type="number"
+                                max={redeemRow.loanAmount + (redeemRow.loanAmount * currentRow.borrowAPY)}
+                                onChange={(e) => setRepayAmountValue(e.target.value)}
+                                id="RepayID"
 
+                            />
+                        </FormControl>
+                    </Typography>
+                    <Button onClick={handleClose}>Close</Button>
+                    <Button onClick={() => repayAmount(redeemRow)}>Repay</Button>
+
+                </Box>
+            </Modal>
         </React.Fragment>
     );
 }

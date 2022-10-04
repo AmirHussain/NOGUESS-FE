@@ -7,7 +7,7 @@ import { abis, asyncContractCall, contractAddresses, makeContract } from '../../
 import { Web3Provider, Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
 import { ethers } from 'ethers';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { Tokens } from '../../../token-icons';
+import { IntrestRateModal, TokenBorrowLimitations, Tokens } from '../../../token-icons';
 import { bigToDecimal, decimalToBig } from '../../../utils/utils';
 import moment from 'moment/moment';
 import { FluteAlertContext } from '../../../Components/Alert';
@@ -112,7 +112,7 @@ export default function SupplyItem(params) {
             const wethResult = await fweth.approve(lendingContract.address, decimalToBig(row.tokenAmount));
             setAlert({ severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' });
             setAlert({ severity: 'info', title: 'Redeem', description: 'Redeem in progress' });
-            const result = await lendingContract.redeem(currentRow.token.symbol, decimalToBig(row.tokenAmount), currentRow.token.address, row.id, { gasLimit: 1000000 });
+            const result = await lendingContract.redeem(currentRow.token.symbol, decimalToBig(row.tokenAmount), currentRow.token.address, row.id,IntrestRateModal,TokenBorrowLimitations.ProtocolShare, { gasLimit: 1000000 });
             await result.wait(1)
             setAlert({ severity: 'success', title: 'Redeem', description: 'Redeem completed successfully' });
             setInProgress(false)

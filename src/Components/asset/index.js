@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar, Slide, useMediaQuery } from '@mui/material';
 import { makeStyles } from '@mui/styles'
 import Tiles from '../../Components/tiles';
@@ -12,22 +12,25 @@ import { IntrestRateModal, TokenBorrowLimitations } from '../../token-icons';
 import { bigToDecimal, decimalToBig } from '../../utils/utils';
 
 const options = {
+
     title: {
-        text: 'Intrest Rate Modal'
+        text: 'U.S Solar Employment Growth by Job Category, 2010-2020'
     },
 
     subtitle: {
-        text: ''
+        text: 'Source: <a href="https://irecusa.org/programs/solar-jobs-census/" target="_blank">IREC</a>'
     },
 
     yAxis: {
         title: {
-            text: 'Intrest rate'
+            text: 'Number of Employees'
         }
     },
 
     xAxis: {
-
+        accessibility: {
+            rangeDescription: 'Range: 2010 to 2020'
+        }
     },
 
     legend: {
@@ -46,11 +49,12 @@ const options = {
     },
 
     series: [{
-        name: 'Supply APY',
-        data: []
+        name: 'Installation & Developers',
+        data: [0, 0.000495]
+
     }, {
-        name: 'Borrow APY',
-        data: []
+        name: 'Manufacturing',
+        data: [0.05, 0.05]
     }],
 
     responsive: {
@@ -67,6 +71,7 @@ const options = {
             }
         }]
     }
+
 }
 const useStyles = makeStyles({
     rightBar: {
@@ -149,54 +154,53 @@ export default function Asset(params) {
     const [callInProgress, setCallInProgress] = React.useState(true);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
+    const chartRef = useRef(null);
 
-
-    const setApyGraph = async () => {
+    const supplySeries = [];
+    const borrowSeries = [];
+    const setApyGraph = () => {
         if (!signer || !currentToken) {
             return
         }
 
-        setCallInProgress(true);
         const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
-        const supplySeries = [];
-        const borrowSeries = [];
-        let counter = {supply:0,borrow:0};
-        for (let i = 0; i < 100; i++) {
-            const uratio = decimalToBig((50 / 100).toString());
-            console.log(uratio, IntrestRateModal, TokenBorrowLimitations.ProtocolShare);
-            lendingContract.lendingProfiteRate(currentToken.address, uratio, IntrestRateModal, TokenBorrowLimitations.ProtocolShare)
-            // .then((res, i) => {
-            //     supplySeries[i] = bigToDecimal(res);
-            //     counter.supply++;
-            //     if(counter.supply===100 && counter.borrow===100){
-            //         // options.series[0].data = supplySeries;
-            //         // options.series[1].data = borrowSeries;
-            //         console.log(supplySeries,borrowSeries)
-            //         // setCallInProgress(false);
-            //     }
-            // });
-            console.log(supplySeries[i])
+     
 
-            lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal)
-            // .then(async (res, i) => {
-            //   const brate= await lendingContract.getOverallBorrowRate(
-            //         currentToken.address, res[0], res[1]
-            //     );
-            //     borrowSeries[i] = bigToDecimal(brate);
-            //     counter.borrow++;
-            //     if(counter.supply===100 && counter.borrow===100){
-            //         // options.series[0].data = supplySeries;
-            //         // options.series[1].data = borrowSeries;
-            //         console.log(supplySeries,borrowSeries)
-            //         // setCallInProgress(false);
-            //     }
-            // });
+        const start = 1;
+        const end = 100;
+        const range = [...Array(end - start + 1).keys()].map(x => x + start);
+        return Promise.all(
+            range.map(async (item, index) => {
+                const uratio = decimalToBig((index / 100).toString());
+                const supplyRate = await lendingContract.lendingProfiteRate(currentToken.address, uratio, IntrestRateModal, TokenBorrowLimitations.ProtocolShare);
+                supplySeries[index] = Number(bigToDecimal(supplyRate))
+                const result = await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal);
+                const brate = await lendingContract.getOverallBorrowRate(
+                    currentToken.address, result[0], result[1]
+                );
+                borrowSeries[index] = Number(bigToDecimal(brate))
+                if (index === 99) {
+                    // options.series[0].data = supplySeries;
+                    // options.series[1].data = borrowSeries;
+                    console.log(options)
+                    setCallInProgress(false);
+                }
+            })
+        ).then(() => {
+            console.log('Items processed');
+        });
 
-            
-        }
     }
 
-    setApyGraph();
+setApyGraph()
+    React.useEffect(() => {
+        const chart = chartRef.current?.chart;
+
+    if (chart){
+        chart.options=options;   
+         chart.reflow(false);}
+
+    }, [callInProgress]); // Empty array means to only run once on mount.
     return (
         <React.Fragment key="RIGHT1">
             <Dialog
@@ -328,15 +332,14 @@ export default function Asset(params) {
                         <Grid item md={6} xs={12}>
                             <Card className={classes.innerCard}>
                                 <div className="text">
-                                    {!callInProgress && (
+                                        <div className={classes.textMuted}>
+                                            <HighchartsReact ref={chartRef}
+                                                highcharts={Highcharts}
+                                                options={options}
+                                            />
+                                        </div>
 
-                                        <div className={classes.textMuted}><HighchartsReact
-                                            highcharts={Highcharts}
-                                            options={options}
-                                        /></div>
-                                    )
-
-                                    }</div>
+                                </div>
                             </Card>
                         </Grid>
                         <Grid item md={12} xs={12}>
@@ -345,10 +348,11 @@ export default function Asset(params) {
                                     <div className={classes.textHighlighted}>
                                         Stats
                                     </div>
-                                    <div className={classes.textMuted}><HighchartsReact
+                                    {/* <div className={classes.textMuted}><HighchartsReact
                                         highcharts={Highcharts}
-                                        options={options}
-                                    /></div></div>
+                                        options={options} />
+                                    </div> */}
+                                </div>
                             </Card>
                         </Grid>
                         <Grid item md={6} xs={12}>

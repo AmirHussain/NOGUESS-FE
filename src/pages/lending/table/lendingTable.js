@@ -107,8 +107,8 @@ export default function SupplyTable(props) {
       );
       
 
-      let supplyAPY = ethers.utils.formatEther(supplyAPR);
-      let borrowAPY = ethers.utils.formatEther(borrowAPR);;
+      let supplyAPY = Number(ethers.utils.formatEther(supplyAPR));
+      let borrowAPY = Number(ethers.utils.formatEther(borrowAPR));;
       let supplyAmount = 0;
       let borrowAmount = 0;
       if (supplyResult) {
