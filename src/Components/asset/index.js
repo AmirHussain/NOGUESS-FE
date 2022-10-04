@@ -197,7 +197,7 @@ setApyGraph()
         const chart = chartRef.current?.chart;
 
     if (chart){
-        chart.options=options;   
+        // chart.options=options;   
          chart.reflow(false);}
 
     }, [callInProgress]); // Empty array means to only run once on mount.
