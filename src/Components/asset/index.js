@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar, Slide, useMediaQuery } from '@mui/material';
 import { makeStyles } from '@mui/styles'
 import Tiles from '../../Components/tiles';
@@ -6,14 +6,67 @@ import { ArrowBack, Close, Inbox, Mail } from '@mui/icons-material';
 import theme from '../../theme'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
+import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
+import { Web3ProviderContext } from '../walletConnect/walletConnect';
+import { IntrestRateModal, TokenBorrowLimitations } from '../../token-icons';
+import { bigToDecimal, decimalToBig } from '../../utils/utils';
 
 const options = {
     title: {
-        text: 'My chart'
+        text: 'Intrest Rate Modal'
     },
+
+    subtitle: {
+        text: ''
+    },
+
+    yAxis: {
+        title: {
+            text: 'Intrest rate'
+        }
+    },
+
+    xAxis: {
+
+    },
+
+    legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle'
+    },
+
+    plotOptions: {
+        series: {
+            label: {
+                connectorAllowed: false
+            },
+            pointStart: 0.0
+        }
+    },
+
     series: [{
-        data: [1, 2, 3]
-    }]
+        name: 'Supply APY',
+        data: []
+    }, {
+        name: 'Borrow APY',
+        data: []
+    }],
+
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+            chartOptions: {
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom'
+                }
+            }
+        }]
+    }
 }
 const useStyles = makeStyles({
     rightBar: {
@@ -92,9 +145,58 @@ const useStyles = makeStyles({
 export default function Asset(params) {
 
     const classes = useStyles();
-
+    const currentToken = params.currentRow?.token;
+    const [callInProgress, setCallInProgress] = React.useState(true);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
+
+    const setApyGraph = async () => {
+        if (!signer || !currentToken) {
+            return
+        }
+
+        setCallInProgress(true);
+        const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
+        const supplySeries = [];
+        const borrowSeries = [];
+        let counter = {supply:0,borrow:0};
+        for (let i = 0; i < 100; i++) {
+            const uratio = decimalToBig((50 / 100).toString());
+            console.log(uratio, IntrestRateModal, TokenBorrowLimitations.ProtocolShare);
+            lendingContract.lendingProfiteRate(currentToken.address, uratio, IntrestRateModal, TokenBorrowLimitations.ProtocolShare)
+            // .then((res, i) => {
+            //     supplySeries[i] = bigToDecimal(res);
+            //     counter.supply++;
+            //     if(counter.supply===100 && counter.borrow===100){
+            //         // options.series[0].data = supplySeries;
+            //         // options.series[1].data = borrowSeries;
+            //         console.log(supplySeries,borrowSeries)
+            //         // setCallInProgress(false);
+            //     }
+            // });
+            console.log(supplySeries[i])
+
+            lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal)
+            // .then(async (res, i) => {
+            //   const brate= await lendingContract.getOverallBorrowRate(
+            //         currentToken.address, res[0], res[1]
+            //     );
+            //     borrowSeries[i] = bigToDecimal(brate);
+            //     counter.borrow++;
+            //     if(counter.supply===100 && counter.borrow===100){
+            //         // options.series[0].data = supplySeries;
+            //         // options.series[1].data = borrowSeries;
+            //         console.log(supplySeries,borrowSeries)
+            //         // setCallInProgress(false);
+            //     }
+            // });
+
+            
+        }
+    }
+
+    setApyGraph();
     return (
         <React.Fragment key="RIGHT1">
             <Dialog
@@ -128,11 +230,11 @@ export default function Asset(params) {
                             sx={{ marginRight: '10px' }}
                         >
                             <img className="chainIcon" alt=""
-                                src={params.icon} />
+                                src={currentToken?.icon} />
                         </Avatar>
 
                         <Typography variant="h6">
-                            {params.title}
+                            {currentToken?.title}
                         </Typography>
 
                     </Toolbar>
@@ -175,7 +277,7 @@ export default function Asset(params) {
                                     <div className={classes.textMuted}>Total Locked Supply</div>
                                     <div><b>93 981.26 WAVES</b></div>
                                 </div>
-                                <Divider sx={{margin:'10px'}}></Divider>
+                                <Divider sx={{ margin: '10px' }}></Divider>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Total Debt</div>
                                     <div><b>19 891.46 WAVES</b></div>
@@ -205,7 +307,7 @@ export default function Asset(params) {
                                     <div className={classes.textMuted}>Vires Rewards for Locked Supply (1y), APR</div>
                                     <div><b>3.54%</b></div>
                                 </div>
-                                <Divider sx={{margin:'10px'}}></Divider>
+                                <Divider sx={{ margin: '10px' }}></Divider>
 
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Reserve address</div>
@@ -226,13 +328,15 @@ export default function Asset(params) {
                         <Grid item md={6} xs={12}>
                             <Card className={classes.innerCard}>
                                 <div className="text">
-                                    <div className={classes.textHighlighted}>
-                                        Interest Rate Model
-                                    </div>
-                                    <div className={classes.textMuted}><HighchartsReact
-                                        highcharts={Highcharts}
-                                        options={options}
-                                    /></div></div>
+                                    {!callInProgress && (
+
+                                        <div className={classes.textMuted}><HighchartsReact
+                                            highcharts={Highcharts}
+                                            options={options}
+                                        /></div>
+                                    )
+
+                                    }</div>
                             </Card>
                         </Grid>
                         <Grid item md={12} xs={12}>
