@@ -10,69 +10,46 @@ import { abis, contractAddresses, makeContract } from '../../contracts/useContra
 import { Web3ProviderContext } from '../walletConnect/walletConnect';
 import { IntrestRateModal, TokenBorrowLimitations } from '../../token-icons';
 import { bigToDecimal, decimalToBig } from '../../utils/utils';
+import Chart from 'react-apexcharts'
 
 const options = {
-
+    chart: {
+        height: 350,
+        type: 'line',
+        zoom: {
+            enabled: false
+        }
+    },
+    dataLabels: {
+        enabled: false
+    },
+    stroke: {
+        curve: 'straight'
+    },
     title: {
-        text: 'U.S Solar Employment Growth by Job Category, 2010-2020'
+        text: 'Intrest Rate Model',
+        align: 'left'
     },
-
-    subtitle: {
-        text: 'Source: <a href="https://irecusa.org/programs/solar-jobs-census/" target="_blank">IREC</a>'
+    grid: {
+        row: {
+            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+            opacity: 0.5
+        },
     },
-
-    yAxis: {
-        title: {
-            text: 'Number of Employees'
-        }
-    },
-
-    xAxis: {
-        accessibility: {
-            rangeDescription: 'Range: 2010 to 2020'
-        }
-    },
-
-    legend: {
-        layout: 'vertical',
-        align: 'right',
-        verticalAlign: 'middle'
-    },
-
-    plotOptions: {
-        series: {
-            label: {
-                connectorAllowed: false
-            },
-            pointStart: 0.0
-        }
-    },
-
-    series: [{
-        name: 'Installation & Developers',
-        data: [0, 0.000495]
-
-    }, {
-        name: 'Manufacturing',
-        data: [0.05, 0.05]
-    }],
-
-    responsive: {
-        rules: [{
-            condition: {
-                maxWidth: 500
-            },
-            chartOptions: {
-                legend: {
-                    layout: 'horizontal',
-                    align: 'center',
-                    verticalAlign: 'bottom'
-                }
-            }
-        }]
+    xaxis: {
+        categories: [],
     }
-
 }
+
+
+const series = [{
+    name: 'Supply APY',
+    data: [30, 40, 35, 50, 49, 60, 70, 91, 125]
+}, {
+    name: 'Borrow APY',
+    data: [30, 40, 35, 50, 49, 60, 70, 91, 125]
+}]
+
 const useStyles = makeStyles({
     rightBar: {
         zIndex: theme.drawerIndex + 1,
@@ -154,7 +131,6 @@ export default function Asset(params) {
     const [callInProgress, setCallInProgress] = React.useState(true);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
-    const chartRef = useRef(null);
 
     const supplySeries = [];
     const borrowSeries = [];
@@ -164,7 +140,7 @@ export default function Asset(params) {
         }
 
         const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
-     
+
 
         const start = 1;
         const end = 100;
@@ -175,13 +151,13 @@ export default function Asset(params) {
                 const supplyRate = await lendingContract.lendingProfiteRate(currentToken.address, uratio, IntrestRateModal, TokenBorrowLimitations.ProtocolShare);
                 supplySeries[index] = Number(bigToDecimal(supplyRate))
                 const result = await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal);
-                const brate = await lendingContract.getOverallBorrowRate(
-                    currentToken.address, result[0], result[1]
-                );
-                borrowSeries[index] = Number(bigToDecimal(brate))
+                // const brate = await lendingContract.getOverallBorrowRate(
+                //     currentToken.address, result[0], result[1]
+                // );
+                borrowSeries[index] = Number(bigToDecimal(result[1]))
                 if (index === 99) {
-                    // options.series[0].data = supplySeries;
-                    // options.series[1].data = borrowSeries;
+                    series[0].data = supplySeries;
+                    series[1].data = borrowSeries;
                     console.log(options)
                     setCallInProgress(false);
                 }
@@ -192,13 +168,9 @@ export default function Asset(params) {
 
     }
 
-setApyGraph()
+    setApyGraph()
     React.useEffect(() => {
-        const chart = chartRef.current?.chart;
 
-    if (chart){
-        // chart.options=options;   
-         chart.reflow(false);}
 
     }, [callInProgress]); // Empty array means to only run once on mount.
     return (
@@ -332,13 +304,11 @@ setApyGraph()
                         <Grid item md={6} xs={12}>
                             <Card className={classes.innerCard}>
                                 <div className="text">
+                                    {!callInProgress && (
                                         <div className={classes.textMuted}>
-                                            <HighchartsReact ref={chartRef}
-                                                highcharts={Highcharts}
-                                                options={options}
-                                            />
-                                        </div>
-
+                                            <Chart options={options} series={series} type="line" width={500} height={320} />
+                                        </div>)
+                                    }
                                 </div>
                             </Card>
                         </Grid>
