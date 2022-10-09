@@ -12,19 +12,19 @@ export const Tokens = {
 }
 
 export const TokenBorrowLimitations = {
-    CollateralFator: decimalToBig('0.70'),
+    CollateralFator: decimalToBig('70'),
     LiquidationThreshold: decimalToBig('0.80'),
-    LiquidationPenalty: decimalToBig('0.30'),
+    LiquidationPenalty: decimalToBig('30'),
+    ProtocolShare: decimalToBig('0.01'),
     InitialBorrowRate: decimalToBig('0.30'),
     MAX_UTILIZATION_RATE: decimalToBig('0.80'),
     OPTIMAL_UTILIZATION_RATE: decimalToBig('0.70'),
     StableRateSlope1: decimalToBig('0.04'),
-    StableRateSlope2: decimalToBig('0.06'),
+    StableRateSlope2: decimalToBig('0.50'),
     VariableRateSlope1: decimalToBig('0.02'),
-    VariableRateSlope2: decimalToBig('0.03'),
+    VariableRateSlope2: decimalToBig('0.40'),
     baseRate: decimalToBig('0.010'),
-    AllowStableJob: true,
-}
+    AllowStableJob: true,}
 // let OPTIMAL_UTILIZATION_RATE=decimalToBig('0.70');
 // let stableRateSlope1=decimalToBig('0.01')
 // let stableRateSlope2=decimalToBig('0.01')

@@ -17,12 +17,41 @@ console.log(bigToDecimal(TokenBorrowLimitations.LiquidationThreshold))
 const end = parseInt(Number(bigToDecimal(TokenBorrowLimitations.LiquidationThreshold)) * 100);
 console.log('end', end)
 const range = [...Array(end - start + 1).keys()].map(x => x + start);
+let currentUtilization=0
+let currentSupplyAPR=0
+
+let currentBorrowAPR=0
 const options = {
 
     title: {
         text: 'Intrest Rate Modal'
     },
-
+    tooltip: {
+        split: false,
+              backgroundColor: 'black',
+              borderColor: 'green',
+              borderWidth:3,
+              borderRadius: 3,
+              style: {
+                  color: 'white'
+              },
+        formatter: function() {
+          if(this.series
+            &&this.series.chart
+            &&this.series.chart.options
+            &&this.series.chart.options.series&&
+            this.series.chart.options.series.length){
+                return `
+                Utilization: ${this.point.x  } % <br>
+                Supply APR: ${this.series.chart.options.series[0].data[this.point.x ]} % <br>
+                Borrow APR: ${this.series.chart.options.series[1].data[this.point.x ]} % <br><hr>
+                Current Utilization / Supply / Borrow <br>
+                 ${parseFloat(currentUtilization||0).toFixed(2)} % /${parseFloat(currentSupplyAPR||0).toFixed(2)} % /${parseFloat(currentBorrowAPR||0).toFixed(2)}
+                `
+    
+            }
+        }
+      },
     subtitle: {
         text: ''
     },
@@ -37,6 +66,7 @@ const options = {
         title: {
             text: 'Utilization'
         },
+        
         accessibility: {
             rangeDescription: 'Utilization'
         }
@@ -53,7 +83,7 @@ const options = {
     plotOptions: {
         series: {
             label: {
-                connectorAllowed: false
+                connectorAllowed: true
             },
             pointStart: 0.0
         }
@@ -176,17 +206,23 @@ export default function Asset(params) {
             return
         }
         try {
-            console.log(decimalToBigUints(bigToDecimalUints(TokenBorrowLimitations.MAX_UTILIZATION_RATE, 2), 2))
+            console.log(            
+            currentToken.address,
+                IntrestRateModal,
+                    decimalToBigUints(bigToDecimalUints(TokenBorrowLimitations.MAX_UTILIZATION_RATE, 2), 2))
+                console.log(lendingContract)
             const chartData = await lendingContract.getChartData(
-                currentToken.address, IntrestRateModal, decimalToBigUints(bigToDecimalUints(TokenBorrowLimitations.MAX_UTILIZATION_RATE, 2), 2)
+                currentToken.address,
+                IntrestRateModal,
+                    decimalToBigUints(bigToDecimalUints(TokenBorrowLimitations.MAX_UTILIZATION_RATE, 2), 2)
             );
             console.log(chartData)
             options.series[0].data = chartData[0].map(item => Number(parseFloat(Number(bigToDecimal(item)) * 100).toFixed(2)))
             options.series[1].data = chartData[1].map(item => Number(parseFloat(Number(bigToDecimal(item)) * 100).toFixed(2)))
-           
+
 
         } catch (err) {
-console.log(err)
+            console.log(err);
         } finally {
             setCallInProgress(false);
         }
@@ -194,16 +230,16 @@ console.log(err)
     }
 
 
-    const getTokenDetails = async() => {
+    const getTokenDetails = async () => {
         const details = getTokenProperties(currentToken.symbol)
         setTokendetails(details);
-      setTimeout( ()=>{
-         getTokenMarketDetails( details)
-      })
-      
+        setTimeout(() => {
+            getTokenMarketDetails(details)
+        })
+
     }
 
-    const getTokenMarketDetails = async ( tokendetails) => {
+    const getTokenMarketDetails = async (tokendetails) => {
 
         const details = {
         }
@@ -211,7 +247,7 @@ console.log(err)
 
         if (tokendetails.aggregator) {
             const result = await lendingContract.getAggregatorPrice(tokendetails.aggregator.aggregator);
-            const priceInUSD = Number(result)/Math.pow(10,tokendetails.aggregator.decimals);
+            const priceInUSD = Number(result) / Math.pow(10, tokendetails.aggregator.decimals);
 
             details['priceInUSD'] = priceInUSD
 
@@ -225,20 +261,22 @@ console.log(err)
 
         const supplyAPR = await lendingContract.calculateCurrentLendingProfitRate(
             tokendetails.token.address,
-          IntrestRateModal
+            IntrestRateModal
         );
         const uratio = await lendingContract._utilizationRatio(tokendetails.token.address);
         const borrowRatesResult = await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal);
         const borrowAPR = await lendingContract.getOverallBorrowRate(
             tokendetails.token.address, borrowRatesResult[0], borrowRatesResult[1]
         );
-        details['uratio']=bigToDecimalUints(uratio,2)*100
-        details['supplyAPR']=bigToDecimalUints(supplyAPR,2)*100
-        details['borrowAPR']=bigToDecimalUints(borrowAPR,2)*100
-        
-        details['supplyAPY']=getAPY(bigToDecimalUints(supplyAPR,2))*100
-        details['borrowAPY']=getAPY(bigToDecimalUints(borrowAPR,2))*100
-   
+        details['uratio'] = bigToDecimalUints(uratio, 2) * 100
+        currentUtilization=details['uratio'] 
+        details['supplyAPR'] = bigToDecimalUints(supplyAPR, 2) * 100
+        details['borrowAPR'] = bigToDecimalUints(borrowAPR, 2) * 100
+        currentSupplyAPR=details['supplyAPR'] 
+        currentBorrowAPR=details['borrowAPR'] 
+        details['supplyAPY'] = getAPY(bigToDecimalUints(supplyAPR, 2)) * 100
+        details['borrowAPY'] = getAPY(bigToDecimalUints(borrowAPR, 2)) * 100
+
         setTokenSummary(details)
 
 
@@ -253,7 +291,7 @@ console.log(err)
 
         }
 
-    }, [callInProgress,tokenSummary]); // Empty array means to only run once on mount.
+    }, [callInProgress, tokenSummary]); // Empty array means to only run once on mount.
     return (
         <React.Fragment key="RIGHT1">
             <Dialog
@@ -336,14 +374,14 @@ console.log(err)
                                     <div><b>{tokenSummary?.totalStableDebt} {currentToken?.symbol}</b></div>
                                 </div>
                                 <Divider sx={{ margin: '10px' }}></Divider>
-            
+
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Current Utilization</div>
-                                    <div><b>{parseFloat(tokenSummary?.uratio||0).toFixed(3)}%</b></div>
+                                    <div><b>{parseFloat(tokenSummary?.uratio || 0).toFixed(3)}%</b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Supply APR / APY</div>
-                                    <div><b>{parseFloat(tokenSummary?.supplyAPR||0).toFixed(3)}% / {parseFloat(tokenSummary?.supplyAPY||0).toFixed(3)}%</b></div>
+                                    <div><b>{parseFloat(tokenSummary?.supplyAPR || 0).toFixed(3)}% / {parseFloat(tokenSummary?.supplyAPY || 0).toFixed(3)}%</b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>• Lending APR</div>
@@ -382,7 +420,7 @@ console.log(err)
                         {/* <Grid div md={2} xs={0}></Grid> */}
                         <Grid item md={6} xs={12}>
                             <Card className={classes.innerCard}>
-                                <div className="text">
+                               
                                     {!callInProgress && (
                                         <div className={classes.textMuted}>
                                             <HighchartsReact
@@ -394,7 +432,6 @@ console.log(err)
                                     {callInProgress && (
                                         <h4>Please wait intrest rate model is calculating</h4>
                                     )}
-                                </div>
                             </Card>
                         </Grid>
                         <Grid item md={12} xs={12}>
