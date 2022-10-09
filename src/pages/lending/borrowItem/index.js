@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar, FormControl, InputLabel, Input, Select, MenuItem, OutlinedInput, TableHead, Backdrop, Stack, Alert, AlertTitle, Popover } from '@mui/material';
+import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar, FormControl, InputLabel, Input, Select, MenuItem, OutlinedInput, TableHead, Backdrop, Stack, Alert, AlertTitle, Popover, FormControlLabel, CardContent } from '@mui/material';
 import { makeStyles } from '@mui/styles'
 import { ArrowBack, Inbox, Mail } from '@mui/icons-material';
 import theme from '../../../theme';
@@ -11,9 +11,11 @@ import TabPanel from '@mui/lab/TabPanel';
 import { abis, contractAddresses, makeContract } from '../../../contracts/useContracts';
 import { ethers } from 'ethers';
 import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
-import { IntrestRateModal, TokenAggregators, Tokens } from '../../../token-icons';
+import { IntrestRateModal, TokenAggregators, TokenBorrowLimitations, Tokens } from '../../../token-icons';
 import { bigToDecimal, bigToDecimalUints, decimalToBig } from '../../../utils/utils';
 import { FluteAlertContext } from '../../../Components/Alert';
+import moment from 'moment';
+import { getAPY } from '../../../utils/common';
 require('dotenv').config();
 const MenuProps = {
     PaperProps: {
@@ -66,15 +68,20 @@ const useStyles = makeStyles({
     modal: theme.modal,
     drawer: theme.drawer,
     drawerPaper: theme.rightDrawerPaper,
-    textBold: theme.textBold
+    textBold: theme.textBold,
+
+    actionButton: theme.actionButton2
 });
 
 export default function BorrowItem(params) {
     console.log(params)
-    const currentRow = params.input.currentRow
+    const currentRow = params.input?.currentRow || {}
+    const currentToken = params.input?.currentRow?.token || {}
     const classes = useStyles();
     const [value, setValue] = React.useState('1');
     const [amount, setAmount] = useState("0.00");
+    const [stableRate, setStableRate] = React.useState(false);
+
     const [repayAmountValue, setRepayAmountValue] = useState("0.00");
 
     const handleChange = (event, newValue) => {
@@ -113,8 +120,7 @@ export default function BorrowItem(params) {
 
         }
         const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
-        const ids = await lendingContract.getBorrowerId(currentRow?.token.symbol);
-        debugger;
+        const ids = await lendingContract.getBorrowerId(currentToken.symbol);
         if (ids && ids.length) {
             ids.forEach(async (id) => {
                 const details = await lendingContract.getBorrowerDetails(id);
@@ -122,9 +128,9 @@ export default function BorrowItem(params) {
                     ...details,
                     id,
                     repaid: details.hasRepaid,
-                    startDay: bigToDecimal(details.borrowDay),
+                    startDay: formatDate(bigToDecimal(details.borrowDay)),
                     borrowAmount: Number(bigToDecimal(details.borrowAmount)),
-                    endDay: bigToDecimal(details.endDay),
+                    // endDay: bigToDecimal(details.endDay),
                     loanAmount: Number(bigToDecimal(details.loanAmount))
                 }
                 console.log(Borrow);
@@ -133,6 +139,10 @@ export default function BorrowItem(params) {
         }
 
 
+    }
+
+    const formatDate = (date) => {
+        return moment(new Date(Number(date) * 1000)).format('MMMM Do YYYY, h:mm:ss a')
     }
 
     React.useEffect(() => {
@@ -144,7 +154,7 @@ export default function BorrowItem(params) {
 
             setInProgress(true)
             const collateralToken = Tokens[collateral];
-            const loanToken = currentRow.token;
+            const loanToken = currentToken;
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
             const collateralContract = makeContract(collateralToken.address, collateralToken.abi, signer);
             await setCollateralAmountOfToken()
@@ -161,12 +171,12 @@ export default function BorrowItem(params) {
             console.log(currentRow.borrowAPY || '0')
             const result = await lendingContract.borrow(
                 loanToken.symbol, decimalToBig(amount.toString()), loanToken.address,
-                collateralToken.symbol, collateralToken.address, decimalToBig(colleteralAmount.toString()), decimalToBig(currentRow.borrowAPY.toString() || '0'), false, { gasLimit: 1000000 }
+                collateralToken.symbol, collateralToken.address, decimalToBig(colleteralAmount.toString()), decimalToBig(currentRow.borrowAPY.toString() || '0'), stableRate, { gasLimit: 1000000 }
             );
 
             settranxHash(result.hash);
             await result.wait(1)
-            setAlert({ severity: 'success', title: 'Supply', description: 'Supply completed successfully' });
+            setAlert({ severity: 'success', title: 'Borrow', description: 'Borrow completed successfully' });
 
 
             setInProgress(false)
@@ -178,6 +188,7 @@ export default function BorrowItem(params) {
         }
 
     }
+
     const [redeemRow, setRedeemRow] = React.useState({});
     const [open, setOpen] = React.useState(false);
     const handleOpen = (event) => {
@@ -203,12 +214,12 @@ export default function BorrowItem(params) {
             });
             setAlert({ severity: 'info', title: 'Aprroval', description: 'Approval of transaction in progress' });
 
-            const loanTokenContract = makeContract(currentRow.token.address, collateralToken.abi, signer);
+            const loanTokenContract = makeContract(currentToken.address, collateralToken.abi, signer);
             await loanTokenContract.approve(lendingContract.address, decimalToBig(repayAmountValue.toString()));
             setAlert({ severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' });
             setAlert({ severity: 'info', title: 'Repay', description: 'Repay in progress' });
             const result = await lendingContract.repay(
-                row['loanToken'], decimalToBig(repayAmountValue.toString()), currentRow.token.address,
+                row['loanToken'], decimalToBig(repayAmountValue.toString()), currentToken.address,
                 collateralToken.address, row.id, IntrestRateModal, { gasLimit: 1000000 });
             await result.wait(1)
             setAlert({ severity: 'success', title: 'Repay', description: 'Repay completed successfully' });
@@ -228,7 +239,7 @@ export default function BorrowItem(params) {
         try {
             if (amount && collateral) {
                 const collateralToken = Tokens[collateral];
-                const loanToken = currentRow.token;
+                const loanToken = currentToken;
                 const collateralAggregators = TokenAggregators.find((aggregator) => aggregator.tokenSymbol === collateralToken.symbol);
                 const loanAggregators = TokenAggregators.find((aggregator) => aggregator.tokenSymbol === loanToken.symbol);
                 if (collateralAggregators && loanAggregators) {
@@ -236,19 +247,20 @@ export default function BorrowItem(params) {
                     const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
                     const loanBigUnitPriceInUSD = await lendingContract.getAggregatorPrice(loanAggregators.aggregator);
                     console.log('loanBigUnitPriceInUSD', loanBigUnitPriceInUSD);
-                    const loanUnitPriceInUSD = ethers.utils.formatUnits(loanBigUnitPriceInUSD, loanAggregators.decimals);
+                    const loanUnitPriceInUSD = Number(loanBigUnitPriceInUSD) / Math.pow(10, loanAggregators.decimals);
                     console.log('loanUnitPriceInUSD', loanUnitPriceInUSD);
                     const totalLoanInUSD = Number(loanUnitPriceInUSD) * Number(amount);
                     console.log('totalLoanInUSD', totalLoanInUSD);
                     const collateralBigUnitPriceInUSD = await lendingContract.getAggregatorPrice(collateralAggregators.aggregator);
                     console.log('collateralBigUnitPriceInUSD', collateralBigUnitPriceInUSD);
-                    const collateralUnitPriceInUSD = ethers.utils.formatUnits(collateralBigUnitPriceInUSD, loanAggregators.decimals);
+                    const collateralUnitPriceInUSD = Number(collateralBigUnitPriceInUSD) / Math.pow(10, loanAggregators.decimals);
                     console.log('collateralUnitPriceInUSD', collateralUnitPriceInUSD);
-                    const totalCollateralInUSD = Number(totalLoanInUSD) * Number(100) / 70;
+                    const totalCollateralInUSD = Number(totalLoanInUSD) * Number(100) / (Number(bigToDecimalUints(TokenBorrowLimitations.CollateralFator, 2)) * 100);
                     console.log('totalCollateralInUSD', totalCollateralInUSD);
-                    // let collateralValue = await lendingContract.getColateralAmount(loanAggregators.aggregator, collateralAggregators.aggregator, decimalToBig(amount));
-                    console.log(totalCollateralInUSD, totalCollateralInUSD)
-                    setColleteralAmount(totalCollateralInUSD)
+                    const collateralUnits = totalCollateralInUSD / collateralUnitPriceInUSD
+                    console.log('totalCollateralInUSD', collateralUnits);
+
+                    setColleteralAmount(collateralUnits)
                 } else {
                     alert('No aggregator found for token ' + collateral)
                 }
@@ -297,11 +309,10 @@ export default function BorrowItem(params) {
                 </div>
                 <Card className={classes.innerCard} sx={{
                     display: 'block !important', padding: '10px',
-                    fontSize: '11px',
+                    fontSize: '12px',
                     fontStretch: 'semi-expanded'
                 }}>
-                    <div className="d-flexSpaceBetween">  <span>Borrow APY:</span> <span>{currentRow.calories}</span></div>
-                    <div className="d-flexSpaceBetween"> <span>WALLET</span> <span>{currentRow.fat}</span></div>
+                    <div className="d-flexSpaceBetween">  <span>Borrow APY:</span> <span>{parseFloat(getAPY(currentRow?.borrowAPY) * 100).toFixed(3)} %</span></div>
                 </Card>
 
                 <Card className={classes.innerCard} sx={{
@@ -334,43 +345,8 @@ export default function BorrowItem(params) {
 
                                 <Grid container direction="row" justifyContent="start" alignItems="flex-start" spacing={2} style={{ width: '100%' }}>
 
-                                    {/* Boxes */}
-                                    <Grid item xs={12} sm={12} md={12}>
-                                        <FormControl sx={{ m: 1, width: 300 }}>
-                                            <InputLabel id="demo-multiple-checkbox-label">Collateral</InputLabel>
-                                            <Select
-                                                labelId="demo-multiple-checkbox-label"
-                                                id="demo-multiple-checkbox"
-                                                value={collateral}
-                                                onChange={handleCollateralChange}
-                                                input={<OutlinedInput label="Collateral" />}
-                                                renderValue={(selected) => selected}
-                                                MenuProps={MenuProps}
-                                                startAdornment={
-                                                    <Avatar key="rightDrawerAvatar" aria-label="Recipe" className={classes.avatar}
-                                                        sx={{
-                                                            marginRight: '10px', margin: '4px',
-                                                            width: '27px',
-                                                            height: '27px'
-                                                        }}
-                                                    >
-                                                        <img className="chainIcon" alt=""
-                                                            src={Tokens[collateral]?.icon} />
-                                                    </Avatar>} >
-                                                {tokens.map((token) => (
-                                                    !token.isPedgeToken && (
-                                                        <MenuItem key={token} value={token}>
-                                                            <img className="chainIcon" alt=""
-                                                                src={Tokens[token].icon} />
-                                                            <ListItemText primary={Tokens[token].name} />
-                                                        </MenuItem>
-                                                    )
-                                                ))}
-                                            </Select>
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid item xs={12} sm={12} md={12}>
-                                        <FormControl variant="outlined" sx={{ m: 1, width: 300 }}>
+                                    <Grid item xs={12} sm={6} md={12}>
+                                        <FormControl variant="outlined" sx={{ m: 1, width: '100%' }}>
                                             <InputLabel htmlFor="input-with-icon-adornment">
                                                 Borrow Requested
                                             </InputLabel>
@@ -390,14 +366,78 @@ export default function BorrowItem(params) {
                                                         }}
                                                     >
                                                         <img className="chainIcon" alt=""
-                                                            src={currentRow.token.icon} />
+                                                            src={currentToken.icon} />
                                                     </Avatar>
                                                 }
                                             />
                                         </FormControl>
                                     </Grid>
+                                    <Grid item xs={12} sm={6} md={12}>
+
+                                        <FormControlLabel
+                                            value={stableRate}
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                fontWeight: 600
+                                            }}
+                                            onChange={(e) => setStableRate(e.target.value)}
+                                            control={<Switch color="primary" sx={{ float: 'right' }} />}
+                                            label="On stable rate"
+                                            labelPlacement="start"
+                                        />
+                                    </Grid>
+
                                     <Grid item xs={12} sm={12} md={12}>
-                                        <h4>  Amount to be collateralized {colleteralAmount}  / {availableAmount} {collateral}</h4>
+                                        <Card sx={{ minWidth: 275 ,background:'#F5F5F5'}}>
+                                            <CardContent>
+                                                <Typography sx={{ fontSize: 14, fontWeight: 600 }} variant="h4" gutterBottom>
+
+                                                    <FormControl sx={{ width: '100%' }}>
+                                                    <InputLabel id="demo-multiple-checkbox-label">Select Collateral</InputLabel>
+                                                        <Select
+                                                            labelId="demo-multiple-checkbox-label"
+                                                            id="demo-multiple-checkbox"
+                                                            value={collateral}
+                                                            onChange={handleCollateralChange}
+                                                            input={<OutlinedInput label="Select Collateral" />}
+                                                            renderValue={(selected) => selected}
+                                                            MenuProps={MenuProps}
+                                                            startAdornment={
+                                                                <Avatar key="rightDrawerAvatar" aria-label="Recipe" className={classes.avatar}
+                                                                    sx={{
+                                                                        marginRight: '10px', margin: '4px',
+                                                                        width: '27px',
+                                                                        height: '27px'
+                                                                    }}
+                                                                >
+                                                                    <img className="chainIcon" alt=""
+                                                                        src={Tokens[collateral]?.icon} />
+                                                                </Avatar>} >
+                                                            {tokens.map((token) => (
+                                                                !Tokens[token].isPedgeToken &&
+                                                                Tokens[token].address !== currentToken.address && (
+                                                                    <MenuItem key={token} value={token}>
+                                                                        <img className="chainIcon" alt=""
+                                                                            src={Tokens[token].icon} />
+                                                                        <ListItemText primary={Tokens[token].name} />
+                                                                    </MenuItem>
+                                                                )
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
+                                                </Typography>
+                                                <Typography sx={{ display: 'flex', justifyContent: 'space-between' }} color="text.secondary" gutterBottom>
+                                                    <div> Amount to be collateralized </div>
+                                                    <div>{parseFloat(colleteralAmount || 0).toFixed(5)} {collateral}</div>
+                                                </Typography>
+                                                <Typography sx={{ display: 'flex', justifyContent: 'space-between' }} color="text.secondary" gutterBottom>
+                                                    <div> Available amount </div>
+                                                    <div>{parseFloat(availableAmount || 0).toFixed(5)} {collateral}</div>
+                                                </Typography>
+                                            </CardContent>
+
+                                        </Card>
                                     </Grid>
                                     <Grid item xs={12} sm={12} md={12}>
                                         <div><p sx={{ fontSize: '11px' }}>Minimum: <b>10 BNB</b> Maximum: <b>500BNB</b></p></div>
@@ -418,8 +458,7 @@ export default function BorrowItem(params) {
                                         <TableRow>
                                             <TableCell>Borrowed</TableCell>
                                             <TableCell>Remaining</TableCell>
-                                            <TableCell align="right">Start</TableCell>
-                                            <TableCell align="right">End</TableCell>
+                                            <TableCell align="right">Borrowed On</TableCell>
                                             <TableCell align="right">Action</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -430,16 +469,18 @@ export default function BorrowItem(params) {
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                             >
                                                 <TableCell component="th" scope="row">
-                                                    {row.borrowAmount}
+                                                    <h4>{row.borrowAmount} {currentRow.symbol}</h4>
                                                 </TableCell>
                                                 <TableCell component="th" scope="row">
-                                                    {row.loanAmount}
+                                                    <h4>{row.loanAmount}  {currentRow.symbol}</h4>
                                                 </TableCell>
-                                                <TableCell align="right">{row.startDay}</TableCell>
-                                                <TableCell align="right">{row.endDay}</TableCell>
+                                                <TableCell align="right"><h4>{row.startDay}</h4></TableCell>
                                                 <TableCell align="right">{
                                                     row.loanAmount > 0 && (
-                                                        <div> <Button onClick={() => handleOpen(row)}>
+                                                        <div> <Button
+                                                            variant="contained" size="small"
+                                                            className={classes.actionButton}
+                                                            onClick={() => handleOpen(row)}>
                                                             Repay
                                                         </Button>
 

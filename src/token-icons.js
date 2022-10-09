@@ -53,9 +53,9 @@ export const getTokenProperties = (symbol) => {
 
     })
     let token;
-    Object.keys(Tokens).forEach(element => {
-        if (element.symbol === symbol) {
-            token = Tokens[element];
+    Object.keys(Tokens).forEach(key => {
+        if (Tokens[key].symbol === symbol) {
+            token = Tokens[key];
         }
     });
     let aggregator = TokenAggregators.find(token => token.tokenSymbol === symbol)

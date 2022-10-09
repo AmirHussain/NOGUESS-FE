@@ -7,13 +7,14 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { makeStyles } from '@mui/styles';
-import { Button } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import { ethers } from 'ethers';
 import theme from '../../../theme';
 import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../../contracts/useContracts';
 import { IntrestRateModal, TokenBorrowLimitations, Tokens } from '../../../token-icons';
 import Asset from '../../../Components/asset';
+import { getAPY } from '../../../utils/common';
 
 
 const useStyles = makeStyles({
@@ -99,12 +100,12 @@ export default function SupplyTable(props) {
         IntrestRateModal
       );
       const uratio = await lendingContract._utilizationRatio(currency.address);
-      const result =  await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal);
+      const result = await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal);
       console.log(result[0], result[1])
       const borrowAPR = await lendingContract.getOverallBorrowRate(
         currency.address, result[0], result[1]
       );
-      
+
 
       let supplyAPY = Number(ethers.utils.formatEther(supplyAPR));
       let borrowAPY = Number(ethers.utils.formatEther(borrowAPR));;
@@ -117,11 +118,11 @@ export default function SupplyTable(props) {
       if (borrowResult) {
         borrowAmount = ethers.utils.formatEther(borrowResult)
       }
-      return { amount: supplyAmount, borrowAmount, rowindex,supplyAPY ,borrowAPY}
+      return { amount: supplyAmount, borrowAmount, rowindex, supplyAPY, borrowAPY }
 
     } catch (err) {
       console.log(err)
-      return { amount: 0, borrowAmount: 0, rowindex ,supplyAPY:0,borrowAPY:0}
+      return { amount: 0, borrowAmount: 0, rowindex, supplyAPY: 0, borrowAPY: 0 }
 
     }
 
@@ -178,45 +179,56 @@ export default function SupplyTable(props) {
       <Table aria-label="simple table" >
         <TableHead className={classes.tableHead}>
           <TableRow className={classes.theadRow}>
-            <TableCell>ASSETS</TableCell>
+            <TableCell align="center">ASSETS</TableCell>
             <TableCell align="right">Supply APY</TableCell>
-            <TableCell align="right">Supply</TableCell>
+            <TableCell align="right">Supplied</TableCell>
             <TableCell align="right">Borrow APY</TableCell>
-            <TableCell align="right">Borrow</TableCell>
-            <TableCell align="right">Action </TableCell>
+            <TableCell align="right">Borrowed</TableCell>
+            <TableCell align="center">Action </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {SupplyRows.map((row) => (
             <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} className={classes.tableRow}>
-              <TableCell component="th" scope="row" onClick={() => SetAndOpenAsset(row)} sx={{ cursor: 'pointer', display: 'flex' }} > &nbsp;&nbsp; <img className="chainIcon" alt="" src={row.token.icon} /> <h4>{row.token?.name} </h4>  </TableCell>
-              <TableCell align="right"><h4> {row.supplyAPY} %</h4></TableCell>
+              <TableCell align="left" onClick={() => SetAndOpenAsset(row)} sx={{ cursor: 'pointer', display: 'flex' }} > &nbsp;&nbsp; <img className="chainIcon" alt="" src={row.token.icon} /> <h4>{row.token?.name} </h4>  </TableCell>
+              <TableCell align="right"><h4> {parseFloat(getAPY(row?.supplyAPY||0) * 100).toFixed(3)} %</h4></TableCell>
               <TableCell align="right"><h5>{row.supplyAmount || '0.00'} {row.token.symbol}</h5></TableCell>
 
-              <TableCell align="right"><h4> {row.borrowAPY} %</h4></TableCell>
+              <TableCell align="right"><h4> {parseFloat(getAPY(row?.borrowAPY||0) * 100).toFixed(3)} %</h4></TableCell>
 
               <TableCell align="right"><h5>{row.borrowAmount || '0.00'} {row.token.symbol}</h5></TableCell>
 
               <TableCell align="right" >
-                <Button variant="contained" size="small" sx={{ marginRight: '10px!important' }}
-                  className={classes.actionButton} onClick={() => openDrawer(row, 'SupplyItem')}>
-                  {
-                    `${row.supplyAmount && row.supplyAmount > 0 ? 'Supply / Redeem' : ' Supply'}`
-                  }
+                <Grid container direction="row" justifyContent="start" alignItems="flex-center" spacing={2} style={{ width: '100%' }}>
 
-                </Button>
-                <Button variant="contained" size="small" className={classes.actionButton} onClick={() => openDrawer(row, 'borrowItem')}>
-                  {
-                    `${row.borrowAmount && row.borrowAmount > 0 ? 'Borrow / Repay' : ' Borrow'}`
-                  }
-                </Button>
+
+                  <Grid item xs={12} sm={12} md={6}>
+                    <Button variant="contained" size="small" 
+                      className={classes.actionButton} onClick={() => openDrawer(row, 'SupplyItem')}>
+                      {
+                        `${row.supplyAmount && row.supplyAmount > 0 ? 'Supply / Redeem' : ' Supply'}`
+                      }
+
+                    </Button>
+
+                  </Grid>
+                  <Grid item xs={12} sm={12} md={6}>
+                 
+                    <Button variant="contained" size="small"
+                     className={classes.actionButton} onClick={() => openDrawer(row, 'borrowItem')}>
+                      {
+                        `${row.borrowAmount && row.borrowAmount > 0 ? 'Borrow / Repay' : ' Borrow'}`
+                      }
+                    </Button>
+                  </Grid>
+                </Grid>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-      {currentRow&&openAsset && (
-      <Asset currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} open={openAsset} handleClose={handleCloseAsset}></Asset>
+      {currentRow && openAsset && (
+        <Asset currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} open={openAsset} handleClose={handleCloseAsset}></Asset>
       )}
 
     </TableContainer>

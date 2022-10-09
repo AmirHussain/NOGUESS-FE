@@ -44,7 +44,8 @@ const useStyles = makeStyles({
     modal: theme.modal,
     drawer: theme.drawer,
     drawerPaper: theme.rightDrawerPaper,
-    textBold: theme.textBold
+    textBold: theme.textBold,    
+    actionButton: theme.actionButton2
 });
 
 export default function SupplyItem(params) {
@@ -311,7 +312,9 @@ export default function SupplyItem(params) {
                                                 <TableCell align="right">{
                                                     !row.redeem && row.differnce <= 0 && (
 
-                                                        <Button variant="contained" onClick={() => redeemAmount(row)}>
+                                                        <Button 
+                                                        variant="contained" size="small"
+                                                        className={classes.actionButton} onClick={() => redeemAmount(row)}>
                                                             Redeem
                                                         </Button>
 

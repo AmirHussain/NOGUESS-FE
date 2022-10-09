@@ -42,7 +42,7 @@ function Lending() {
   }
   return (
     <>
-      <Grid container direction="row" justifyContent="start" alignItems="flex-start" spacing={2} style={{ width: '100%' }}>
+      <Grid container direction="row" justifyContent="center" alignItems="flex-center" spacing={1} style={{ width: '100%' }}>
 
         {/* Boxes */}
         <Grid item xs={12} sm={12} md={6}>

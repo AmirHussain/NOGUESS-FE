@@ -11,12 +11,13 @@ import { Web3ProviderContext } from '../walletConnect/walletConnect';
 import { getTokenProperties, IntrestRateModal, TokenBorrowLimitations } from '../../token-icons';
 import { bigToDecimal, bigToDecimalUints, decimalToBig, decimalToBigUints } from '../../utils/utils';
 import Chart from 'react-apexcharts'
+import { getAPY } from '../../utils/common';
 const start = 0;
 console.log(bigToDecimal(TokenBorrowLimitations.LiquidationThreshold))
 const end = parseInt(Number(bigToDecimal(TokenBorrowLimitations.LiquidationThreshold)) * 100);
 console.log('end', end)
 const range = [...Array(end - start + 1).keys()].map(x => x + start);
-const  options = {
+const options = {
 
     title: {
         text: 'Intrest Rate Modal'
@@ -33,7 +34,7 @@ const  options = {
     },
 
     xAxis: {
-        title:{
+        title: {
             text: 'Utilization'
         },
         accessibility: {
@@ -165,6 +166,7 @@ export default function Asset(params) {
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
     const [tokendetails, setTokendetails] = React.useState({});
+    const [tokenSummary, setTokenSummary] = React.useState({});
 
 
     const supplySeries = [];
@@ -181,23 +183,65 @@ export default function Asset(params) {
             console.log(chartData)
             options.series[0].data = chartData[0].map(item => Number(parseFloat(Number(bigToDecimal(item)) * 100).toFixed(2)))
             options.series[1].data = chartData[1].map(item => Number(parseFloat(Number(bigToDecimal(item)) * 100).toFixed(2)))
-            setCallInProgress(false);
+           
 
         } catch (err) {
-
+console.log(err)
+        } finally {
+            setCallInProgress(false);
         }
 
     }
 
 
-    const getTokenDetails = () => {
-        const details = getTokenProperties(currentToken.tokenSymbol)
-        setTokendetails(details)
+    const getTokenDetails = async() => {
+        const details = getTokenProperties(currentToken.symbol)
+        setTokendetails(details);
+      setTimeout( ()=>{
+         getTokenMarketDetails( details)
+      })
+      
     }
 
-    const getTokenMarketDetails = (lendingContract) => {
-        const details = getTokenProperties()
-        setTokendetails(details)
+    const getTokenMarketDetails = async ( tokendetails) => {
+
+        const details = {
+        }
+        const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
+
+        if (tokendetails.aggregator) {
+            const result = await lendingContract.getAggregatorPrice(tokendetails.aggregator.aggregator);
+            const priceInUSD = Number(result)/Math.pow(10,tokendetails.aggregator.decimals);
+
+            details['priceInUSD'] = priceInUSD
+
+        }
+        const result = await lendingContract.getTokenMarketDetails(tokendetails.token.address);
+        details['lendings'] = bigToDecimal(result[0])
+        details['reserve'] = bigToDecimal(result[1])
+        details['totalDebt'] = bigToDecimal(result[2])
+        details['totalVariableDebt'] = bigToDecimal(result[3])
+        details['totalStableDebt'] = bigToDecimal(result[4])
+
+        const supplyAPR = await lendingContract.calculateCurrentLendingProfitRate(
+            tokendetails.token.address,
+          IntrestRateModal
+        );
+        const uratio = await lendingContract._utilizationRatio(tokendetails.token.address);
+        const borrowRatesResult = await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal);
+        const borrowAPR = await lendingContract.getOverallBorrowRate(
+            tokendetails.token.address, borrowRatesResult[0], borrowRatesResult[1]
+        );
+        details['uratio']=bigToDecimalUints(uratio,2)*100
+        details['supplyAPR']=bigToDecimalUints(supplyAPR,2)*100
+        details['borrowAPR']=bigToDecimalUints(borrowAPR,2)*100
+        
+        details['supplyAPY']=getAPY(bigToDecimalUints(supplyAPR,2))*100
+        details['borrowAPY']=getAPY(bigToDecimalUints(borrowAPR,2))*100
+   
+        setTokenSummary(details)
+
+
     }
 
     React.useEffect(() => {
@@ -205,11 +249,11 @@ export default function Asset(params) {
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
 
             setApyGraph(lendingContract)
-            getTokenDetails()
+            getTokenDetails(lendingContract)
 
         }
 
-    }, [callInProgress]); // Empty array means to only run once on mount.
+    }, [callInProgress,tokenSummary]); // Empty array means to only run once on mount.
     return (
         <React.Fragment key="RIGHT1">
             <Dialog
@@ -244,7 +288,7 @@ export default function Asset(params) {
                         >
                             <img className="chainIcon" alt=""
                                 src={currentToken?.icon} />
-                                 
+
                         </Avatar>
 
                         <Typography variant="h6">
@@ -273,36 +317,33 @@ export default function Asset(params) {
                             <Card className={classes.innerCard}>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Price</div>
-                                    <div><b>$ 4.51</b></div>
+                                    <div><b>$ {tokenSummary?.priceInUSD}</b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Total Supply</div>
-                                    <div><b>2 264 040.15 {currentToken?.tokenSymbol}</b></div>
+                                    <div><b>{tokenSummary?.lendings} {currentToken?.symbol}</b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>• Total Borrowable Supply</div>
-                                    <div><b>1 225 454.51 {currentToken?.tokenSymbol}</b></div>
+                                    <div className={classes.textMuted}>• Total Borrowed</div>
+                                    <div><b>{tokenSummary?.totalDebt} {currentToken?.symbol}</b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>• Total Non-Borrowable Collateral</div>
-                                    <div><b>1 038 585.64 {currentToken?.tokenSymbol}</b></div>
+                                    <div className={classes.textMuted}>• Borrowed On Variable Rate</div>
+                                    <div><b>{tokenSummary?.totalVariableDebt} {currentToken?.symbol}</b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>Total Locked Supply</div>
-                                    <div><b>93 981.26 {currentToken?.tokenSymbol}</b></div>
+                                    <div className={classes.textMuted}>• Borrowed On Stable Rate</div>
+                                    <div><b>{tokenSummary?.totalStableDebt} {currentToken?.symbol}</b></div>
                                 </div>
                                 <Divider sx={{ margin: '10px' }}></Divider>
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>Total Debt</div>
-                                    <div><b>19 891.46 {currentToken?.tokenSymbol}</b></div>
-                                </div>
+            
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Current Utilization</div>
-                                    <div><b>1.62%</b></div>
+                                    <div><b>{parseFloat(tokenSummary?.uratio||0).toFixed(3)}%</b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Supply APR / APY</div>
-                                    <div><b>3.6% / 3.66%</b></div>
+                                    <div><b>{parseFloat(tokenSummary?.supplyAPR||0).toFixed(3)}% / {parseFloat(tokenSummary?.supplyAPY||0).toFixed(3)}%</b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>• Lending APR</div>
@@ -333,7 +374,7 @@ export default function Asset(params) {
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Borrow</div>
-                                    <div><b>{currentToken?.tokenSymbol}</b></div>
+                                    <div><b>{currentToken?.symbol}</b></div>
                                 </div>
 
                             </Card>
@@ -434,14 +475,14 @@ export default function Asset(params) {
 
                                     </b></div>
                                 </div>
-                                
+
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Base Intrest Rate</div>
                                     <div><b>{tokendetails?.borrowLimitation?.baseRate}%
 
                                     </b></div>
                                 </div>
-                                
+
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>AllowStableJob</div>
                                     <div><b>{tokendetails?.borrowLimitation?.AllowStableJob?.toString()}

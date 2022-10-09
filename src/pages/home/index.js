@@ -60,10 +60,10 @@ export default function Home() {
                         right: '0px',
 
                     }}
-                    className={classes.content}
+                    className={classes.content+ ' scrollbar-hover'}
                 >
 
-                    <Container maxWidth="xl">
+                    <Container sx={{paddingRight:{xs:'0px !important',md:'16px !important'},paddingLeft:{xs:'0px !important',md:'16px !important'}}}>
                         <Switch>
                             <Route path="/bridge" exact component={Bridge}></Route>
                             <Route path="/staking" exact component={Staking}></Route>

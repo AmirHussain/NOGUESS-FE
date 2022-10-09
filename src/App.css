@@ -9,26 +9,36 @@
 html{
   background: #EDF0F7;
 }
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
 
-body::-webkit-scrollbar {
-    width: 12px;               /* width of the entire scrollbar */
-  }
-  
-  body::-webkit-scrollbar-track {
-    background: none; 
-    display: none;       /* color of the tracking area */
-  }
-  body::-webkit-scrollbar-track :hover {
-    background: #EDF0F7; 
-    display: inline;       /* color of the tracking area */
-  }
-  
-  body::-webkit-scrollbar-thumb {
-    background-color: lightgrey;    /* color of the scroll thumb */
-    border-radius: 20px;       /* roundness of the scroll thumb */
-    border: 1px solid lightgray ;  /* creates padding around scroll thumb */
-  }
 
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+/* ::-webkit-scrollbar, ::-webkit-scrollbar-thumb {
+  height: 4px;
+  width: 4px;
+  border-radius: 2px;
+  background-clip: padding-box;
+  color: black
+}
+:hover::-webkit-scrollbar, :hover::-webkit-scrollbar-thumb, .scrollbar::-webkit-scrollbar, .scrollbar::-webkit-scrollbar-thumb {
+  color: black !important;
+} */
   .d-flexSpaceBetween{
     display: flex;
     justify-content: space-between;
@@ -114,15 +124,19 @@ max-width: 32px;
   
   }
 
-  @media screen and (max-width: 600px) {
+  @media screen and (max-width: 900px) {
     .networktext {
-      margin-left: 2px;
+    
       display: none;
     }
   }
-
+  @media screen and (min-width: 900px) {
+    .networktext {
+      margin-left: 2px !important;
+    }
+  }
   .selectedNetworkIcon{
-    background: blue;
+    background: lightblue;
     border-radius: 50%;
   }
 
@@ -155,4 +169,18 @@ max-width: 32px;
 
   .MuiBox-root{
     border: 0px solid !important;
+  }
+
+  td {
+    padding-top:4px !important;
+    padding-bottom:4px !important;
+  }
+  th {
+    font-weight: 600 !important;
+    padding-top:4px !important;
+    padding-bottom:4px !important;
+  }
+  tr {
+    padding-top:4px !important;
+    padding-bottom:4px !important;
   }
