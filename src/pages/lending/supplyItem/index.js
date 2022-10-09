@@ -77,7 +77,7 @@ export default function SupplyItem(params) {
                     redeem: details.isRedeem,
                     startDay: formatDate(details.startDay),
                     endDay: formatDate(details.endDay),
-                    differnce: getDifference(new Date(Number(details.startDay)), new Date(Number(details.endDay))),
+                    differnce: getDifference(new Date(Number(details.startDay)*1000), new Date(Number(details.endDay)*1000)),
                     tokenAmount: ethers.utils.formatEther(details.tokenAmount),
                     SuppliedAmount: ethers.utils.formatEther(details.SuppliedAmount)
                 }
@@ -94,7 +94,7 @@ export default function SupplyItem(params) {
         return a.diff(b) / 3600
     }
     const formatDate = (date) => {
-        return moment(new Date(Number(date))).format('MMMM Do YYYY, h:mm:ss a')
+        return moment(new Date(Number(date)*1000)).format('MMMM Do YYYY, h:mm:ss a')
     }
     React.useEffect(() => {
         getSupplyDetailsFromContract()
@@ -112,7 +112,7 @@ export default function SupplyItem(params) {
             const wethResult = await fweth.approve(lendingContract.address, decimalToBig(row.tokenAmount));
             setAlert({ severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' });
             setAlert({ severity: 'info', title: 'Redeem', description: 'Redeem in progress' });
-            const result = await lendingContract.redeem(currentRow.token.symbol, decimalToBig(row.tokenAmount), currentRow.token.address, row.id,IntrestRateModal,TokenBorrowLimitations.ProtocolShare, { gasLimit: 1000000 });
+            const result = await lendingContract.redeem(currentRow.token.symbol, decimalToBig(row.tokenAmount), currentRow.token.address, row.id,IntrestRateModal, { gasLimit: 1000000 });
             await result.wait(1)
             setAlert({ severity: 'success', title: 'Redeem', description: 'Redeem completed successfully' });
             setInProgress(false)

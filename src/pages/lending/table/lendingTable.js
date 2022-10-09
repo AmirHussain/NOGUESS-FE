@@ -96,8 +96,7 @@ export default function SupplyTable(props) {
       const borrowResult = await lendingContract.getBorrowerShare(currency.symbol);
       const supplyAPR = await lendingContract.calculateCurrentLendingProfitRate(
         currency.address,
-        IntrestRateModal,
-        TokenBorrowLimitations.ProtocolShare,
+        IntrestRateModal
       );
       const uratio = await lendingContract._utilizationRatio(currency.address);
       const result =  await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal);

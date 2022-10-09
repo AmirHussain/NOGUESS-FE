@@ -1,7 +1,7 @@
 import polygon from './assets/svg/polygon.svg';
 import ethereum from './assets/svg/ethereum.svg';
 import { abis } from './contracts/useContracts';
-import { decimalToBig } from './utils/utils';
+import { bigToDecimal, bigToDecimalUints, decimalToBig } from './utils/utils';
 
 
 export const Tokens = {
@@ -12,17 +12,17 @@ export const Tokens = {
 }
 
 export const TokenBorrowLimitations = {
-    CollateralFator: decimalToBig('70'),
-    LiquidationThreshold: decimalToBig('70'),
-    LiquidationPenalty: decimalToBig('30'),
-    ProtocolShare: decimalToBig('0.01'),
+    CollateralFator: decimalToBig('0.70'),
+    LiquidationThreshold: decimalToBig('0.80'),
+    LiquidationPenalty: decimalToBig('0.30'),
     InitialBorrowRate: decimalToBig('0.30'),
-    OPTIMAL_UTILIZATION_RATE: decimalToBig('60'),
-    StableRateSlope1: decimalToBig('0.01'),
-    StableRateSlope2: decimalToBig('0.03'),
-    VariableRateSlope1: decimalToBig('0.01'),
-    VariableRateSlope2: decimalToBig('0.01'),
-    baseRate: decimalToBig('0.05'),
+    MAX_UTILIZATION_RATE: decimalToBig('0.80'),
+    OPTIMAL_UTILIZATION_RATE: decimalToBig('0.70'),
+    StableRateSlope1: decimalToBig('0.04'),
+    StableRateSlope2: decimalToBig('0.06'),
+    VariableRateSlope1: decimalToBig('0.02'),
+    VariableRateSlope2: decimalToBig('0.03'),
+    baseRate: decimalToBig('0.010'),
     AllowStableJob: true,
 }
 // let OPTIMAL_UTILIZATION_RATE=decimalToBig('0.70');
@@ -31,17 +31,34 @@ export const TokenBorrowLimitations = {
 // let variableRateSlope1=decimalToBig('0.01')
 // let variableRateSlope2=decimalToBig('0.01')
 // let baseRate=decimalToBig('0.04')
-// let ProtocolShare=decimalToBig('0.3')
-export const IntrestRateModal={
-    OPTIMAL_UTILIZATION_RATE:TokenBorrowLimitations.OPTIMAL_UTILIZATION_RATE,
-    stableRateSlope1:TokenBorrowLimitations.StableRateSlope1,
-    stableRateSlope2:TokenBorrowLimitations.StableRateSlope2,
-    variableRateSlope1:TokenBorrowLimitations.VariableRateSlope1,
-    variableRateSlope2:TokenBorrowLimitations.VariableRateSlope2,
-    baseRate:TokenBorrowLimitations.baseRate,
+export const IntrestRateModal = {
+    OPTIMAL_UTILIZATION_RATE: TokenBorrowLimitations.OPTIMAL_UTILIZATION_RATE,
+    stableRateSlope1: TokenBorrowLimitations.StableRateSlope1,
+    stableRateSlope2: TokenBorrowLimitations.StableRateSlope2,
+    variableRateSlope1: TokenBorrowLimitations.VariableRateSlope1,
+    variableRateSlope2: TokenBorrowLimitations.VariableRateSlope2,
+    baseRate: TokenBorrowLimitations.baseRate,
 }
 export const TokenAggregators = [
     { tokenSymbol: Tokens.WETH.symbol, aggregator: '0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e', decimals: 8 },
     { tokenSymbol: Tokens.dai.symbol, aggregator: '0x0d79df66BE487753B02D015Fb622DED7f0E9798d', decimals: 8 }
-
 ]
+
+export const getTokenProperties = (symbol) => {
+    const borrowLimitation = {}
+    Object.keys(TokenBorrowLimitations).forEach(key => {
+
+        borrowLimitation[key] = typeof TokenBorrowLimitations[key] == 'object' ?
+            Number(bigToDecimalUints(TokenBorrowLimitations[key], 2)) * 100 : TokenBorrowLimitations[key];
+
+    })
+    let token;
+    Object.keys(Tokens).forEach(element => {
+        if (element.symbol === symbol) {
+            token = Tokens[element];
+        }
+    });
+    let aggregator = TokenAggregators.find(token => token.tokenSymbol === symbol)
+    return { token, borrowLimitation, aggregator }
+
+}

@@ -1,5 +1,8 @@
-let alert=[]
+export const getAPY = (apr,seconds) => {
+    if (!seconds) {
+        seconds = 31536000
+    }
 
-export {
-    alert
+    const apy = Math.pow(1 + (apr / seconds), seconds) - 1
+    return apy
 }

@@ -8,48 +8,81 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { Web3ProviderContext } from '../walletConnect/walletConnect';
-import { IntrestRateModal, TokenBorrowLimitations } from '../../token-icons';
-import { bigToDecimal, decimalToBig } from '../../utils/utils';
+import { getTokenProperties, IntrestRateModal, TokenBorrowLimitations } from '../../token-icons';
+import { bigToDecimal, bigToDecimalUints, decimalToBig, decimalToBigUints } from '../../utils/utils';
 import Chart from 'react-apexcharts'
+const start = 0;
+console.log(bigToDecimal(TokenBorrowLimitations.LiquidationThreshold))
+const end = parseInt(Number(bigToDecimal(TokenBorrowLimitations.LiquidationThreshold)) * 100);
+console.log('end', end)
+const range = [...Array(end - start + 1).keys()].map(x => x + start);
+const  options = {
 
-const options = {
-    chart: {
-        height: 350,
-        type: 'line',
-        zoom: {
-            enabled: false
+    title: {
+        text: 'Intrest Rate Modal'
+    },
+
+    subtitle: {
+        text: ''
+    },
+
+    yAxis: {
+        title: {
+            text: 'Rate'
         }
     },
-    dataLabels: {
+
+    xAxis: {
+        title:{
+            text: 'Utilization'
+        },
+        accessibility: {
+            rangeDescription: 'Utilization'
+        }
+    },
+    credits: {
         enabled: false
     },
-    stroke: {
-        curve: 'straight'
+    legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle'
     },
-    title: {
-        text: 'Intrest Rate Model',
-        align: 'left'
+
+    plotOptions: {
+        series: {
+            label: {
+                connectorAllowed: false
+            },
+            pointStart: 0.0
+        }
     },
-    grid: {
-        row: {
-            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-            opacity: 0.5
-        },
-    },
-    xaxis: {
-        categories: [],
+
+    series: [{
+        name: 'Supply APR',
+        data: []
+
+    }, {
+        name: 'Borrow APR',
+        data: []
+    }],
+
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+            chartOptions: {
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom'
+                }
+            }
+        }]
     }
+
 }
-
-
-const series = [{
-    name: 'Supply APY',
-    data: [30, 40, 35, 50, 49, 60, 70, 91, 125]
-}, {
-    name: 'Borrow APY',
-    data: [30, 40, 35, 50, 49, 60, 70, 91, 125]
-}]
-
 const useStyles = makeStyles({
     rightBar: {
         zIndex: theme.drawerIndex + 1,
@@ -131,46 +164,50 @@ export default function Asset(params) {
     const [callInProgress, setCallInProgress] = React.useState(true);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
+    const [tokendetails, setTokendetails] = React.useState({});
+
 
     const supplySeries = [];
     const borrowSeries = [];
-    const setApyGraph = () => {
+    const setApyGraph = async (lendingContract) => {
         if (!signer || !currentToken) {
             return
         }
+        try {
+            console.log(decimalToBigUints(bigToDecimalUints(TokenBorrowLimitations.MAX_UTILIZATION_RATE, 2), 2))
+            const chartData = await lendingContract.getChartData(
+                currentToken.address, IntrestRateModal, decimalToBigUints(bigToDecimalUints(TokenBorrowLimitations.MAX_UTILIZATION_RATE, 2), 2)
+            );
+            console.log(chartData)
+            options.series[0].data = chartData[0].map(item => Number(parseFloat(Number(bigToDecimal(item)) * 100).toFixed(2)))
+            options.series[1].data = chartData[1].map(item => Number(parseFloat(Number(bigToDecimal(item)) * 100).toFixed(2)))
+            setCallInProgress(false);
 
-        const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
+        } catch (err) {
 
-
-        const start = 1;
-        const end = 100;
-        const range = [...Array(end - start + 1).keys()].map(x => x + start);
-        return Promise.all(
-            range.map(async (item, index) => {
-                const uratio = decimalToBig((index / 100).toString());
-                const supplyRate = await lendingContract.lendingProfiteRate(currentToken.address, uratio, IntrestRateModal, TokenBorrowLimitations.ProtocolShare);
-                supplySeries[index] = Number(bigToDecimal(supplyRate))
-                const result = await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal);
-                // const brate = await lendingContract.getOverallBorrowRate(
-                //     currentToken.address, result[0], result[1]
-                // );
-                borrowSeries[index] = Number(bigToDecimal(result[1]))
-                if (index === 99) {
-                    series[0].data = supplySeries;
-                    series[1].data = borrowSeries;
-                    console.log(options)
-                    setCallInProgress(false);
-                }
-            })
-        ).then(() => {
-            console.log('Items processed');
-        });
+        }
 
     }
 
-    setApyGraph()
-    React.useEffect(() => {
 
+    const getTokenDetails = () => {
+        const details = getTokenProperties(currentToken.tokenSymbol)
+        setTokendetails(details)
+    }
+
+    const getTokenMarketDetails = (lendingContract) => {
+        const details = getTokenProperties()
+        setTokendetails(details)
+    }
+
+    React.useEffect(() => {
+        if (callInProgress) {
+            const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
+
+            setApyGraph(lendingContract)
+            getTokenDetails()
+
+        }
 
     }, [callInProgress]); // Empty array means to only run once on mount.
     return (
@@ -207,10 +244,11 @@ export default function Asset(params) {
                         >
                             <img className="chainIcon" alt=""
                                 src={currentToken?.icon} />
+                                 
                         </Avatar>
 
                         <Typography variant="h6">
-                            {currentToken?.title}
+                            {currentToken?.name}
                         </Typography>
 
                     </Toolbar>
@@ -239,24 +277,24 @@ export default function Asset(params) {
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Total Supply</div>
-                                    <div><b>2 264 040.15 WAVES</b></div>
+                                    <div><b>2 264 040.15 {currentToken?.tokenSymbol}</b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>• Total Borrowable Supply</div>
-                                    <div><b>1 225 454.51 WAVES</b></div>
+                                    <div><b>1 225 454.51 {currentToken?.tokenSymbol}</b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>• Total Non-Borrowable Collateral</div>
-                                    <div><b>1 038 585.64 WAVES</b></div>
+                                    <div><b>1 038 585.64 {currentToken?.tokenSymbol}</b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Total Locked Supply</div>
-                                    <div><b>93 981.26 WAVES</b></div>
+                                    <div><b>93 981.26 {currentToken?.tokenSymbol}</b></div>
                                 </div>
                                 <Divider sx={{ margin: '10px' }}></Divider>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Total Debt</div>
-                                    <div><b>19 891.46 WAVES</b></div>
+                                    <div><b>19 891.46 {currentToken?.tokenSymbol}</b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Current Utilization</div>
@@ -295,7 +333,7 @@ export default function Asset(params) {
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Borrow</div>
-                                    <div><b>WAVES</b></div>
+                                    <div><b>{currentToken?.tokenSymbol}</b></div>
                                 </div>
 
                             </Card>
@@ -306,9 +344,15 @@ export default function Asset(params) {
                                 <div className="text">
                                     {!callInProgress && (
                                         <div className={classes.textMuted}>
-                                            <Chart options={options} series={series} type="line" width={500} height={320} />
+                                            <HighchartsReact
+                                                highcharts={Highcharts}
+                                                options={options}
+                                            />
                                         </div>)
                                     }
+                                    {callInProgress && (
+                                        <h4>Please wait intrest rate model is calculating</h4>
+                                    )}
                                 </div>
                             </Card>
                         </Grid>
@@ -338,21 +382,69 @@ export default function Asset(params) {
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Collateral Factor</div>
-                                    <div><b>70%
+                                    <div><b>{tokendetails?.borrowLimitation?.CollateralFator}%
                                     </b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Liquidation Threshold</div>
-                                    <div><b>70%
+                                    <div><b>{tokendetails?.borrowLimitation?.LiquidationThreshold}%
                                     </b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Liquidation Penalty</div>
-                                    <div><b>50%</b></div>
+                                    <div><b>{tokendetails?.borrowLimitation?.LiquidationPenalty}%</b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>Protocol share</div>
-                                    <div><b>10%
+                                    <div className={classes.textMuted}>Initial Borrow Rate share</div>
+                                    <div><b>{tokendetails?.borrowLimitation?.InitialBorrowRate}%
+
+                                    </b></div>
+                                </div>
+
+                                <div className="d-flexSpaceBetween">
+                                    <div className={classes.textMuted}>MAX_UTILIZATION_RATE</div>
+                                    <div><b>{tokendetails?.borrowLimitation?.MAX_UTILIZATION_RATE}%
+
+                                    </b></div>
+                                </div>
+
+                                <div className="d-flexSpaceBetween">
+                                    <div className={classes.textMuted}>OPTIMAL_UTILIZATION_RATE</div>
+                                    <div><b>{tokendetails?.borrowLimitation?.OPTIMAL_UTILIZATION_RATE}%
+
+                                    </b></div>
+                                </div>
+
+                                <div className="d-flexSpaceBetween">
+                                    <div className={classes.textMuted}>StableRateSlope1</div>
+                                    <div><b>{tokendetails?.borrowLimitation?.StableRateSlope1}%
+
+                                    </b></div>
+                                </div>
+
+                                <div className="d-flexSpaceBetween">
+                                    <div className={classes.textMuted}>VariableRateSlope1</div>
+                                    <div><b>{tokendetails?.borrowLimitation?.VariableRateSlope1}%
+
+                                    </b></div>
+                                </div>
+                                <div className="d-flexSpaceBetween">
+                                    <div className={classes.textMuted}>VariableRateSlope2</div>
+                                    <div><b>{tokendetails?.borrowLimitation?.VariableRateSlope2}%
+
+                                    </b></div>
+                                </div>
+                                
+                                <div className="d-flexSpaceBetween">
+                                    <div className={classes.textMuted}>Base Intrest Rate</div>
+                                    <div><b>{tokendetails?.borrowLimitation?.baseRate}%
+
+                                    </b></div>
+                                </div>
+                                
+                                <div className="d-flexSpaceBetween">
+                                    <div className={classes.textMuted}>AllowStableJob</div>
+                                    <div><b>{tokendetails?.borrowLimitation?.AllowStableJob?.toString()}
 
                                     </b></div>
                                 </div>
