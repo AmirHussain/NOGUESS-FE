@@ -202,7 +202,7 @@ export default function Asset(params) {
     const supplySeries = [];
     const borrowSeries = [];
     const setApyGraph = async (lendingContract) => {
-        if (!signer || !currentToken) {
+        if (!currentToken) {
             return
         }
         try {

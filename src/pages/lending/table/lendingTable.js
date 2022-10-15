@@ -12,9 +12,10 @@ import { ethers } from 'ethers';
 import theme from '../../../theme';
 import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../../contracts/useContracts';
-import { IntrestRateModal, TokenBorrowLimitations, Tokens } from '../../../token-icons';
+import { IntrestRateModal, TokenAggregators, TokenBorrowLimitations, Tokens } from '../../../token-icons';
 import Asset from '../../../Components/asset';
 import { getAPY } from '../../../utils/common';
+import { bigToDecimal, decimalToBig, decimalToBigUints } from '../../../utils/utils';
 
 
 const useStyles = makeStyles({
@@ -67,8 +68,11 @@ export default function SupplyTable(props) {
 
   const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
+
   React.useEffect(() => {
+   
     setSupplyTable().then(resp => {
+     
       setSupplyRows(resp)
     });
   }, [updateTable]);
@@ -87,11 +91,10 @@ export default function SupplyTable(props) {
     }
   }, [signer]); // Empty array means to only run once on mount.
 
+
   const getSupplyDetailsFromContract = async (currency, rowindex) => {
     try {
-      if (!signer) {
-        return { amount: 0, rowindex }
-      }
+      
       const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
       const supplyResult = await lendingContract.getLenderShare(currency.symbol);
       const borrowResult = await lendingContract.getBorrowerShare(currency.symbol);
@@ -191,10 +194,10 @@ export default function SupplyTable(props) {
           {SupplyRows.map((row) => (
             <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} className={classes.tableRow}>
               <TableCell align="left" onClick={() => SetAndOpenAsset(row)} sx={{ cursor: 'pointer', display: 'flex' }} > &nbsp;&nbsp; <img className="chainIcon" alt="" src={row.token.icon} /> <h4>{row.token?.name} </h4>  </TableCell>
-              <TableCell align="right"><h4> {parseFloat(getAPY(row?.supplyAPY||0) * 100).toFixed(3)} %</h4></TableCell>
+              <TableCell align="right"><h4> {parseFloat(getAPY(row?.supplyAPY || 0) * 100).toFixed(3)} %</h4></TableCell>
               <TableCell align="right"><h5>{row.supplyAmount || '0.00'} {row.token.symbol}</h5></TableCell>
 
-              <TableCell align="right"><h4> {parseFloat(getAPY(row?.borrowAPY||0) * 100).toFixed(3)} %</h4></TableCell>
+              <TableCell align="right"><h4> {parseFloat(getAPY(row?.borrowAPY || 0) * 100).toFixed(3)} %</h4></TableCell>
 
               <TableCell align="right"><h5>{row.borrowAmount || '0.00'} {row.token.symbol}</h5></TableCell>
 
@@ -203,7 +206,7 @@ export default function SupplyTable(props) {
 
 
                   <Grid item xs={12} sm={12} md={6}>
-                    <Button variant="contained" size="small" 
+                    <Button variant="contained" size="small"
                       className={classes.actionButton} onClick={() => openDrawer(row, 'SupplyItem')}>
                       {
                         `${row.supplyAmount && row.supplyAmount > 0 ? 'Supply / Redeem' : ' Supply'}`
@@ -213,9 +216,9 @@ export default function SupplyTable(props) {
 
                   </Grid>
                   <Grid item xs={12} sm={12} md={6}>
-                 
+
                     <Button variant="contained" size="small"
-                     className={classes.actionButton} onClick={() => openDrawer(row, 'borrowItem')}>
+                      className={classes.actionButton} onClick={() => openDrawer(row, 'borrowItem')}>
                       {
                         `${row.borrowAmount && row.borrowAmount > 0 ? 'Borrow / Repay' : ' Borrow'}`
                       }

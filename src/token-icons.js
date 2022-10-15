@@ -12,9 +12,9 @@ export const Tokens = {
 }
 
 export const TokenBorrowLimitations = {
-    CollateralFator: decimalToBig('70'),
+    CollateralFator: decimalToBig('0.70'),
     LiquidationThreshold: decimalToBig('0.80'),
-    LiquidationPenalty: decimalToBig('30'),
+    LiquidationPenalty: decimalToBig('0.30'),
     ProtocolShare: decimalToBig('0.01'),
     InitialBorrowRate: decimalToBig('0.30'),
     MAX_UTILIZATION_RATE: decimalToBig('0.80'),

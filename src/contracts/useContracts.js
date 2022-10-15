@@ -11,7 +11,7 @@ const abis = {
 };
 
 const contractAddresses = {
-  lending: '0x1E4B43Ff0aE27BDEa543760E8eE0aE6F39Ef9031'
+  lending: '0x117EcdB238423F3a72Cde5F2FEB172D1FFEe1E64'
 };
 
 const useCustomContractCall = (abi, contractAddress, method, args, transformFunc) => {
@@ -56,11 +56,14 @@ const getWalletProvider = (walletName) => {
   }
 };
 
-const makeContract = (address, abi, signer) => {
-  if (!address || !abi || !signer) {
+const makeContract = (address, abi, signerOrProvider) => {
+  if(!signerOrProvider){
+     signerOrProvider = ethers.getDefaultProvider('goerli');
+  }
+  if (!address || !abi ) {
     throw new Error('Insuficient arguments');
   }
-  return new ethers.Contract(address, abi, signer);
+  return new ethers.Contract(address, abi, signerOrProvider);
 };
 
 const asyncContractCall = async (contract, method, args, transformFunc) => {
