@@ -53,8 +53,8 @@ function Lending() {
   }
 
   const getAllMarketDetails = async () => {
-   
-    const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer||provider);
+
+    const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
     const TokenKeysAndAddresses = Object.keys(Tokens).map(key => {
       return { symbol: Tokens[key].symbol, address: Tokens[key].address }
     })
@@ -83,7 +83,7 @@ function Lending() {
       getAllMarketDetails();
 
     }
-  }, [signer,provider, drawerOpen])
+  }, [signer, provider, drawerOpen])
 
   return (
     <>

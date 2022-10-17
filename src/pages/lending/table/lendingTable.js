@@ -70,44 +70,41 @@ export default function SupplyTable(props) {
 
 
   React.useEffect(() => {
+
    
-    setSupplyTable().then(resp => {
-     
-      setSupplyRows(resp)
-    });
-  }, [updateTable]);
+  }, [SupplyRows]);
 
   React.useEffect(() => {
-    if (signer) {
-      if (previousSigner === signer) {
-        return
-      }
-      SetPreviousSigner(signer)
-      console.log('Mounted');
-      setUpdateTable(true)
-      return () => {
-        console.log('Will unmount');
-      };
-    }
-  }, [signer]); // Empty array means to only run once on mount.
+
+    console.log('Mounted');
+
+    setSupplyTable().then(resp => {
+
+      setSupplyRows(resp)
+    });
+    return () => {
+      console.log('Will unmount');
+    };
+
+  }, [signer, provider]); // Empty array means to only run once on mount.
 
 
   const getSupplyDetailsFromContract = async (currency, rowindex) => {
     try {
-      
+
       const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
-      const supplyResult = await lendingContract.getLenderShare(currency.symbol);
-      const borrowResult = await lendingContract.getBorrowerShare(currency.symbol);
+      const supplyResult = signer ? await lendingContract.getLenderShare(currency.symbol) : decimalToBig('0');
+      const borrowResult = signer ? await lendingContract.getBorrowerShare(currency.symbol) : decimalToBig('0');
       const supplyAPR = await lendingContract.calculateCurrentLendingProfitRate(
         currency.address,
         IntrestRateModal
       );
-      const uratio = await lendingContract._utilizationRatio(currency.address);
-      const result = await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal);
-      console.log(result[0], result[1])
-      const borrowAPR = await lendingContract.getOverallBorrowRate(
+      const uratio =signer? await lendingContract._utilizationRatio(currency.address):decimalToBig('0');
+      const result = signer? await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal)
+      :null;
+      const borrowAPR =signer? await lendingContract.getOverallBorrowRate(
         currency.address, result[0], result[1]
-      );
+      ):decimalToBig('0');
 
 
       let supplyAPY = Number(ethers.utils.formatEther(supplyAPR));
@@ -141,31 +138,34 @@ export default function SupplyTable(props) {
     return new Promise((resolve, reject) => {
 
       const rows = []
-      setSupplyRows([])
-      setTimeout(() => {
         if (Tokens) {
           let rowadded = 0
-          const keys = Object.keys(Tokens).map(key => key)
+          const keys = Object.keys(Tokens).filter((key) => !Tokens[key].isPedgeToken);
+          console.log(keys)
           for (var rowindex = 0; rowindex < (keys.length); rowindex++) {
             // eslint-disable-next-line no-loop-func
             if (!Tokens[keys[rowindex]].isPedgeToken) {
-
               getSupplyDetailsFromContract(Tokens[keys[rowindex]], rowindex).then((resp) => {
                 const row = createSupplyData(Tokens[keys[resp.rowindex]], 0, 0, 6.0, 'Button')
                 row.supplyAmount = resp.amount
                 row.borrowAmount = resp.borrowAmount
                 row.supplyAPY = resp.supplyAPY
                 row.borrowAPY = resp.borrowAPY
-                setSupplyRows(current => [...current, row]);
+                rows.push(row);
+                rowadded++;
                 console.log(SupplyRows)
               })
-
             }
           }
+          let interval = setInterval(() => {
+            if (rowadded === keys.length) {
+              resolve(rows);
+              clearInterval(interval);
+            }
+          })
         }
 
       })
-    })
   };
   const handleCloseAsset = () => {
     setOpenAsset(false);
@@ -173,7 +173,9 @@ export default function SupplyTable(props) {
   React.useEffect(() => {
     console.log(props?.reload)
     if (props?.reload) {
-      setSupplyTable()
+      setSupplyTable().then(resp => {
+        setSupplyRows(resp);
+      })
     }
   }, [props?.reload])
 
@@ -192,7 +194,7 @@ export default function SupplyTable(props) {
         </TableHead>
         <TableBody>
           {SupplyRows.map((row) => (
-            <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} className={classes.tableRow}>
+            <TableRow key={row?.token?.address} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} className={classes.tableRow}>
               <TableCell align="left" onClick={() => SetAndOpenAsset(row)} sx={{ cursor: 'pointer', display: 'flex' }} > &nbsp;&nbsp; <img className="chainIcon" alt="" src={row.token.icon} /> <h4>{row.token?.name} </h4>  </TableCell>
               <TableCell align="right"><h4> {parseFloat(getAPY(row?.supplyAPY || 0) * 100).toFixed(3)} %</h4></TableCell>
               <TableCell align="right"><h5>{row.supplyAmount || '0.00'} {row.token.symbol}</h5></TableCell>
