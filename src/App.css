@@ -1,14 +1,16 @@
 .App {
-    text-align: center;
+  text-align: center;
 }
 
 
 .App-link {
-    color: #61dafb;
+  color: #61dafb;
 }
-html{
+
+html {
   background: #EDF0F7;
 }
+
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -17,18 +19,19 @@ html{
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; 
+  background: #f1f1f1;
 }
- 
+
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #888; 
+  background: #888;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; 
+  background: #555;
 }
+
 /* ::-webkit-scrollbar, ::-webkit-scrollbar-thumb {
   height: 4px;
   width: 4px;
@@ -39,62 +42,66 @@ html{
 :hover::-webkit-scrollbar, :hover::-webkit-scrollbar-thumb, .scrollbar::-webkit-scrollbar, .scrollbar::-webkit-scrollbar-thumb {
   color: black !important;
 } */
-  .d-flexSpaceBetween{
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .d-flex-evenly{
-    display: flex;
-    justify-content: space-evenly;
-  }
-  .d-flex-evenly{
-    display: flex;
-    justify-content: space-evenly;
-  }
-  
-  .d-flexSpaceAround{
-    display: flex;
-    justify-content: space-around;
+.d-flexSpaceBetween {
+  display: flex;
+  justify-content: space-between;
+}
 
-  }
-  .d-flexCenter{
-    display: flex;
-    justify-content: center;
+.d-flex-evenly {
+  display: flex;
+  justify-content: space-evenly;
+}
 
-  }
+.d-flex-evenly {
+  display: flex;
+  justify-content: space-evenly;
+}
 
-  .d-flex{
-    display: flex;
-  }
+.d-flexSpaceAround {
+  display: flex;
+  justify-content: space-around;
 
-  .subHeading{
-    font-size: 18px;
-    font-weight: 600;
-    text-align: left;
-  }
+}
+
+.d-flexCenter {
+  display: flex;
+  justify-content: center;
+
+}
+
+.d-flex {
+  display: flex;
+}
+
+.subHeading {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: left;
+}
 
 
-  .padding4{
-    padding: 4px 16px
-  }
-  .text{
-    padding: 32px 0px 32px 32px;
-  }
-  .image {
-    margin-left: auto !important;
-  }
+.padding4 {
+  padding: 4px 16px
+}
 
-  .marginTop{
-    margin-top: 10px;
-  }
+.text {
+  padding: 32px 0px 32px 32px;
+}
 
-  
-  /* thead th {
+.image {
+  margin-left: auto !important;
+}
+
+.marginTop {
+  margin-top: 10px;
+}
+
+
+/* thead th {
     color: rgb(86, 82, 93) !important;
     font-weight: 600 !important;
   } */
- /* tbody tr{
+/* tbody tr{
     background: linear-gradient(104.89deg,#2d2934 69.31%,#d8426d 342.44%);
     border-radius: 6px;
     padding: 16px;
@@ -106,81 +113,82 @@ html{
     color:white
   } */
 
-  /* tbody tr td {
+/* tbody tr td {
     color: white !important;
   }
   tbody tr th {
     color: white !important;
   } */
 
-  
 
-  .chainIcon{
-max-width: 32px;
-     width: inherit;
-      height: inherit;
-      
-    padding: 5px;
-  
-  }
 
-  @media screen and (max-width: 900px) {
-    .networktext {
-    
-      display: none;
-    }
-  }
-  @media screen and (min-width: 900px) {
-    .networktext {
-      margin-left: 2px !important;
-    }
-  }
-  .selectedNetworkIcon{
-    background: lightblue;
-    border-radius: 50%;
-  }
+.chainIcon {
+  max-width: 32px;
+  width: 32px;
+  height: 32px;
+  padding: 5px;
 
-  .MuiListItemText-primary{
-    font-weight: 600 !important;
-  }
+}
 
-  button.MuiButtonBase-root{
-   
-  }
+@media screen and (max-width: 900px) {
+  .networktext {
 
-  .MuiTabs-flexContainer {
-    display:flex  !important;
-    justify-content:space-around !important;
-    font-weight: 600 !important;
+    display: none;
   }
+}
 
-  
-  .MuiTabs-flexContainer > button {
-    font-weight: inherit;
+@media screen and (min-width: 900px) {
+  .networktext {
+    margin-left: 2px !important;
   }
+}
 
-  .MuiTabPanel-root{
-    padding:0px !important;
-  }
+.selectedNetworkIcon {
+  background: lightblue;
+  border-radius: 50%;
+}
 
-  .MuiTabs-indicator{
-    display: none !important;
-  }
+.MuiListItemText-primary {
+  font-weight: 600 !important;
+}
 
-  .MuiBox-root{
-    border: 0px solid !important;
-  }
+button.MuiButtonBase-root {}
 
-  td {
-    padding-top:4px !important;
-    padding-bottom:4px !important;
-  }
-  th {
-    font-weight: 600 !important;
-    padding-top:4px !important;
-    padding-bottom:4px !important;
-  }
-  tr {
-    padding-top:4px !important;
-    padding-bottom:4px !important;
-  }
+.MuiTabs-flexContainer {
+  display: flex !important;
+  justify-content: space-around !important;
+  font-weight: 600 !important;
+}
+
+
+.MuiTabs-flexContainer>button {
+  font-weight: inherit;
+}
+
+.MuiTabPanel-root {
+  padding: 0px !important;
+}
+
+.MuiTabs-indicator {
+  display: none !important;
+}
+
+.MuiBox-root {
+  border: 0px solid !important;
+}
+
+td {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+th {
+  font-weight: 600 !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+tr {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}

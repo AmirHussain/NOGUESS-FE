@@ -8,7 +8,7 @@ import Web3Modal from "web3modal";
 import { useSelector, useDispatch } from 'react-redux';
 import { loginUser, logoutUser } from '../../redux/store/actions/user';
 
-import providerOptions from '../walletConnect/providers'
+import providerOptions, { Networks } from '../walletConnect/providers'
 
 
 const useStyles = makeStyles({
@@ -50,6 +50,11 @@ export function Web3Provider({ children }) {
     const handleWalleltDrawerToggle = () => {
         connectWallet();
     };
+    function setDefaultProviderAndChainID(){
+        setProvider( ethers.getDefaultProvider(Networks[0].internalName));
+        setChainId(Networks[0].chainId);
+
+    }
     async function connectWallet() {
 
         try {
@@ -57,20 +62,20 @@ export function Web3Provider({ children }) {
             const library = new ethers.providers.Web3Provider(provider);
             const accounts = await library.listAccounts();
             const network = await library.getNetwork();
-            setProvider(provider);
+            setProvider(provider || ethers.getDefaultProvider(Networks[0].internalName));
             setLibrary(library);
             if (accounts) {
                 setAccount(accounts[0]);
                 dispatch(loginUser({ address: accounts[0] }));
             }
-            setChainId(network.chainId);
+            setChainId(network?.chainId||Networks[0].chainId);
 
             setSigner(library.getSigner())
         } catch (error) {
             setError(error);
         }
 
-        return { provider:library,signer}
+        return { provider: library, signer }
 
 
     }
@@ -84,21 +89,48 @@ export function Web3Provider({ children }) {
         setMessage(msg);
     };
 
+    // const switchNetwork = async () => {
+    //     try {
+    //         await library.provider.request({
+    //             method: "wallet_switchEthereumChain",
+    //             params: [{ chainId: ethers.utils.hexlify(chainId) }]
+    //         });
+    //     } catch (switchError) {
+    //         if (switchError.code === 4902) {
+    //             try {
+    //                 await library.provider.request({
+    //                     method: "wallet_addEthereumChain",
+    //                     // params: [networkParams[toHex(network)]]
+    //                 });
+    //             } catch (error) {
+    //                 setError(error);
+    //             }
+    //         }
+    //     }
+    // };
     const switchNetwork = async () => {
         try {
             await library.provider.request({
                 method: "wallet_switchEthereumChain",
-                params: [{ chainId: ethers.utils.hexlify(chainId) }]
+                params: [{ chainId: ethers.toHex(chainId) }],
             });
         } catch (switchError) {
+            // This error code indicates that the chain has not been added to MetaMask.
             if (switchError.code === 4902) {
                 try {
                     await library.provider.request({
                         method: "wallet_addEthereumChain",
-                        // params: [networkParams[toHex(network)]]
+                        params: [
+                            {
+                                chainId: ethers.toHex(chainId),
+                                chainName: network,
+                                rpcUrls: ["https://polygon-rpc.com/"],
+                                blockExplorerUrls: ["https://polygonscan.com/"],
+                            },
+                        ],
                     });
-                } catch (error) {
-                    setError(error);
+                } catch (addError) {
+                    throw addError;
                 }
             }
         }
@@ -133,11 +165,12 @@ export function Web3Provider({ children }) {
 
     const refreshState = () => {
         setAccount();
-        setChainId();
+        setSigner(null);
         setNetwork("");
         setMessage("");
         setSignature("");
         setVerified(undefined);
+        setDefaultProviderAndChainID();
     };
 
     const disconnect = async () => {
@@ -148,6 +181,8 @@ export function Web3Provider({ children }) {
     useEffect(() => {
         if (web3Modal.cachedProvider) {
             connectWallet();
+        }else{
+            setDefaultProviderAndChainID()
         }
     }, []);
 

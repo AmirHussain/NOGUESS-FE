@@ -7,7 +7,7 @@ import { abis, asyncContractCall, contractAddresses, makeContract } from '../../
 import { Web3Provider, Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
 import { ethers } from 'ethers';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { IntrestRateModal, TokenBorrowLimitations, Tokens } from '../../../token-icons';
+import { TokenContext } from '../../../tokenFactory';
 import { bigToDecimal, decimalToBig } from '../../../utils/utils';
 import moment from 'moment/moment';
 import { FluteAlertContext } from '../../../Components/Alert';
@@ -52,6 +52,8 @@ export default function SupplyItem(params) {
     console.log(params)
     const currentRow = params.input.currentRow
     const classes = useStyles();
+    const { IntrestRateModal, TokenAggregators, TokenBorrowLimitations,  Tokens } = React.useContext(TokenContext);
+
     const { connectWallet, signer, account } = useContext(Web3ProviderContext);
     const { setAlert, setAlertToggle } = useContext(FluteAlertContext);
 
@@ -105,7 +107,7 @@ export default function SupplyItem(params) {
         try {
             setInProgress(true)
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
-            const fweth = makeContract(Tokens[currentRow.token.pedgeToken].address, currentRow.token.abi, signer);
+            const fweth = makeContract(currentRow.token.pedgeToken, currentRow.token.abi, signer);
 
             setAlert({ severity: 'info', title: 'Aprroval', description: 'Approval of transaction in progress' }
             );
@@ -139,7 +141,7 @@ export default function SupplyItem(params) {
             setAlert({ severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully' });
 
             setAlert({ severity: 'info', title: 'Supply', description: 'Supply in progress' });
-            const result = await lendingContract.lend(currentRow.token.symbol, decimalToBig(amount), lockDuration, currentRow.token.address, Tokens[currentRow.token.pedgeToken].address, { gasLimit: 1000000 });
+            const result = await lendingContract.lend(currentRow.token.symbol, decimalToBig(amount), lockDuration, currentRow.token.address, currentRow.token.pedgeToken, { gasLimit: 1000000 });
 
             settranxHash(result.hash);
             await result.wait(1)
@@ -241,7 +243,7 @@ export default function SupplyItem(params) {
                                                         }}
                                                     >
                                                         <img className="chainIcon" alt=""
-                                                            src={currentRow.token.icon} />
+                                                            src={currentRow?.token?.icon} />
                                                     </Avatar>
                                                 }
 

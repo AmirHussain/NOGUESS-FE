@@ -8,7 +8,7 @@ import RightDrawer from '../../Components/rightDrawer';
 import SupplyTable from './table/lendingTable';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
-import { TokenAggregators, Tokens } from '../../token-icons';
+import { TokenContext } from '../../tokenFactory';
 import { bigToDecimal, bigToDecimalUints, decimalToBigUints } from '../../utils/utils';
 import { AttachMoney } from '@mui/icons-material';
 
@@ -39,6 +39,8 @@ function Lending() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [reload, setReload] = React.useState(false);
   const [currentMarket, setCurrentMarket] = React.useState([]);
+  const { TokenAggregators, Tokens } = React.useContext(TokenContext);
+
   const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
   const toggleDrawer = (reload = false) => {
@@ -53,29 +55,26 @@ function Lending() {
   }
 
   const getAllMarketDetails = async () => {
-
-    const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
-    const TokenKeysAndAddresses = Object.keys(Tokens).map(key => {
-      return { symbol: Tokens[key].symbol, address: Tokens[key].address }
-    })
-    const aggregators = TokenAggregators.map((aggtoken) => {
-      const currentToken = TokenKeysAndAddresses.find(token => aggtoken.tokenSymbol === token.symbol)
-      if (currentToken) {
-        return {
-          aggregator: aggtoken.aggregator, tokenAddress: currentToken.address, decimal: decimalToBigUints(aggtoken.decimals.toString(), aggtoken.decimals > 9 ? 0 : 0)
+    if (Tokens && Tokens.length && TokenAggregators.length) {
+      const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
+      const aggregators = TokenAggregators.map((aggtoken) => {
+        const currentToken = Tokens.find(token => aggtoken.tokenAddress === token.address)
+        if (currentToken) {
+          return {
+            aggregator: aggtoken.aggregator, tokenAddress: currentToken.address, decimal: decimalToBigUints(aggtoken.decimals.toString(), aggtoken.decimals > 9 ? 0 : 0)
+          }
         }
-
-      }
-    });
-    const data = await lendingContract.getCurrentLiquidity(
-      aggregators
-    );
-    setCurrentMarket({
-      totalSupply: Number(data[0]),
-      totalDebt: Number(data[1]),
-      totalVariableDebt: Number(data[3]),
-      totalStableDebt: Number(data[2])
-    })
+      });
+      const data = await lendingContract.getCurrentLiquidity(
+        aggregators
+      );
+      setCurrentMarket({
+        totalSupply: Number(data[0]),
+        totalDebt: Number(data[1]),
+        totalVariableDebt: Number(data[3]),
+        totalStableDebt: Number(data[2])
+      })
+    }
   }
 
   React.useEffect(() => {
@@ -83,7 +82,7 @@ function Lending() {
       getAllMarketDetails();
 
     }
-  }, [signer, provider, drawerOpen])
+  }, [signer, provider, drawerOpen, Tokens, TokenAggregators])
 
   return (
     <>
@@ -96,7 +95,19 @@ function Lending() {
               Liquidity Overview
             </Typography>
             <Grid container spacing={1} style={{ width: '100%', }}>
-              <Grid item xs={12} sm={6} md={6} style={{ textAlign: 'left', borderRight: '1px solid grey', }}>
+              <Grid item xs={12} sm={6} md={6} sx={{
+                textAlign: 'left',
+                 borderRight: {
+                  xs: '0px solid grey',
+                  sm: '1px solid grey',
+
+                },
+                 borderBottom: {
+                  xs: '1px solid grey',
+                  sm: '0px solid grey',
+
+                },
+              }}>
                 <h4 className={classes.textMutedBold + ' ' + classes.lowMargin}>
                   Supply
                 </h4>

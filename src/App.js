@@ -11,6 +11,7 @@ import custome_theme from './theme';
 import React from 'react'
 import { Web3Provider } from './Components/walletConnect/walletConnect';
 import { FluteAlert } from './Components/Alert';
+import { TokenFactory } from './tokenFactory';
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
       <ThemeProvider theme={custome_theme}>
 
         <Web3Provider>
+        <TokenFactory>
           <FluteAlert>
             <div className="App">
               <CssBaseline />
@@ -30,6 +32,7 @@ function App() {
               </Router>
             </div>
           </FluteAlert>
+          </TokenFactory>
         </Web3Provider>
       </ThemeProvider>
 

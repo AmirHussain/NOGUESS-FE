@@ -11,7 +11,7 @@ import TabPanel from '@mui/lab/TabPanel';
 import { abis, contractAddresses, makeContract } from '../../../contracts/useContracts';
 import { ethers } from 'ethers';
 import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
-import { IntrestRateModal, TokenAggregators, TokenBorrowLimitations, Tokens } from '../../../token-icons';
+import { TokenContext } from '../../../tokenFactory';
 import { bigToDecimal, bigToDecimalUints, decimalToBig } from '../../../utils/utils';
 import { FluteAlertContext } from '../../../Components/Alert';
 import moment from 'moment';
@@ -87,27 +87,30 @@ export default function BorrowItem(params) {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
-    const { connect, signer, account } = useContext(Web3ProviderContext);
+    const { IntrestRateModal, TokenAggregators, TokenBorrowLimitations, Tokens } = React.useContext(TokenContext);
 
+    const { signer, account } = useContext(Web3ProviderContext);
     const [tranxHash, settranxHash] = useState('');
-    const [collateral, setColleteral] = useState('');
+    const [collateral, setCollateral] = useState('');
+
+    const [collateralToken, setCollateralToken] = useState({});
     const [decimals, setDecimals] = useState(0);
     const { setAlert, setAlertToggle } = useContext(FluteAlertContext);
     const [inProgress, setInProgress] = useState(false);
 
-    const [colleteralAmount, setColleteralAmount] = useState();
+    const [colleteralAmount, setCollateralAmount] = useState();
     const [availableAmount, setAvailableAmount] = useState(0);
 
-    const tokens = Object.keys(Tokens)
 
 
     const handleCollateralChange = (event) => {
         const {
             target: { value },
         } = event;
-        setColleteral(
+        setCollateral(
             value
         );
+        setCollateralToken(Tokens.find(token => token.address === value))
     };
 
     const [borrowDetails, setBorrowDetails] = useState([]);
@@ -121,6 +124,7 @@ export default function BorrowItem(params) {
         }
         const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
         const ids = await lendingContract.getBorrowerId(currentToken.symbol);
+        console.log('ids',ids)
         if (ids && ids.length) {
             ids.forEach(async (id) => {
                 const details = await lendingContract.getBorrowerDetails(id);
@@ -128,7 +132,7 @@ export default function BorrowItem(params) {
                     ...details,
                     id,
                     repaid: details.hasRepaid,
-                    startDay: formatDate(bigToDecimal(details.borrowDay)),
+                    startDay: formatDate(Number(details.borrowDay)),
                     borrowAmount: Number(bigToDecimal(details.borrowAmount)),
                     // endDay: bigToDecimal(details.endDay),
                     loanAmount: Number(bigToDecimal(details.loanAmount))
@@ -153,7 +157,6 @@ export default function BorrowItem(params) {
         try {
 
             setInProgress(true)
-            const collateralToken = Tokens[collateral];
             const loanToken = currentToken;
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
             const collateralContract = makeContract(collateralToken.address, collateralToken.abi, signer);
@@ -178,7 +181,6 @@ export default function BorrowItem(params) {
             await result.wait(1)
             setAlert({ severity: 'success', title: 'Borrow', description: 'Borrow completed successfully' });
 
-
             setInProgress(false)
             params?.input?.toggleDrawer(true)
         } catch (err) {
@@ -193,6 +195,7 @@ export default function BorrowItem(params) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = (event) => {
         setRedeemRow(event)
+        console.log('redeemRow',event)
         setOpen(true);
         setRepayAmountValue(event.loanAmount + (event.loanAmount * event.borrowAPY))
     };
@@ -205,22 +208,21 @@ export default function BorrowItem(params) {
             handleClose()
             setInProgress(true)
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
-            const tokenKeys = Object.keys(Tokens);
-            let collateralToken;
-            tokenKeys.forEach((key) => {
-                if (Tokens[key].symbol === row.collateralToken) {
-                    collateralToken = Tokens[key];
+            let currentCollateralToken;
+            Tokens.forEach((token) => {
+                if (token.symbol === row.collateralToken) {
+                    currentCollateralToken = token;
                 }
             });
             setAlert({ severity: 'info', title: 'Aprroval', description: 'Approval of transaction in progress' });
 
-            const loanTokenContract = makeContract(currentToken.address, collateralToken.abi, signer);
+            const loanTokenContract = makeContract(currentToken.address, currentCollateralToken.abi, signer);
             await loanTokenContract.approve(lendingContract.address, decimalToBig(repayAmountValue.toString()));
             setAlert({ severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' });
             setAlert({ severity: 'info', title: 'Repay', description: 'Repay in progress' });
             const result = await lendingContract.repay(
                 row['loanToken'], decimalToBig(repayAmountValue.toString()), currentToken.address,
-                collateralToken.address, row.id, IntrestRateModal, { gasLimit: 1000000 });
+                currentCollateralToken.address, row.id, IntrestRateModal, { gasLimit: 1000000 });
             await result.wait(1)
             setAlert({ severity: 'success', title: 'Repay', description: 'Repay completed successfully' });
 
@@ -238,10 +240,9 @@ export default function BorrowItem(params) {
     const setCollateralAmountOfToken = async () => {
         try {
             if (amount && collateral) {
-                const collateralToken = Tokens[collateral];
                 const loanToken = currentToken;
-                const collateralAggregators = TokenAggregators.find((aggregator) => aggregator.tokenSymbol === collateralToken.symbol);
-                const loanAggregators = TokenAggregators.find((aggregator) => aggregator.tokenSymbol === loanToken.symbol);
+                const collateralAggregators = TokenAggregators.find((aggregator) => aggregator.tokenAddress === collateralToken.address);
+                const loanAggregators = TokenAggregators.find((aggregator) => aggregator.tokenAddress === loanToken.address);
                 if (collateralAggregators && loanAggregators) {
                     setDecimals(collateralAggregators.decimals)
                     const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
@@ -260,7 +261,7 @@ export default function BorrowItem(params) {
                     const collateralUnits = totalCollateralInUSD / collateralUnitPriceInUSD
                     console.log('totalCollateralInUSD', collateralUnits);
 
-                    setColleteralAmount(collateralUnits)
+                    setCollateralAmount(collateralUnits)
                 } else {
                     alert('No aggregator found for token ' + collateral)
                 }
@@ -276,7 +277,6 @@ export default function BorrowItem(params) {
 
     const setCurrentUserCollateralTokenBalance = async () => {
         if (collateral) {
-            const collateralToken = Tokens[collateral];
             const tokenContract = makeContract(collateralToken.address, collateralToken.abi, signer);
             const availableTokenAmount = await tokenContract.balanceOf(account)
             setAvailableAmount(bigToDecimal(availableTokenAmount))
@@ -389,19 +389,19 @@ export default function BorrowItem(params) {
                                     </Grid>
 
                                     <Grid item xs={12} sm={12} md={12}>
-                                        <Card sx={{ minWidth: 275 ,background:'#F5F5F5'}}>
+                                        <Card sx={{ minWidth: 275, background: '#F5F5F5' }}>
                                             <CardContent>
                                                 <Typography sx={{ fontSize: 14, fontWeight: 600 }} variant="h4" gutterBottom>
 
                                                     <FormControl sx={{ width: '100%' }}>
-                                                    <InputLabel id="demo-multiple-checkbox-label">Select Collateral</InputLabel>
+                                                        <InputLabel id="demo-multiple-checkbox-label">Select Collateral</InputLabel>
                                                         <Select
                                                             labelId="demo-multiple-checkbox-label"
                                                             id="demo-multiple-checkbox"
-                                                            value={collateral}
+                                                            value={collateralToken?.name}
                                                             onChange={handleCollateralChange}
                                                             input={<OutlinedInput label="Select Collateral" />}
-                                                            renderValue={(selected) => selected}
+                                                            renderValue={(selected) => collateralToken?.name}
                                                             MenuProps={MenuProps}
                                                             startAdornment={
                                                                 <Avatar key="rightDrawerAvatar" aria-label="Recipe" className={classes.avatar}
@@ -412,28 +412,28 @@ export default function BorrowItem(params) {
                                                                     }}
                                                                 >
                                                                     <img className="chainIcon" alt=""
-                                                                        src={Tokens[collateral]?.icon} />
+                                                                        src={collateralToken?.icon} />
                                                                 </Avatar>} >
-                                                            {tokens.map((token) => (
-                                                                !Tokens[token].isPedgeToken &&
-                                                                Tokens[token].address !== currentToken.address && (
-                                                                    <MenuItem key={token} value={token}>
+                                                            {Tokens.map((token) => (
+                                                                !token.isPedgeToken &&
+                                                                token.address !== currentToken.address && (
+                                                                    <MenuItem key={token.name} value={token.address}>
                                                                         <img className="chainIcon" alt=""
-                                                                            src={Tokens[token].icon} />
-                                                                        <ListItemText primary={Tokens[token].name} />
+                                                                            src={token.icon} />
+                                                                        <ListItemText primary={token.name} />
                                                                     </MenuItem>
                                                                 )
                                                             ))}
                                                         </Select>
                                                     </FormControl>
                                                 </Typography>
-                                                <Typography sx={{ display: 'flex', justifyContent: 'space-between' }} color="text.secondary" gutterBottom>
+                                                <Typography variant="h6" component="h5" sx={{ display: 'flex', justifyContent: 'space-between' }} color="text.secondary" gutterBottom>
                                                     <div> Amount to be collateralized </div>
-                                                    <div>{parseFloat(colleteralAmount || 0).toFixed(5)} {collateral}</div>
+                                                    <div>{parseFloat(colleteralAmount || 0).toFixed(5)} {collateralToken?.symbol}</div>
                                                 </Typography>
-                                                <Typography sx={{ display: 'flex', justifyContent: 'space-between' }} color="text.secondary" gutterBottom>
+                                                <Typography variant="h6" component="h5" sx={{ display: 'flex', justifyContent: 'space-between' }} color="text.secondary" gutterBottom>
                                                     <div> Available amount </div>
-                                                    <div>{parseFloat(availableAmount || 0).toFixed(5)} {collateral}</div>
+                                                    <div>{parseFloat(availableAmount || 0).toFixed(5)} {collateralToken?.symbol}</div>
                                                 </Typography>
                                             </CardContent>
 

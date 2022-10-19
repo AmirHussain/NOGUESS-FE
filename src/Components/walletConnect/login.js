@@ -5,7 +5,7 @@ import { makeStyles } from '@mui/styles';
 
 import theme from '../../theme';
 import { Web3ProviderContext } from "./walletConnect";
-import { Icons } from "../../icons";
+import { Networks } from "./providers";
 
 const useStyles = makeStyles({
     walletConnect: theme.actionButton,
@@ -18,9 +18,8 @@ function ConnectWallet() {
     const { handleNetwork, chainId, connectWallet, account, disconnect, switchNetwork } = useContext(Web3ProviderContext);
 
     const classes = useStyles();
-    const networks = [{ name: 'Polygon', icon: Icons.polygon, chainId: 5 }, { name: 'BSC', icon: 'https://i.imgflip.com/6dky3c.png', chainId: 56 }, { name: 'Ethereum', icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/480px-Ethereum-icon-purple.svg.png', chainId: 1 }]
     const networkList = []
-    networks.forEach(object => {
+    Networks.forEach(object => {
         networkList.push(<Button key={object.chainId} sx={{ fontWeight: object.chainId === chainId ? 600 : 400 }}
             onClick={() => handleNetwork(object.chainId)}>
             <img alt="" className={object.chainId === chainId ? 'selectedNetworkIcon chainIcon' : 'chainIcon'} src={object.icon} />
