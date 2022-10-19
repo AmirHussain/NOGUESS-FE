@@ -8,15 +8,9 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { Web3ProviderContext } from '../walletConnect/walletConnect';
-import { getTokenProperties, IntrestRateModal, TokenBorrowLimitations } from '../../token-icons';
-import { bigToDecimal, bigToDecimalUints, decimalToBig, decimalToBigUints } from '../../utils/utils';
-import Chart from 'react-apexcharts'
+import { TokenContext } from '../../tokenFactory';
+import { bigToDecimal, bigToDecimalUints,  decimalToBigUints } from '../../utils/utils';
 import { getAPY } from '../../utils/common';
-const start = 0;
-console.log(bigToDecimal(TokenBorrowLimitations.LiquidationThreshold))
-const end = parseInt(Number(bigToDecimal(TokenBorrowLimitations.LiquidationThreshold)) * 100);
-console.log('end', end)
-const range = [...Array(end - start + 1).keys()].map(x => x + start);
 let currentUtilization=0
 let currentSupplyAPR=0
 
@@ -194,6 +188,9 @@ export default function Asset(params) {
     const currentToken = params.currentRow?.token;
     const [callInProgress, setCallInProgress] = React.useState(true);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+    
+  const { getTokenProperties, IntrestRateModal, TokenBorrowLimitations } = React.useContext(TokenContext);
+
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
     const [tokendetails, setTokendetails] = React.useState({});
     const [tokenSummary, setTokenSummary] = React.useState({});
@@ -231,7 +228,7 @@ export default function Asset(params) {
 
 
     const getTokenDetails = async () => {
-        const details = getTokenProperties(currentToken.symbol)
+        const details = getTokenProperties(currentToken.address)
         setTokendetails(details);
         setTimeout(() => {
             getTokenMarketDetails(details)

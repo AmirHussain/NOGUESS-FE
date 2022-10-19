@@ -12,7 +12,7 @@ import { ethers } from 'ethers';
 import theme from '../../../theme';
 import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../../contracts/useContracts';
-import { IntrestRateModal, TokenAggregators, TokenBorrowLimitations, Tokens } from '../../../token-icons';
+import { TokenContext } from '../../../tokenFactory';
 import Asset from '../../../Components/asset';
 import { getAPY } from '../../../utils/common';
 import { bigToDecimal, decimalToBig, decimalToBigUints } from '../../../utils/utils';
@@ -65,49 +65,48 @@ export default function SupplyTable(props) {
 
   const [currentRow, setCurrentRow] = React.useState({});
   const [previousSigner, SetPreviousSigner] = React.useState(false);
+  const { IntrestRateModal, Tokens } = React.useContext(TokenContext);
 
   const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
 
   React.useEffect(() => {
-   
-    setSupplyTable().then(resp => {
-     
-      setSupplyRows(resp)
-    });
-  }, [updateTable]);
+
+
+  }, [SupplyRows, Tokens]);
 
   React.useEffect(() => {
-    if (signer) {
-      if (previousSigner === signer) {
-        return
-      }
-      SetPreviousSigner(signer)
-      console.log('Mounted');
-      setUpdateTable(true)
-      return () => {
-        console.log('Will unmount');
-      };
-    }
-  }, [signer]); // Empty array means to only run once on mount.
+
+    console.log('Mounted');
+
+    setSupplyTable().then(resp => {
+      console.log(resp);
+
+      setSupplyRows(resp)
+    });
+    return () => {
+      console.log('Will unmount');
+    };
+
+  }, [signer, provider, Tokens]); // Empty array means to only run once on mount.
 
 
   const getSupplyDetailsFromContract = async (currency, rowindex) => {
     try {
-      
+
       const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
-      const supplyResult = await lendingContract.getLenderShare(currency.symbol);
-      const borrowResult = await lendingContract.getBorrowerShare(currency.symbol);
+      const supplyResult = signer ? await lendingContract.getLenderShare(currency.symbol) : decimalToBig('0');
+      const borrowResult = signer ? await lendingContract.getBorrowerShare(currency.symbol) : decimalToBig('0');
       const supplyAPR = await lendingContract.calculateCurrentLendingProfitRate(
         currency.address,
         IntrestRateModal
       );
-      const uratio = await lendingContract._utilizationRatio(currency.address);
-      const result = await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal);
-      console.log(result[0], result[1])
-      const borrowAPR = await lendingContract.getOverallBorrowRate(
+      const uratio = signer ? await lendingContract._utilizationRatio(currency.address) : decimalToBig('0');
+      const result = signer ? await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal)
+        : null;
+      const borrowAPR = signer ? await lendingContract.getOverallBorrowRate(
         currency.address, result[0], result[1]
-      );
+      ) : decimalToBig('0');
 
 
       let supplyAPY = Number(ethers.utils.formatEther(supplyAPR));
@@ -141,30 +140,30 @@ export default function SupplyTable(props) {
     return new Promise((resolve, reject) => {
 
       const rows = []
-      setSupplyRows([])
-      setTimeout(() => {
-        if (Tokens) {
-          let rowadded = 0
-          const keys = Object.keys(Tokens).map(key => key)
-          for (var rowindex = 0; rowindex < (keys.length); rowindex++) {
-            // eslint-disable-next-line no-loop-func
-            if (!Tokens[keys[rowindex]].isPedgeToken) {
-
-              getSupplyDetailsFromContract(Tokens[keys[rowindex]], rowindex).then((resp) => {
-                const row = createSupplyData(Tokens[keys[resp.rowindex]], 0, 0, 6.0, 'Button')
-                row.supplyAmount = resp.amount
-                row.borrowAmount = resp.borrowAmount
-                row.supplyAPY = resp.supplyAPY
-                row.borrowAPY = resp.borrowAPY
-                setSupplyRows(current => [...current, row]);
-                console.log(SupplyRows)
-              })
-
-            }
+      if (Tokens && Tokens.length) {
+        let rowadded = 0
+        Tokens.forEach(element => {
+          if (!element.isPedgeToken) {
+            getSupplyDetailsFromContract(element).then((resp) => {
+              const row = createSupplyData(element, 0, 0, 6.0, 'Button')
+              row.supplyAmount = resp.amount
+              row.borrowAmount = resp.borrowAmount
+              row.supplyAPY = resp.supplyAPY
+              row.borrowAPY = resp.borrowAPY
+              rows.push(row);
+              rowadded++;
+              console.log(SupplyRows)
+            })
           }
-        }
+        });
+        let interval = setInterval(() => {
+          if (rowadded === Tokens.length) {
+            resolve(rows);
+            clearInterval(interval);
+          }
+        })
+      }
 
-      })
     })
   };
   const handleCloseAsset = () => {
@@ -173,7 +172,10 @@ export default function SupplyTable(props) {
   React.useEffect(() => {
     console.log(props?.reload)
     if (props?.reload) {
-      setSupplyTable()
+      setSupplyTable().then(resp => {
+        console.log(resp);
+        setSupplyRows(resp);
+      })
     }
   }, [props?.reload])
 
@@ -191,15 +193,17 @@ export default function SupplyTable(props) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {SupplyRows.map((row) => (
-            <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} className={classes.tableRow}>
-              <TableCell align="left" onClick={() => SetAndOpenAsset(row)} sx={{ cursor: 'pointer', display: 'flex' }} > &nbsp;&nbsp; <img className="chainIcon" alt="" src={row.token.icon} /> <h4>{row.token?.name} </h4>  </TableCell>
+          {SupplyRows?.map((row) => (
+            <TableRow key={row?.token?.address} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} className={classes.tableRow}>
+              <TableCell align="left"
+               onClick={() => SetAndOpenAsset(row)} style={{ cursor: 'pointer', display: 'flex' ,alignItems:'center',borderBottom:'0px solid !important'}} >
+                <img className="chainIcon" alt="" src={row.token?.icon} /> <h4>{row.token?.name} </h4>  </TableCell>
               <TableCell align="right"><h4> {parseFloat(getAPY(row?.supplyAPY || 0) * 100).toFixed(3)} %</h4></TableCell>
-              <TableCell align="right"><h5>{row.supplyAmount || '0.00'} {row.token.symbol}</h5></TableCell>
+              <TableCell align="right"><h5>{row.supplyAmount || '0.00'} {row.token?.symbol}</h5></TableCell>
 
               <TableCell align="right"><h4> {parseFloat(getAPY(row?.borrowAPY || 0) * 100).toFixed(3)} %</h4></TableCell>
 
-              <TableCell align="right"><h5>{row.borrowAmount || '0.00'} {row.token.symbol}</h5></TableCell>
+              <TableCell align="right"><h5>{row.borrowAmount || '0.00'} {row.token?.symbol}</h5></TableCell>
 
               <TableCell align="right" >
                 <Grid container direction="row" justifyContent="start" alignItems="flex-center" spacing={2} style={{ width: '100%' }}>
