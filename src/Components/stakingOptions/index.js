@@ -24,7 +24,7 @@ const useStyles = makeStyles({
     actionButton: theme.actionButton2
 });
 
-export default function Tiles(props) {
+export default function StakingOptions(props) {
     const classes = useStyles();
     const dt = {
         'name': {
@@ -49,30 +49,7 @@ export default function Tiles(props) {
         return { name, apr, sc, st, b, icon: icon || 'https://polygonscan.com/images/svg/brands/polygon.svg?v=1.3' };
     }
 
-    const rows = [
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZIOU', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('dQUICK', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('CNT', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('dQUICK', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('CNT', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0),
-        createData('EZ', '0% in EZ', '90 DAY', '19 Jul 21 02:30 PM UTC', 4.0)
-    ];
+    const rows = props?.stakingOptions || [];
 
     const openDrawer = (row) => {
         props.action(row);
@@ -99,28 +76,28 @@ export default function Tiles(props) {
                     <Card className={classes.card} sx={{ boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)' }}>
                         <CardHeader onClick={() => SetAndOpenAsset(row)} sx={{ color: 'white', fontWeight: 600, textAlign: 'left', padding: '5px' }}
                             avatar={
-                                <Avatar  sx={{ cursor: 'pointer' }}  aria-label="Recipe" className={classes.avatar}>
+                                <Avatar sx={{ cursor: 'pointer' }} aria-label="Recipe" className={classes.avatar}>
                                     <img className="chainIcon" alt=""
-                                        src={row.icon} />
+                                        src={row?.staking_token?.token_image} />
                                 </Avatar>
                             }
-                            title={<Link sx={{ cursor: 'pointer' ,textDecoration:'none'}} >{row.name}</Link>}
+                            title={<Link sx={{ cursor: 'pointer', textDecoration: 'none' }} >{row?.staking_token?.token_name}</Link>}
 
                         />
                         <CardContent className={classes.cardContent}>
-                            <div className="d-flexSpaceBetween">  <span>APR IN REWARD:</span> <span>{row.apr}</span></div>
-                            <div className="d-flexSpaceBetween"> <span>STAKING CYCLE</span> <span>{row.sc}</span></div>
-                            <div className="d-flexSpaceBetween"> <span>START TIME:</span><span>{row.st}</span></div>
-                            <div className="d-flexSpaceBetween"> <span>YOUR BALANCE</span><span>{row.b}</span></div>
+                            <div className="d-flexSpaceBetween">  <span>APR IN REWARD:</span> <span>{row.apy}</span></div>
+                            <div className="d-flexSpaceBetween"> <span>STAKING CYCLE</span> <span>{row.staking_duration}</span></div>
+                            <div className="d-flexSpaceBetween"> <span>START TIME:</span><span>{row.staking_start_time}</span></div>
+                            <div className="d-flexSpaceBetween"> <span>YOUR BALANCE</span><span>{row.b || 0.0 } {row.staking_token?.token_symbol}</span></div>
                             <div className="d-flexSpaceBetween">  <b></b> <span><Button variant="text" size="small" className={classes.actionButton} onClick={() => openDrawer(row)}>Stake Now</Button></span></div>
                         </CardContent>
-
-
                     </Card>
                 </Grid>
             ))}
+            {currentRow && (
+                <Asset currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} open={openAsset} handleClose={handleCloseAsset}></Asset>
 
-            <Asset currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} open={openAsset} handleClose={handleCloseAsset}></Asset>
+            )}
         </Grid>
 
     );

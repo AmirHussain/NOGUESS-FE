@@ -1,10 +1,12 @@
 import { useContractCall } from '@usedapp/core';
 import { ethers } from 'ethers';
-import { governance, lendingAbi,wethAbi } from './abi/abi';
+import { governance, lendingAbi,stakingOfferings,wethAbi,staking } from './abi/abi';
 
 const abis = {
   lending: new ethers.utils.Interface(lendingAbi),
   governance: new ethers.utils.Interface(governance),
+  stakingOfferings: new ethers.utils.Interface(stakingOfferings),
+  staking:new ethers.utils.Interface(staking),
   WETH: new ethers.utils.Interface(wethAbi),
   fWETH: new ethers.utils.Interface(wethAbi),
   DAI: new ethers.utils.Interface(wethAbi),
@@ -13,7 +15,9 @@ const abis = {
 
 const contractAddresses = {
   lending: '0x117EcdB238423F3a72Cde5F2FEB172D1FFEe1E64', 
-  governance: '0xc72c5c9457c2EE23D8CF6D9eBEBe0610eF72809E'
+  governance: '0xc72c5c9457c2EE23D8CF6D9eBEBe0610eF72809E',
+  stakingOfferings:'0xB87a10A083C0e30FCCEdafB83c66fBd7fdc4E2e1',
+  staking:'0xeAd6E170D5f6508F575a9e9D9396C300609430Bb',
 };
 
 const useCustomContractCall = (abi, contractAddress, method, args, transformFunc) => {

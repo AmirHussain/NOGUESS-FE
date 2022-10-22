@@ -1,7 +1,7 @@
 import React from 'react';
 import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar } from '@mui/material';
 import { makeStyles } from '@mui/styles'
-import Tiles from '../../Components/tiles';
+import Tiles from '../stakingOptions';
 import { ArrowBack, Inbox, Mail } from '@mui/icons-material';
 import theme from '../../theme'
 import StakeItem from '../../pages/staking/stakeItem';

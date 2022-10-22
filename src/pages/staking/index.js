@@ -1,10 +1,14 @@
 import React from 'react';
 import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton } from '@mui/material';
 import { makeStyles } from '@mui/styles'
-import Tiles from '../../Components/tiles';
+import Tiles from '../../Components/stakingOptions';
 import { Inbox, Mail } from '@mui/icons-material';
 import theme from '../../theme'
 import RightDrawer from '../../Components/rightDrawer';
+import StakingOptions from '../../Components/stakingOptions';
+import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
+import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
+import { bigToDecimal } from '../../utils/utils';
 const useStyles = makeStyles({
 
     listSection: {
@@ -33,11 +37,61 @@ const useStyles = makeStyles({
 
 export default function Staking() {
     const classes = useStyles();
+    const { provider, signer } = React.useContext(Web3ProviderContext);
 
-    function createData(name, calories, fat, carbs, protein) {
-        return { name, calories, fat, carbs, protein };
+    const [stakingOptions, setStakingOptions] = React.useState({});
+    const getStakingOptions = async () => {
+        if (!provider) {
+            return []
+        }
+        setLoadingStakingOption(true)
+        const stakingOfferingContract = makeContract(contractAddresses.stakingOfferings, abis.stakingOfferings, signer);
+        const rows = await stakingOfferingContract.GetAllStakingOptions();
+        transformAndSetStakingOptions(rows)
+        setLoadingStakingOption(false)
     }
-    
+
+    const transformAndSetStakingOptions = (rows) => {
+        const tRows = [];
+        if (rows && rows) {
+            rows.forEach((row) => {
+                // address token_address;
+                // string token_image;
+                // string token_symbol;
+                // string token_name;
+                tRows.push({
+                    staking_contract_address: row.staking_contract_address,
+                    staking_token: {
+                        token_name: row.staking_token.token_symbol,
+                        token_address:
+                            row.staking_token.token_address,
+                        token_image:
+                            row.staking_token.token_image,
+                        token_symbol:
+                            row.staking_token.token_symbol
+                    },
+                    reward_token: {
+                        token_name: row.reward_token.token_symbol,
+                        token_address:
+                            row.reward_token.token_address,
+                        token_image:
+                            row.reward_token.token_image,
+                        token_symbol:
+                            row.reward_token.token_symbol
+                    },
+                    staking_start_time: new Date().toISOString(),
+                    staking_duration: bigToDecimal(row.staking_duration),
+                    isActive: row.isActive,
+                    isExpired: row.isExpired,
+                    apy: bigToDecimal(row.apy),
+                })
+
+            })
+
+        }
+        setStakingOptions(tRows)
+    }
+
     const [currentStake, setCurrentStake] = React.useState({});
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const toggleDrawer = () => {
@@ -48,14 +102,12 @@ export default function Staking() {
         toggleDrawer();
         setCurrentStake(row);
     }
+    const [loadingStakingOption, setLoadingStakingOption] = React.useState(true);
 
-    const rows = [
-        createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-        createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-        createData('Eclair', 262, 16.0, 24, 6.0),
-        createData('Cupcake', 305, 3.7, 67, 4.3),
-        createData('Gingerbread', 356, 16.0, 49, 3.9),
-    ];
+
+    React.useEffect(() => {
+        getStakingOptions()
+    }, [provider]);
     return (
         <Box >
 
@@ -107,13 +159,22 @@ export default function Staking() {
                     </div>
 
                 </div>
-                <Tiles action={OpenDrawer} />
+                {!loadingStakingOption && (
+                    <StakingOptions stakingOptions={stakingOptions} action={OpenDrawer} />
+                )
+
+                }
+                {loadingStakingOption && (
+                    <h5>Loading Options</h5>
+                )
+
+                }
             </div>
             <div>
 
             </div>
-            { drawerOpen && (
-            <RightDrawer Opration="Staking" component="staking" currentStake={currentStake} icon={currentStake.icon}  title={currentStake.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />
+            {drawerOpen && (
+                <RightDrawer Opration="Staking" component="staking" currentStake={currentStake} icon={currentStake.icon} title={currentStake.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />
             )}
         </Box>
     );

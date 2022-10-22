@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar, Slide, useMediaQuery } from '@mui/material';
 import { makeStyles } from '@mui/styles'
-import Tiles from '../../Components/tiles';
+import Tiles from '../stakingOptions';
 import { ArrowBack, Close, Inbox, Mail } from '@mui/icons-material';
 import theme from '../../theme'
 import Highcharts from 'highcharts'
