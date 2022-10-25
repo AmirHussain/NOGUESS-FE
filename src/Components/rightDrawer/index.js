@@ -1,7 +1,7 @@
 import React from 'react';
 import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar } from '@mui/material';
 import { makeStyles } from '@mui/styles'
-import Tiles from '../stakingOptions';
+import Tiles from '../../pages/staking/stakingList';
 import { ArrowBack, Inbox, Mail } from '@mui/icons-material';
 import theme from '../../theme'
 import StakeItem from '../../pages/staking/stakeItem';
@@ -70,7 +70,9 @@ const useStyles = makeStyles({
 });
 
 export default function RightDrawer(params) {
-    console.log(params)
+    console.log('rightdrawer params',params)
+    
+    const currentRow=params.currentRow||params.currentStake;
     const classes = useStyles();
 
     return (
@@ -93,7 +95,7 @@ export default function RightDrawer(params) {
                 onClose={params.toggleDrawer}>
                 <div className={classes.toolbarHeaderBackground}
                     style={{
-                        background: 'url(' + params.currentRow?.token?.icon + ')',
+                        background: 'url(' + currentRow?.token?.icon + ')',
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat',
                         backgroundSize: '300px 100px'
@@ -122,7 +124,7 @@ export default function RightDrawer(params) {
                             sx={{ marginRight: '10px' }}
                         >
                             <img className="chainIcon" alt=""
-                                src={params.currentRow?.token?.icon} />
+                                src={currentRow?.token?.icon} />
                         </Avatar>
                         <Typography variant="h4" >
                             {params.Opration}

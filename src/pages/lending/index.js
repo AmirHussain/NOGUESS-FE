@@ -1,4 +1,4 @@
-import { Typography, Stack, Grid, Box, Divider, Paper } from '@mui/material';
+import { Typography, Grid, Box, Divider, Paper } from '@mui/material';
 import React from 'react';
 import { makeStyles } from '@mui/styles';
 
@@ -9,7 +9,7 @@ import SupplyTable from './table/lendingTable';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { TokenContext } from '../../tokenFactory';
-import { bigToDecimal, bigToDecimalUints, decimalToBigUints } from '../../utils/utils';
+import { decimalToBigUints } from '../../utils/utils';
 import { AttachMoney } from '@mui/icons-material';
 
 const useStyles = makeStyles({
@@ -56,6 +56,7 @@ function Lending() {
 
   const getAllMarketDetails = async () => {
     if (Tokens && Tokens.length && TokenAggregators.length) {
+      console.log(Tokens)
       const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
       const aggregators = TokenAggregators.map((aggtoken) => {
         const currentToken = Tokens.find(token => aggtoken.tokenAddress === token.address)

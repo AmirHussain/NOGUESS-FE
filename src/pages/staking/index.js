@@ -1,11 +1,9 @@
 import React from 'react';
-import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton } from '@mui/material';
+import { Grid, Box, Card, Switch } from '@mui/material';
 import { makeStyles } from '@mui/styles'
-import Tiles from '../../Components/stakingOptions';
-import { Inbox, Mail } from '@mui/icons-material';
 import theme from '../../theme'
 import RightDrawer from '../../Components/rightDrawer';
-import StakingOptions from '../../Components/stakingOptions';
+import StakingList from './stakingList';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { bigToDecimal } from '../../utils/utils';
@@ -40,6 +38,7 @@ export default function Staking() {
     const { provider, signer } = React.useContext(Web3ProviderContext);
 
     const [stakingOptions, setStakingOptions] = React.useState({});
+    const [allStakingOptions, setAllStakingOptions] = React.useState({});
     const getStakingOptions = async () => {
         if (!provider) {
             return []
@@ -50,15 +49,15 @@ export default function Staking() {
         transformAndSetStakingOptions(rows)
         setLoadingStakingOption(false)
     }
+    function setActive(value) {
+        console.log(value)
+        setStakingOptions(value?allStakingOptions.filter(option=>option.isActive):allStakingOptions)
 
+    }
     const transformAndSetStakingOptions = (rows) => {
         const tRows = [];
         if (rows && rows) {
             rows.forEach((row) => {
-                // address token_address;
-                // string token_image;
-                // string token_symbol;
-                // string token_name;
                 tRows.push({
                     staking_contract_address: row.staking_contract_address,
                     staking_token: {
@@ -89,7 +88,8 @@ export default function Staking() {
             })
 
         }
-        setStakingOptions(tRows)
+        setStakingOptions(tRows);
+        setAllStakingOptions(tRows);
     }
 
     const [currentStake, setCurrentStake] = React.useState({});
@@ -155,12 +155,12 @@ export default function Staking() {
 
                     <div className={classes.textBold} md={2} sx={{ textAlign: 'right' }}>
                         Show all active
-                        <Switch></Switch>
+                        <Switch onChange={(e) => setActive(e.target.checked)}></Switch>
                     </div>
 
                 </div>
                 {!loadingStakingOption && (
-                    <StakingOptions stakingOptions={stakingOptions} action={OpenDrawer} />
+                    <StakingList stakingOptions={stakingOptions} action={OpenDrawer} />
                 )
 
                 }
