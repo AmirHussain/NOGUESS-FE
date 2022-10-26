@@ -4,22 +4,23 @@ import { responsiveFontSizes, createTheme } from '@mui/material/styles'
 const drawerWidth = 240;
 const rightDrawerWidth = '40%';
 const drawerIndex = 1000;
-const headerBackground = '#FFFFFF !important';
-const headerText = 'black  !important';
-const SideHeaderBackground = '#1263BE !important';
+const headerBackground = '#1F2028 !important';
+const headerText = 'white  !important';
+const SideHeaderBackground = '#282931 !important';
 const SideHeaderText = 'white  !important';
-const TabsBackground='#0665d01c !important';
-const DrawerBackground = '#2A303C !important';
-const DrawerText = '#21252F  !important';
-const contentBackGround = '#EDF0F7';
+const TabsBackground='#71777c !important';
+const DrawerBackground = '#282931 !important';
+const DrawerText = '#9096a5  !important';
+const contentBackGround = '#1F2028';
 const headerHeight = '66px';
+const sideHeaderHeight = '120px';
 const footerHeight = '66px';
 const midContainerHeight = `calc(100% - ${(66 * 2) + 'px'})`;
-const darkText = '#343A40';
-const lightText = '#81757D';
-const lightBlueText = '#0665d0';
-const darkBlueText = '#022853';
-const cardBackground = 'white';
+const darkText = '#d6d6d6';
+const lightText = '#e2e2e2';
+const lightBlueText = '#999999';
+const darkBlueText = '#c1dfff';
+const cardBackground = 'black';
 const theme = createTheme({
     spacing: (factor) => `${0.25 * factor}rem`,
     drawerIndex: drawerIndex,
@@ -33,6 +34,7 @@ const theme = createTheme({
     rightDrawerWidth,
     contentBackGround,
     headerHeight,
+    sideHeaderHeight,
     midContainerHeight,
     footerHeight,
     darkText,
@@ -121,7 +123,7 @@ const theme = createTheme({
     //     color: lightText + ' !important',
     //     fontSize: '11px !important',
     //     fontWeight: '800 !important',
-    //     background: '#2a303c24 !important',
+    //     background: '##28293124 !important',
     // },
     components: {
         MuiAppBar: {
@@ -139,7 +141,7 @@ const theme = createTheme({
 
 
                 root: {
-                    background: 'black',
+                    background: 'white',
                     color: 'white'
 
                 }
@@ -155,16 +157,17 @@ const theme = createTheme({
 
     },
     headerIcon:{
-        width: '4em',
+        width: '11em',
         fill:'white',
         paddingRight:'4px'
     },
     sideBarIcons:{
         width: '2em',
-        background: contentBackGround,
+        background: 'transparent',
         padding: '2px',
         margin: '4px',
-        borderRadius: '4px'
+        borderRadius: '4px',
+        color:'white'
     },
     typography: {
         fontFamily: [
@@ -218,8 +221,8 @@ const theme = createTheme({
             main: '#09FE00',//green
         },
         text: {
-            primary: '#000000',//black
-            secondary: '#FFFFFF',//white
+            primary: '#000000',//white
+            secondary: 'black',//white
         },
         divider: '#EDF0F7'
     },

@@ -30,6 +30,7 @@ const useStyles = makeStyles({
   appBar: {
     zIndex: theme.drawerIndex + 1,
     background: theme.headerBackground,
+    boxShadow:'none !important',
     color: theme.headerText,
     fontStyle: 'bold',
   },

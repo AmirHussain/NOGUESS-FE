@@ -48,6 +48,7 @@ const useStyles = makeStyles({
     lineHeight: '1.25rem',
     letterSpacing: '.0125em',
     borderRadius: '0.25rem',
+    marginBottom:'12px'
   },
   linkClassActive: {
     background: '#21252f !important',
@@ -90,7 +91,7 @@ export default function Home(props) {
 
   const drawer = (
     <div>
-      <Toolbar variant="dense" sx={{ height: theme.headerHeight }} className={classes.sideToolbar}>
+      <Toolbar variant="dense" sx={{ height: theme.sideHeaderHeight }} className={classes.sideToolbar}>
         <img className={classes.headerIcon} src={Icons.flutewhite1} alt=""></img>
         {/* <Pix color="primary"  ></Pix> */}
       </Toolbar>
