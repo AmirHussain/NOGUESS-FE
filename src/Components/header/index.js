@@ -11,7 +11,7 @@ import theme from './../../theme';
 import ConnectWallet from '../walletConnect/login';
 
 
-const drawerWidth = 240;
+const drawerWidth = theme.drawerWidth;
 const useStyles = makeStyles({
   root: {
     display: 'flex',

@@ -12,7 +12,10 @@ const useStyles = makeStyles({
     drawer: theme.drawer,
     drawerPaper: theme.drawerPaper,
     drawerContainer: theme.drawerContainer,
-    cardBackground: theme.cardBackground
+    cardBackground: theme.cardBackground,
+    accountMenu:{
+     background:theme.SideHeaderBackground,color:'white !important'
+    }
 });
 function ConnectWallet() {
     const { handleNetwork, chainId, connectWallet, account, disconnect, switchNetwork } = useContext(Web3ProviderContext);
@@ -20,7 +23,7 @@ function ConnectWallet() {
     const classes = useStyles();
     const networkList = []
     Networks.forEach(object => {
-        networkList.push(<Button key={object.chainId} sx={{ fontWeight: object.chainId === chainId ? 600 : 400 }}
+        networkList.push(<Button key={object.chainId} sx={{ fontWeight: object.chainId === chainId ? 600 : 400 ,color:'white'}}
             onClick={() => handleNetwork(object.chainId)}>
             <img alt="" className={object.chainId === chainId ? 'selectedNetworkIcon chainIcon' : 'chainIcon'} src={object.icon} />
             <div className="networktext"> {object.name}</div></Button >)
@@ -45,7 +48,7 @@ function ConnectWallet() {
 
     function start_and_end(str) {
         if (str && str.length > 35) {
-            return str.substr(0, 5) + '...' + str.substr(str.length - 5, str.length);
+            return str.substr(0, 3) + '..' + str.substr(str.length - 2, str.length);
         }
         return str;
     }
@@ -62,6 +65,8 @@ function ConnectWallet() {
                 :
                 <div>
                     <Fab variant="extended"
+                    
+                    className={classes.accountMenu}
                         aria-controls={open ? 'basic-menu' : undefined}
                         aria-haspopup="true"
                         aria-expanded={open ? 'true' : undefined}

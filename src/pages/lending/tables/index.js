@@ -7,7 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { makeStyles } from '@mui/styles';
-import { Button, Grid } from '@mui/material';
+import { Button, Grid, Menu, MenuItem, Typography } from '@mui/material';
 import { ethers } from 'ethers';
 import theme from '../../../theme';
 import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
@@ -16,37 +16,48 @@ import { TokenContext } from '../../../tokenFactory';
 import Asset from '../../../Components/asset';
 import { getAPY } from '../../../utils/common';
 import { bigToDecimal, decimalToBig, decimalToBigUints } from '../../../utils/utils';
+import { MenuOpen } from '@mui/icons-material';
+import LendingTable from './table';
+import { Box } from '@mui/system';
 
 
 const useStyles = makeStyles({
   root: {},
-  boxRoot: {
-    height: '180px',
-    width: '100%',
-    borderRadius: 8,
-  },
+  boxRoot: theme.boxRoot,
   tableRow: {
-    padding: '20px',
-    borderRadius: '6px',
-    background: '#ffffff',
-    color: '#000000',
-    border: '1px solid #E0E0E0',
+    background: theme.DrawerBackground,
+    borderRadius: 8,
+    color: 'white',
+    cursor: 'pointer !important',
+    border: '0px solid transparent',
+    "&:hover": {
+      background: '#393A41 !important'
+    }
   },
   theadRow: {
     "& .MuiTableCell-root": {
-      color: 'white',
-
+      color: theme.DrawerText,
+      border: '0px solid transparent'
     }
   },
+  tableCell: {
+    color: 'white !important',
+    padding: '2px !important',
+    minHeight: '10px !important',
+    lineHeight: '0.5 !important',
+    border: '0px solid transparent !important'
+  },
   tableHead: {
-    background: '#2A303C',
+    background: theme.DrawerBackground,
+    color: theme.DrawerText,
     width: '100%',
-    height: '50px',
-    gridTemplateColumns: 'repeat(6, 1fr)',
+    fontSize: '10px !important',
     justifyItems: 'center',
     // borderRadius: '8px 8px 0px 0px',
     padding: '16px 24px',
+    border: '0px solid transparent'
   },
+
   actionButton: theme.actionButton2
 });
 
@@ -55,6 +66,14 @@ const useStyles = makeStyles({
 
 export default function SupplyTable(props) {
   const classes = useStyles();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   const openDrawer = (row, component) => {
     props.action(row, component);
   }
@@ -78,7 +97,7 @@ export default function SupplyTable(props) {
   React.useEffect(() => {
 
     console.log('Mounted');
-
+    clearDetailsEmptyTable()
     setSupplyTable().then(resp => {
       console.log(resp);
 
@@ -136,6 +155,14 @@ export default function SupplyTable(props) {
   function createSupplyData(token, supplyAmount, supplyRate, borrowRate, collateral) {
     return { token, supplyAmount, supplyRate, borrowRate, collateral };
   }
+  function clearDetailsEmptyTable() {
+    const rows = []
+    Tokens.forEach(element => {
+      const row = createSupplyData(element, 0, 0, 6.0, 'Button')
+      rows.push(row)
+    })
+    setSupplyRows(rows);
+  }
   const setSupplyTable = () => {
     return new Promise((resolve, reject) => {
 
@@ -172,6 +199,7 @@ export default function SupplyTable(props) {
   React.useEffect(() => {
     console.log(props?.reload)
     if (props?.reload) {
+      clearDetailsEmptyTable()
       setSupplyTable().then(resp => {
         console.log(resp);
         setSupplyRows(resp);
@@ -180,65 +208,46 @@ export default function SupplyTable(props) {
   }, [props?.reload])
 
   return (
-    <TableContainer component={Paper}>
-      <Table aria-label="simple table" >
-        <TableHead className={classes.tableHead}>
-          <TableRow className={classes.theadRow}>
-            <TableCell align="center">ASSETS</TableCell>
-            <TableCell align="right">Supply APY</TableCell>
-            <TableCell align="right">Supplied</TableCell>
-            <TableCell align="right">Borrow APY</TableCell>
-            <TableCell align="right">Borrowed</TableCell>
-            <TableCell align="center">Action </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {SupplyRows?.map((row) => (
-            <TableRow key={row?.token?.address} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} className={classes.tableRow}>
-              <TableCell align="left"
-               onClick={() => SetAndOpenAsset(row)} style={{ cursor: 'pointer', display: 'flex' ,alignItems:'center',borderBottom:'0px solid !important'}} >
-                <img className="chainIcon" alt="" src={row.token?.icon} /> <h4>{row.token?.name} </h4>  </TableCell>
-              <TableCell align="right"><h4> {parseFloat(getAPY(row?.supplyAPY || 0) * 100).toFixed(3)} %</h4></TableCell>
-              <TableCell align="right"><h5>{row.supplyAmount || '0.00'} {row.token?.symbol}</h5></TableCell>
+    <div>
+      <Grid container direction="row" justifyContent="center" alignItems="flex-center" spacing={1} style={{ width: '100%' }}>
 
-              <TableCell align="right"><h4> {parseFloat(getAPY(row?.borrowAPY || 0) * 100).toFixed(3)} %</h4></TableCell>
-
-              <TableCell align="right"><h5>{row.borrowAmount || '0.00'} {row.token?.symbol}</h5></TableCell>
-
-              <TableCell align="right" >
-                <Grid container direction="row" justifyContent="start" alignItems="flex-center" spacing={2} style={{ width: '100%' }}>
-
-
-                  <Grid item xs={12} sm={12} md={6}>
-                    <Button variant="contained" size="small"
-                      className={classes.actionButton} onClick={() => openDrawer(row, 'SupplyItem')}>
-                      {
-                        `${row.supplyAmount && row.supplyAmount > 0 ? 'Supply / Redeem' : ' Supply'}`
-                      }
-
-                    </Button>
-
-                  </Grid>
-                  <Grid item xs={12} sm={12} md={6}>
-
-                    <Button variant="contained" size="small"
-                      className={classes.actionButton} onClick={() => openDrawer(row, 'borrowItem')}>
-                      {
-                        `${row.borrowAmount && row.borrowAmount > 0 ? 'Borrow / Repay' : ' Borrow'}`
-                      }
-                    </Button>
-                  </Grid>
-                </Grid>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+        <Grid item xs={12} sm={12} md={6} style={{ marginBottom: '10px' }}>
+        <Box  className={classes.boxRoot} >
+          <Typography varient="h2" p={2}  sx={{ textAlign: 'start',fontSize:'18px', marginBottom: '5px !important', fontWeight: 600 }}>
+              Supply Market
+            </Typography>
+         
+            <LendingTable
+              SupplyRows={SupplyRows}
+              action={props.action}
+              setCurrentRow={setCurrentRow}
+              setOpenAsset={setOpenAsset}
+              market="supply"
+            ></LendingTable>
+          </Box>
+        </Grid>
+        <Grid item xs={12} sm={12} md={6} style={{ marginBottom: '10px' }}>
+        <Box  className={classes.boxRoot} >
+          <Typography varient="h2" p={2} sx={{ textAlign: 'start',fontSize:'18px', marginBottom: '5px !important', fontWeight: 600 }}>
+              Borrow Market
+            </Typography>
+        
+            <LendingTable
+              SupplyRows={SupplyRows}
+              action={props.action}
+              setCurrentRow={setCurrentRow}
+              setOpenAsset={setOpenAsset}
+              market="borrow"
+            ></LendingTable>
+          </Box>
+        </Grid>
+      </Grid>
       {currentRow && openAsset && (
         <Asset currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} open={openAsset} handleClose={handleCloseAsset}></Asset>
       )}
 
-    </TableContainer>
+
+    </div>
 
   );
 }

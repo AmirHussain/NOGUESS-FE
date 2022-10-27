@@ -18,7 +18,7 @@ import { routes } from '../../routes';
 import theme from './../../theme';
 import {Icons} from './../../icons';
 
-const drawerWidth = 240;
+const drawerWidth = theme.drawerWidth+'px';
 const useStyles = makeStyles({
 
   drawer: {
@@ -32,31 +32,28 @@ const useStyles = makeStyles({
     color: theme.DrawerText,
   },
   content: {
-    margin: '0 auto',
-    padding: ' 1.125rem 1.125rem 1px',
     overflowX: 'hidden'
     // height:'calc(100% - '+theme.headerHeight+') !important'
   },
   linkClass: {
     textDecoration: 'none',
-    padding: '2px',
+    padding: '12px 8px 8px 24px',
     color: '#b4bccb !important',
     fontWeight: 'bold !important',
     display: 'block',
     alignItems: 'center',
     fontSize: '.875rem',
-    lineHeight: '1.25rem',
+    lineHeight: '1rem',
     letterSpacing: '.0125em',
-    borderRadius: '0.25rem',
-    marginBottom:'12px'
   },
   linkClassActive: {
-    background: '#21252f !important',
+    background: '#383944 !important',
+    borderLeft:'4px solid blue !important',
     color: 'white  !important',
     fontWeight: 600,
   },
   linkItem: {
-    padding: '4px !important'
+    padding: '0px !important'
   },
   linkText: {
     fontWeight: 600,
@@ -105,7 +102,6 @@ export default function Home(props) {
           </NavLink>
           <NavLink className={classes.linkClass} to={routes.staking} activeClassName={classes.linkClassActive}>
             <ListItem button key={routes.staking} className={classes.linkItem}>
-
               <img className={classes.sideBarIcons} src={stakingIcon} alt=''></img>
 
               <ListItemText primary="Staking" />

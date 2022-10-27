@@ -34,7 +34,7 @@ import theme from '../theme';
 import { NavLink } from 'react-router-dom';
 import WalletConnecter from '../Components/walletConnect/walletConnect';
 
-const drawerWidth = 240;
+const drawerWidth = theme.drawerWidth+'px';
 const useStyles = makeStyles({
     root: {
         display: 'flex',

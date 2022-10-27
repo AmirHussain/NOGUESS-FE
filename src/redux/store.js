@@ -1,10 +1,13 @@
 import { createStore, combineReducers } from 'redux';
-import { USER } from '../redux/store_types';
+import { USER ,TOKENSTORE} from '../redux/store_types';
 import userStore from "./userStore";
 import { persistStore, persistReducer } from 'redux-persist'
 import storage from "redux-persist/lib/storage";
+import tokenStore from './tokenStore';
 const reducer = combineReducers({
-    [USER]: userStore
+    [USER]: userStore,
+    
+    [TOKENSTORE]: tokenStore
 })
 
 const persistConfig = {

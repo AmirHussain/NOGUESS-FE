@@ -5,7 +5,7 @@ import { makeStyles } from '@mui/styles';
 import theme from '../../theme';
 //components
 import RightDrawer from '../../Components/rightDrawer';
-import SupplyTable from './table/lendingTable';
+import SupplyTable from './tables';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { TokenContext } from '../../tokenFactory';
@@ -14,15 +14,9 @@ import { AttachMoney } from '@mui/icons-material';
 
 const useStyles = makeStyles({
   root: {},
-  boxRoot: {
-
-    // background: '#0b0a0d',
-    color: '#56525d !important',
-    borderRadius: 8,
-    border: "2px solid #0B0A0D"
-  },
+  boxRoot: theme.boxRoot,
   dividerRoot: {
-    background: '#808080',
+    background: 'black',
   },
   lowMargin: {
     marginTop: '0px !important',
@@ -56,7 +50,6 @@ function Lending() {
 
   const getAllMarketDetails = async () => {
     if (Tokens && Tokens.length && TokenAggregators.length) {
-      console.log(Tokens)
       const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
       const aggregators = TokenAggregators.map((aggtoken) => {
         const currentToken = Tokens.find(token => aggtoken.tokenAddress === token.address)
@@ -87,23 +80,23 @@ function Lending() {
 
   return (
     <>
-      <Grid container direction="row" justifyContent="center" alignItems="flex-center" spacing={0} style={{ width: '100%' }}>
+      <Grid container direction="row" justifyContent="center" alignItems="flex-center" spacing={1} style={{ width: '100%' }}>
 
         <Grid item xs={12} sm={12} md={12} style={{ marginBottom: '10px' }}>
 
-          <Box elevation={3} className={classes.boxRoot} p={5} style={{ background: "#ffffff" }}>
+          <Box elevation={3} className={classes.boxRoot} p={5} >
             <Typography varient="h3" sx={{ textAlign: 'start', marginBottom: '5px !important', fontWeight: 600 }}>
               Liquidity Overview
             </Typography>
             <Grid container spacing={1} style={{ width: '100%', }}>
               <Grid item xs={12} sm={6} md={6} sx={{
                 textAlign: 'left',
-                 borderRight: {
+                borderRight: {
                   xs: '0px solid grey',
                   sm: '1px solid grey',
 
                 },
-                 borderBottom: {
+                borderBottom: {
                   xs: '1px solid grey',
                   sm: '0px solid grey',
 
@@ -146,12 +139,12 @@ function Lending() {
             </Grid>
           </Box>
         </Grid>
-        <Grid item xs={12} sm={12} md={12}>
-          <div>
-            <SupplyTable action={OpenDrawer} reload={reload} component="SupplyItem" />
-          </div>
-        </Grid>
 
+
+      </Grid>
+      <Grid item xs={12} sm={12} md={12}>
+
+        <SupplyTable action={OpenDrawer} reload={reload} component="SupplyItem" />
       </Grid>
       {drawerOpen && (
         <RightDrawer Opration={currentMethod === 'SupplyItem' ? 'Supply' : 'Borrow'} component={currentMethod} currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />

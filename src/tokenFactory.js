@@ -4,41 +4,29 @@ import { abis, contractAddresses, makeContract } from './contracts/useContracts'
 import { bigToDecimal, bigToDecimalUints, decimalToBig, decimalToBigUints } from './utils/utils';
 import React, { createContext } from 'react';
 import { Web3ProviderContext } from './Components/walletConnect/walletConnect';
+
+import { useSelector, useDispatch } from 'react-redux';
+import { getStorage, setStorage } from './utils/common';
 export const TokenContext = createContext();
+
 export function TokenFactory({ children }) {
     const [Tokens, setTokens] = React.useState([]);
-
+    // const dispatch = useDispatch();
     const [TokenAggregators, setTokenAggregators] = React.useState([]);
 
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
     const getAllTokens = async (governanceContract) => {
+        console.log('localStorage.tokenStorage',localStorage.tokenStorage)
+        if (localStorage.tokenStorage) {
+            return JSON.parse(localStorage.tokenStorage||'[]')
+        }
         if (!provider) {
-            return []
+            return JSON.parse(localStorage.tokenStorage||'[]') || []
         }
 
-        const result = await governanceContract.getAllToken();
-        return result || []
-    }
-    const getAllAggregators = async (governanceContract) => {
-        if (!provider) {
-            return []
-        }
-
-        const result = await governanceContract.getAllAggregators();
-        return result || []
-    }
-
-    async function setTokenFactory() {
-        if (Tokens.length) {
-            return
-        }
-        const governanceContract = makeContract(contractAddresses.governance, abis.governance, signer);
-        const tokens = await getAllTokens(governanceContract);
+        const tokens = await governanceContract.getAllToken();
         const UpdatedTokens = []
-        if (!tokens || !tokens.length) {
-            return
-        }
         tokens.forEach((token) => {
             if (!token.isDeleted) {
                 const newToken = {
@@ -53,15 +41,19 @@ export function TokenFactory({ children }) {
                 UpdatedTokens.push(newToken)
             }
         });
-        setTokens(UpdatedTokens)
-        // setTokens({
-        //     WETH: { name: 'Wrapped Ether', symbol: 'WETH', address: '0xFb156f075E7F00c80abEBFD4BaB3b9258F5D8B13', icon: polygon, abi: abis.WETH, pedgeToken: 'fWETH', isPedgeToken: false },
-        //     fWETH: { name: 'Pledged Wrapped Ether', symbol: 'fWETH', address: '0x933458F3F0154c3141b044eB77D20a409e614028', icon: ethereum, abi: abis.fWETH, pedgeToken: 'fWETH', isPedgeToken: true },
-        //     dai: { name: 'Dai Stable Coin', symbol: 'DAI', address: '0xe00FDE46D3fA6dFa89D513C0E076F75aE5E2573C', icon: ethereum, abi: abis.DAI, pedgeToken: 'fDAI', isPedgeToken: false },
-        //     fDAI: { name: 'Pledged Dai Stable Coin', symbol: 'fDAI', address: '0xd3Ff113B615104E2eD6821ed6eEe318bdEb7B83A', icon: ethereum, abi: abis.fDAI, pedgeToken: 'fDAI', isPedgeToken: true },
-        // })
 
-        const aggregators = await getAllAggregators(governanceContract);
+        setStorage('tokenStorage', JSON.stringify(UpdatedTokens))
+        return UpdatedTokens || []
+    }
+    const getAllAggregators = async (governanceContract) => {
+        if (localStorage.aggregatorsStorage) {
+            return JSON.parse(localStorage.aggregatorsStorage||'[]')
+        }
+        if (!provider) {
+            return JSON.parse(localStorage.aggregatorsStorage||'[]') || []
+        }
+
+        const aggregators = await governanceContract.getAllAggregators();
         const UpdatedAggregators = []
         if (aggregators && aggregators.length) {
             aggregators.forEach((aggregator) => {
@@ -75,12 +67,36 @@ export function TokenFactory({ children }) {
                 }
             });
         }
+        
+        setStorage('aggregatorsStorage', JSON.stringify(UpdatedAggregators))
+        return UpdatedAggregators || []
+    }
+
+    async function setTokenFactory() {
+        if (Tokens.length) {
+            return
+        }
+        const governanceContract = makeContract(contractAddresses.governance, abis.governance, signer);
+        const tokens = await getAllTokens(governanceContract);
+        if (!tokens || !tokens.length) {
+            return
+        }
+        setTokens(tokens)
+        // setTokens({
+        //     WETH: { name: 'Wrapped Ether', symbol: 'WETH', address: '0xFb156f075E7F00c80abEBFD4BaB3b9258F5D8B13', icon: polygon, abi: abis.WETH, pedgeToken: 'fWETH', isPedgeToken: false },
+        //     fWETH: { name: 'Pledged Wrapped Ether', symbol: 'fWETH', address: '0x933458F3F0154c3141b044eB77D20a409e614028', icon: ethereum, abi: abis.fWETH, pedgeToken: 'fWETH', isPedgeToken: true },
+        //     dai: { name: 'Dai Stable Coin', symbol: 'DAI', address: '0xe00FDE46D3fA6dFa89D513C0E076F75aE5E2573C', icon: ethereum, abi: abis.DAI, pedgeToken: 'fDAI', isPedgeToken: false },
+        //     fDAI: { name: 'Pledged Dai Stable Coin', symbol: 'fDAI', address: '0xd3Ff113B615104E2eD6821ed6eEe318bdEb7B83A', icon: ethereum, abi: abis.fDAI, pedgeToken: 'fDAI', isPedgeToken: true },
+        // })
+
+        const aggregators = await getAllAggregators(governanceContract);
+
         // [
         //     // { tokenSymbol: Tokens.ETH.symbol, aggregator: '0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e', decimals: 8 },
         //     // { tokenSymbol: Tokens.dai.symbol, aggregator: '0x0d79df66BE487753B02D015Fb622DED7f0E9798d', decimals: 8 }
         // ]
         setTokenAggregators(
-            UpdatedAggregators
+            aggregators
         )
 
     }
@@ -121,7 +137,7 @@ export function TokenFactory({ children }) {
                 Number(bigToDecimalUints(TokenBorrowLimitations[key], 2)) * 100 : TokenBorrowLimitations[key];
 
         })
-        let token=Tokens.find(t=>t.address===tokenAddress);
+        let token = Tokens.find(t => t.address === tokenAddress);
         let aggregator = TokenAggregators.find(aggregator => aggregator.tokenAddress === tokenAddress)
         return { token, borrowLimitation, aggregator }
 

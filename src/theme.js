@@ -1,7 +1,7 @@
 
 import { responsiveFontSizes, createTheme } from '@mui/material/styles'
 
-const drawerWidth = 240;
+const drawerWidth = 224;
 const rightDrawerWidth = '40%';
 const drawerIndex = 1000;
 const headerBackground = '#1F2028 !important';
@@ -17,7 +17,7 @@ const sideHeaderHeight = '120px';
 const footerHeight = '66px';
 const midContainerHeight = `calc(100% - ${(66 * 2) + 'px'})`;
 const darkText = '#d6d6d6';
-const lightText = '#e2e2e2';
+const lightText = 'rgb(149, 151, 161)';
 const lightBlueText = '#999999';
 const darkBlueText = '#c1dfff';
 const cardBackground = 'black';
@@ -148,7 +148,7 @@ const theme = createTheme({
             }
         },
         Drawer: {
-            width: '240px',
+            width: drawerWidth+'px',
             fontSize: '12px',
             lineHeight: '24px',
             background: '#1d1b22',
@@ -157,7 +157,7 @@ const theme = createTheme({
 
     },
     headerIcon:{
-        width: '11em',
+        width: '8em',
         fill:'white',
         paddingRight:'4px'
     },
@@ -226,7 +226,12 @@ const theme = createTheme({
         },
         divider: '#EDF0F7'
     },
-
+    boxRoot:{
+        background:DrawerBackground,
+        color: 'white !important',
+        borderRadius: 8,
+        border: "2px solid #0B0A0D"
+      },
     drawer: {
         width: drawerWidth,
         zIndex: drawerIndex,
