@@ -15,8 +15,6 @@ import { abis, contractAddresses, makeContract } from '../../../contracts/useCon
 import { TokenContext } from '../../../tokenFactory';
 import Asset from '../../../Components/asset';
 import { getAPY } from '../../../utils/common';
-import { bigToDecimal, decimalToBig, decimalToBigUints } from '../../../utils/utils';
-import { MenuOpen } from '@mui/icons-material';
 
 
 const useStyles = makeStyles({
@@ -108,7 +106,7 @@ export default function LendingTable(props) {
                             onClick={() => props.market === 'supply' ? openDrawer(row, 'SupplyItem') : openDrawer(row, 'borrowItem')}
                         >
                             <TableCell className={classes.tableCell} align="left"
-                                onClick={() => SetAndOpenAsset(row)} style={{ cursor: 'pointer', zIndex: 1000000, display: 'flex', alignItems: 'center', borderBottom: '0px solid !important' }} >
+                                 style={{ cursor: 'pointer', zIndex: 1000000, display: 'flex', alignItems: 'center', borderBottom: '0px solid !important' }} >
                                 <img className="chainIcon" alt="" src={row.token?.icon} /> <h4>{row.token?.name} </h4>  </TableCell>
 
                             <TableCell className={classes.tableCell} align="right"><h4> {parseFloat(getAPY(

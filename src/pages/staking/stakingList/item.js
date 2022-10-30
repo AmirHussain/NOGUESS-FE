@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, Avatar, CardContent, Button, Link } from '@mui/material';
+import { Card, CardHeader, Avatar, CardContent, Button, Link, Typography, Grid } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import theme from '../../../theme';
 import { abis, contractAddresses, makeContract } from '../../../contracts/useContracts';
@@ -21,7 +21,10 @@ const useStyles = makeStyles({
     },
 
     card: theme.card,
-    avatar: theme.avatar,
+    avatar: {
+        height: '30px  !important',
+        width: '30px  !important',
+    },
     cardContent: theme.cardContent,
     walletConnect: theme.walletConnect,
     actionButton: theme.actionButton2
@@ -47,7 +50,7 @@ export default function StakingItem(props) {
             console.log(signer);
             const stakingOfferingContract = makeContract(props.row?.staking_contract_address, abis.staking, signer);
             console.log(stakingOfferingContract);
-           const updatedRow=props.row
+            const updatedRow = props.row
             if (signer) {
                 const signerAddress = signer.address || await signer.getAddress()
                 const duration = await stakingOfferingContract.duration();
@@ -66,31 +69,90 @@ export default function StakingItem(props) {
         }
     }
     React.useEffect(() => {
-      
+
         if (props.row) {
 
             setStakingOptionDetailsFromStakingContract()
         }
     }, [props.row, provider])
     return (
-        <Card className={classes.card} sx={{ boxShadow: row.isActive ? '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)' : '' }}>
-            <CardHeader onClick={() => SetAndOpenAsset(row)}
-                sx={{ color: 'white', fontWeight: 600, textAlign: 'left', padding: '5px', backgroundColor: !row.isActive ? 'lightGrey' : 'inherit' }}
+        <Card className={classes.card} sx={{ backgroundColor: !row.isActive ? theme.contentBackGround : 'inherit', minHeight: '224px' }}>
+            <CardHeader 
+                sx={{ color: 'white', fontWeight: 600, textAlign: 'left', padding: '5px', backgroundColor: !row.isActive ? theme.contentBackGround : 'inherit' }}
                 avatar={
                     <Avatar sx={{ cursor: 'pointer' }} aria-label="Recipe" className={classes.avatar}>
-                        <img className="chainIcon" alt=""
+                        <img className={classes.avatar} alt=""
                             src={row?.staking_token?.token_image} />
                     </Avatar>
                 }
-                title={<Link sx={{ cursor: 'pointer', textDecoration: 'none' }} >{row?.staking_token?.token_name}</Link>}
+                // color: theme.lightText
+                title={
+                    <Typography sx={{ fontSize: 18, fontWeight: 500 }} variant="h4" gutterBottom>
+
+                        {row?.staking_token?.token_name}</Typography>}
 
             />
-            <CardContent className={classes.cardContent}>
-                <div className="d-flexSpaceBetween">  <span>APR IN REWARD:</span> <span>{row.apy}</span></div>
-                <div className="d-flexSpaceBetween"> <span>STAKING CYCLE</span> <span>{row.staking_duration} Month(s)</span></div>
-                <div className="d-flexSpaceBetween"> <span>START TIME:</span><span>{row.staking_start_time}</span></div>
-                <div className="d-flexSpaceBetween"> <span>YOUR BALANCE</span><span>{row.b || 0.0} {row.staking_token?.token_symbol}</span></div>
-                <div className="d-flexSpaceBetween">  <b></b>
+            <CardContent className={classes.cardContent} sx={{ backgroundColor: !row.isActive ? theme.contentBackGround : 'inherit' }}>
+                <Typography sx={{ fontSize: 14, fontWeight: 500, color: theme.lightText, textAlign: 'left' }} variant="h4" gutterBottom>
+
+                    You are staking</Typography>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Avatar sx={{ cursor: 'pointer' }} aria-label="Recipe" className={classes.avatar}>
+                        <img className={classes.avatar} alt=""
+                            src={row?.staking_token?.token_image} />
+                    </Avatar>
+                    <Typography sx={{ fontSize: 20, fontWeight: 600, textAlign: 'left', padding: '4px' }} variant="h4" gutterBottom>
+
+                        {row.b || 0.0}</Typography>
+
+                </div>
+
+                <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%' ,textAlign:'left'}}>
+
+                    <Grid item xs={4} sm={4} md={4} style={{ borderRight: '1px solid ' + theme.lightText }} >
+                      
+                    <div >
+                            <span>
+                            APR
+                            </span>
+                        </div>
+                        <div>
+                            <span>
+                                {row.apy} %
+                            </span>
+                        </div>
+
+                    </Grid>
+
+                    <Grid item xs={4} sm={4} md={4} style={{ borderRight: '1px solid ' + theme.lightText }} >
+                        <div >
+                            <span>
+                                START TIME
+                            </span>
+                        </div>
+                        <div>
+                            <span>
+                                {row.staking_start_time}
+                            </span>
+                        </div>
+
+                    </Grid>
+
+                    <Grid item xs={4} sm={4} md={4} >
+                    <div >
+                            <span>
+                            STAKING CYCLE
+                            </span>
+                        </div>
+                        <div>
+                            <span>
+                            {row.staking_duration} Month(s)
+                            </span>
+                        </div>
+
+                    </Grid>
+                </Grid>
+                <div className='d-flexSpaceBetween'>  <b></b>
                     <span>
                         {(Number(row.b) && row.isExpired) > 0 && (
                             <Button variant="text" size="small" className={classes.actionButton} onClick={() => openDrawer(row)}>Claim</Button>

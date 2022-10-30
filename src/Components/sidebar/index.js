@@ -100,6 +100,12 @@ export default function Home(props) {
               <ListItemText primary="Lending" className={classes.linkText} />
             </ListItem>
           </NavLink>
+          <NavLink className={classes.linkClass}  to={routes.market} activeClassName={classes.linkClassActive}>
+            <ListItem button key={routes.market} className={classes.linkItem}>
+              <img className={classes.sideBarIcons} src={landingIcon} alt=''></img>
+              <ListItemText primary="Market" className={classes.linkText} />
+            </ListItem>
+          </NavLink>
           <NavLink className={classes.linkClass} to={routes.staking} activeClassName={classes.linkClassActive}>
             <ListItem button key={routes.staking} className={classes.linkItem}>
               <img className={classes.sideBarIcons} src={stakingIcon} alt=''></img>

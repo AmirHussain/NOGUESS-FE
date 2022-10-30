@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Box, Card, Typography, Switch, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Button, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, IconButton, Toolbar, Modal, Fade, DialogActions, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, SwipeableDrawer, Skeleton, AppBar, Avatar } from '@mui/material';
+import { Typography, Button, IconButton, Toolbar, Modal, AppBar, Avatar, Backdrop, Fade, Box } from '@mui/material';
 import { makeStyles } from '@mui/styles'
 import Tiles from '../../pages/staking/stakingList';
 import { ArrowBack, Inbox, Mail } from '@mui/icons-material';
@@ -7,6 +7,17 @@ import theme from '../../theme'
 import StakeItem from '../../pages/staking/stakeItem';
 import SupplyItem from '../../pages/lending/supplyItem';
 import BorrowItem from '../../pages/lending/borrowItem';
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    minWidth: 400,
+    bgcolor: theme.contentBackGround,
+    borderRadius: '6%',
+    border: '0px solid transparent !important',
+    boxShadow: 24,
+};
 const useStyles = makeStyles({
     rightBar: {
         zIndex: theme.drawerIndex + 1,
@@ -31,11 +42,8 @@ const useStyles = makeStyles({
         color: 'white'
     },
     avatar: {
-        position: 'absolute  !important',
-        top: '100px  !important',
-        height: '52px  !important',
-        width: '52px  !important',
-        borderRadius: '4px !important',
+        height: '35px  !important',
+        width: '35px  !important',
     },
     rightDrawerHeader: theme.rightDrawerHeader,
     textHighlighted: theme.textHighlighted,
@@ -70,83 +78,93 @@ const useStyles = makeStyles({
 });
 
 export default function RightDrawer(params) {
-    console.log('rightdrawer params',params)
-    
-    const currentRow=params.currentRow||params.currentStake;
+    console.log('rightdrawer params', params)
+
+    const currentRow = params.currentRow || params.currentStake;
     const classes = useStyles();
 
     return (
         <React.Fragment key="RIGHT1">
-            <Button onClick={params.toggleDrawer}>RIGHT</Button>
-            <Drawer key="right 2"
-                className={classes.drawer}
-                sx={{
-                    width: { xs: '100%', md: theme.rightDrawerWidth },
-                    '& .MuiDrawer-paper': {
-                        boxSizing: 'border-box',
-                        width: { xs: '100%', md: theme.rightDrawerWidth },
-                    },
-                }}
-                classes={{
-                    paper: classes.drawerPaper,
-                }}
-                anchor='right'
+
+            <Modal
+                aria-labelledby="transition-modal-title"
+                aria-describedby="transition-modal-description"
                 open={params.drawerOpen}
-                onClose={params.toggleDrawer}>
-                <div className={classes.toolbarHeaderBackground}
-                    style={{
-                        background: 'url(' + currentRow?.token?.icon + ')',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
-                        backgroundSize: '300px 100px'
+                onClose={params.toggleDrawer}
+                closeAfterTransition
+                BackdropComponent={Backdrop}
+                BackdropProps={{
+                    timeout: 500,
+                }}
+            >
+                <Fade in={params.drawerOpen}>
+                    <Box sx={{
+                        minWidth: { xs: '100%', md: theme.rightDrawerWidth },
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        // minWidth: 400,
+                        height: { xs: '100vh', md: '70vh' },
+
+                        maxHeight: { xs: '100vh', md: 'auto' },
+                        bgcolor: theme.headerBackground,
+                        borderRadius: { xs: '0px', md: '15px' },
+                        border: '0px solid transparent !important',
+                        boxShadow: { xs: 0, md: 24 },
                     }}
-                >
-                    {/* <img className={classes.backgroundImage} alt=""  src={params.icon} /> */}
+                    >
 
-                </div>
-                <AppBar key="rightbar"
-                    position="relative"
-                    className={classes.rightDrawerHeader}
-                    sx={{}}
 
-                    color="primary"
+                        <AppBar key="rightbar"
+                            position="relative"
+                            className={classes.rightDrawerHeader}
+                            sx={{height:{xs:'auto',md:'77px'}}}
 
-                >
-                    <Toolbar variant="dense" sx={{
-                        opacity: 1,
-                        filter: 'drop-shadow(2px 4px 6px black)',
-                        height: theme.headerHeight, marginbottom: '4px'
-                    }}>
-                        <IconButton aria-label="open drawer" edge="start" onClick={params.toggleDrawer} >
-                            <ArrowBack color="primary" />
-                        </IconButton>
-                        <Avatar key="rightDrawerAvatar" aria-label="Recipe" className={classes.avatar}
-                            sx={{ marginRight: '10px' }}
+                            color="primary"
+
                         >
-                            <img className="chainIcon" alt=""
-                                src={currentRow?.token?.icon} />
-                        </Avatar>
-                        <Typography variant="h4" >
-                            {params.Opration}
-                        </Typography>
+                            <Toolbar variant="dense" sx={{
+                                height:'100%',
+                                opacity: 1,
 
-                    </Toolbar>
-                    <Typography variant="h6" className={classes.title}>
-                        {params.title}
-                    </Typography>
-                </AppBar>
-                {params.component === "staking" && (
-                    <StakeItem input={params}></StakeItem>
-                )}
+                            }}>
+                                <IconButton aria-label="open drawer" sx={{ display: { xs: 'block', md: 'none' } }} edge="start" onClick={params.toggleDrawer} >
+                                    <ArrowBack color="primary" />
+                                </IconButton>
+                                <div style={{ display: 'flex', justifyContent: 'center',width:'100%' }}>
+                                    <Avatar key="rightDrawerAvatar" aria-label="Recipe" className={classes.avatar}
+                                        sx={{ marginRight: '10px' }}
+                                    >
+                                        <img className={classes.avatar} alt=""
+                                            src={currentRow?.token?.icon} />
+                                    </Avatar>
+                                    <Typography variant="h5" >
+                                        {params.Opration}
+                                    </Typography>
 
-                {params.component === "SupplyItem" && (
-                    <SupplyItem input={params}></SupplyItem>
-                )}
+                                </div>
 
-                {params.component === "borrowItem" && (
-                    <BorrowItem input={params}></BorrowItem>
-                )}
-            </Drawer>
+                            </Toolbar>
+                            <Typography variant="h6" className={classes.title}>
+                                {params.title}
+                            </Typography>
+                        </AppBar>
+                        {params.component === "staking" && (
+                            <StakeItem input={params}></StakeItem>
+                        )}
+
+                        {params.component === "SupplyItem" && (
+                            <SupplyItem input={params}></SupplyItem>
+                        )}
+
+                        {params.component === "borrowItem" && (
+                            <BorrowItem input={params}></BorrowItem>
+                        )}
+                        {/* </Drawer> */}
+                    </Box>
+                </Fade>
+            </Modal>
         </React.Fragment>
     );
 }

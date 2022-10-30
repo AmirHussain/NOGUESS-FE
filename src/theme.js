@@ -8,19 +8,21 @@ const headerBackground = '#1F2028 !important';
 const headerText = 'white  !important';
 const SideHeaderBackground = '#282931 !important';
 const SideHeaderText = 'white  !important';
-const TabsBackground='#71777c !important';
+const TabsBackground = '#282931 !important';
 const DrawerBackground = '#282931 !important';
 const DrawerText = '#9096a5  !important';
-const contentBackGround = '#1F2028';
+const contentBackGround = '#1F2028 !important';
+const cardContentBackGround = '#282931 !important';
 const headerHeight = '66px';
 const sideHeaderHeight = '120px';
 const footerHeight = '66px';
 const midContainerHeight = `calc(100% - ${(66 * 2) + 'px'})`;
+const modalMdMidContainerHeight = `calc(100% - 90px)`;
+const modalXsMidContainerHeight = `calc(100% - 48px)`;
 const darkText = '#d6d6d6';
 const lightText = 'rgb(149, 151, 161)';
 const lightBlueText = '#999999';
 const darkBlueText = '#c1dfff';
-const cardBackground = 'black';
 const theme = createTheme({
     spacing: (factor) => `${0.25 * factor}rem`,
     drawerIndex: drawerIndex,
@@ -36,23 +38,24 @@ const theme = createTheme({
     headerHeight,
     sideHeaderHeight,
     midContainerHeight,
+    modalMdMidContainerHeight,
+    modalXsMidContainerHeight,
     footerHeight,
     darkText,
     lightText,
     lightBlueText,
     darkBlueText,
     TabsBackground,
-    cardBackground,
     rightDrawerHeader: {
         /* The image used */
         color: headerText,
-        backgroutnd: 'none  !important',
+        background: 'none  !important',
         backgroundColor: 'transparent !important',
         /* Add the blur effect */
         backgroundBlendMode: 'screen',
         zIndex: 100,
         /* Full height */
-        height: (66 * 2) + 'px',
+        // height: (66 * 2) + 'px',
 
         /* Center and scale the image nicely */
         backgroundPosition: 'center',
@@ -67,7 +70,8 @@ const theme = createTheme({
         textAlign: 'left',
         width: '100%',
         borderRadius: '6px',
-        background: cardBackground,
+        background: TabsBackground,
+        color: lightText + ' !important',
         fontSize: '16px',
         margin: '0px',
         padding: '0px',
@@ -102,11 +106,13 @@ const theme = createTheme({
     },
     card: {
         color: darkBlueText,
-        background: DrawerBackground
+        background: cardContentBackGround,
+        borderRadius:'12px',
+        padding:'10px'
     },
     cardContent: {
-        background: 'white',
         color: darkText,
+        background:cardContentBackGround,
         textTransform: 'initial',
         fontSize: '11px',
         lineHeight: '1.91234',
@@ -115,9 +121,7 @@ const theme = createTheme({
         borderRadius: '0px 0px 4px 4px'
     },
     avatar: {
-        height: '33px',
 
-        width: '33px',
     },
     // actionButton: {
     //     color: lightText + ' !important',
@@ -148,7 +152,7 @@ const theme = createTheme({
             }
         },
         Drawer: {
-            width: drawerWidth+'px',
+            width: drawerWidth + 'px',
             fontSize: '12px',
             lineHeight: '24px',
             background: '#1d1b22',
@@ -156,18 +160,18 @@ const theme = createTheme({
         },
 
     },
-    headerIcon:{
+    headerIcon: {
         width: '8em',
-        fill:'white',
-        paddingRight:'4px'
+        fill: 'white',
+        paddingRight: '4px'
     },
-    sideBarIcons:{
+    sideBarIcons: {
         width: '2em',
         background: 'transparent',
         padding: '2px',
         margin: '4px',
         borderRadius: '4px',
-        color:'white'
+        color: 'white'
     },
     typography: {
         fontFamily: [
@@ -226,12 +230,23 @@ const theme = createTheme({
         },
         divider: '#EDF0F7'
     },
-    boxRoot:{
-        background:DrawerBackground,
+    boxRoot: {
+        background: DrawerBackground,
         color: 'white !important',
         borderRadius: 8,
         border: "2px solid #0B0A0D"
-      },
+    },
+    modal: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 400,
+        bgcolor: contentBackGround,
+        boxShadow: 24,
+        p: 4,
+
+    },
     drawer: {
         width: drawerWidth,
         zIndex: drawerIndex,
@@ -264,25 +279,14 @@ const theme = createTheme({
         backgroundImage: 'linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)',
         color: 'white !important',
         fontWeight: '600 !important',
-       
+
 
     },
     cardBackground: {
-        background: '#0B0A0D !important',
-        color: '#56525d !important',
+        background: contentBackGround,
+        color: darkText+' !important',
     },
-    modal: {
-        position: 'absolute',
-        magin: 'auto',
-        left: '',
-        width: 400,
-        background: '#0B0A0D !important',
-        color: '#56525d !important',
-        border: '2px solid #000',
-        boxShadow: 24,
-        p: 4,
 
-    }
 });
 
 

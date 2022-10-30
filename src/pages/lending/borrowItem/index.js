@@ -124,7 +124,7 @@ export default function BorrowItem(params) {
         }
         const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
         const ids = await lendingContract.getBorrowerId(currentToken.symbol);
-        console.log('ids',ids)
+        console.log('ids', ids)
         if (ids && ids.length) {
             ids.forEach(async (id) => {
                 const details = await lendingContract.getBorrowerDetails(id);
@@ -195,7 +195,7 @@ export default function BorrowItem(params) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = (event) => {
         setRedeemRow(event)
-        console.log('redeemRow',event)
+        console.log('redeemRow', event)
         setOpen(true);
         setRepayAmountValue(event.loanAmount + (event.loanAmount * event.borrowAPY))
     };
@@ -296,7 +296,7 @@ export default function BorrowItem(params) {
                 sx={{
                     flexGrow: 1,
                     p: 3,
-                    height: `calc(100% - ${theme.headerHeight})`,
+                    height: { xs: theme.modalXsMidContainerHeight, md: theme.modalMdMidContainerHeight },
                     display: 'block',
                     right: '0px',
                     overflow: 'auto',
@@ -309,24 +309,25 @@ export default function BorrowItem(params) {
                 </div>
                 <Card className={classes.innerCard} sx={{
                     display: 'block !important', padding: '10px',
-                    fontSize: '12px',
+                    background: theme.TabsBackground,
+                    color: theme.lightText + ' !important',
+                    fontSize: '11px',
                     fontStretch: 'semi-expanded'
                 }}>
                     <div className="d-flexSpaceBetween">  <span>Borrow APY:</span> <span>{parseFloat(getAPY(currentRow?.borrowAPY) * 100).toFixed(3)} %</span></div>
                 </Card>
 
                 <Card className={classes.innerCard} sx={{
-                    display: 'block !important',
-                    padding: '4px',
+                    display: 'block !important', padding: '4px',
                     fontSize: '12px',
                     fontWeight: '600',
+                    background: 'transparent !important',
+                    boxShadow: 'none !important',
                     fontStretch: 'semi-expanded',
-                    background: theme.TabsBackground,
-                    color: theme.lightBlueText + ' !important',
+                    color: theme.lightText + ' !important',
                     marginTop: '10px',
                     width: 'auto'
                 }}>
-
                     <TabContext value={value}>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <TabList onChange={handleChange}
@@ -340,14 +341,17 @@ export default function BorrowItem(params) {
                         <TabPanel value="1">
                             <Card key="form" className={classes.innerCard}
                                 sx={{
+
+                                    background: theme.TabsBackground,
+                                    color: theme.lightText,
                                     display: 'block !important', padding: '10px', paddingTop: '15px', marginBottom: '10px'
                                 }}>
 
                                 <Grid container direction="row" justifyContent="start" alignItems="flex-start" spacing={2} style={{ width: '100%' }}>
 
-                                    <Grid item xs={12} sm={6} md={12}>
-                                        <FormControl variant="outlined" sx={{ m: 1, width: '100%' }}>
-                                            <InputLabel htmlFor="input-with-icon-adornment">
+                                    <Grid item xs={12} sm={6} md={12} style={{ color: theme.lightText + ' !important' }}>
+                                        <FormControl variant="outlined" style={{ m: 1, width: '100%', color: theme.lightText + ' !important' }}>
+                                            <InputLabel htmlFor="input-with-icon-adornment" sx={{ color: theme.lightText + ' !important' }}>
                                                 Borrow Requested
                                             </InputLabel>
 
@@ -355,6 +359,10 @@ export default function BorrowItem(params) {
                                                 label="Borrow Requested"
                                                 value={amount}
                                                 type="number"
+                                                sx={{
+                                                    color: theme.lightText + ' !important',
+                                                    padding: '6px'
+                                                }}
                                                 onChange={(e) => setAmount(e.target.value)}
                                                 id="input-with-icon-adornment"
                                                 startAdornment={
@@ -389,55 +397,56 @@ export default function BorrowItem(params) {
                                     </Grid>
 
                                     <Grid item xs={12} sm={12} md={12}>
-                                        <Card sx={{ minWidth: 275, background: '#F5F5F5' }}>
-                                            <CardContent>
-                                                <Typography sx={{ fontSize: 14, fontWeight: 600 }} variant="h4" gutterBottom>
 
-                                                    <FormControl sx={{ width: '100%' }}>
-                                                        <InputLabel id="demo-multiple-checkbox-label">Select Collateral</InputLabel>
-                                                        <Select
-                                                            labelId="demo-multiple-checkbox-label"
-                                                            id="demo-multiple-checkbox"
-                                                            value={collateralToken?.name}
-                                                            onChange={handleCollateralChange}
-                                                            input={<OutlinedInput label="Select Collateral" />}
-                                                            renderValue={(selected) => collateralToken?.name}
-                                                            MenuProps={MenuProps}
-                                                            startAdornment={
-                                                                <Avatar key="rightDrawerAvatar" aria-label="Recipe" className={classes.avatar}
-                                                                    sx={{
-                                                                        marginRight: '10px', margin: '4px',
-                                                                        width: '27px',
-                                                                        height: '27px'
-                                                                    }}
-                                                                >
-                                                                    <img className="chainIcon" alt=""
-                                                                        src={collateralToken?.icon} />
-                                                                </Avatar>} >
-                                                            {Tokens.map((token) => (
-                                                                !token.isPedgeToken &&
-                                                                token.address !== currentToken.address && (
-                                                                    <MenuItem key={token.name} value={token.address}>
-                                                                        <img className="chainIcon" alt=""
-                                                                            src={token.icon} />
-                                                                        <ListItemText primary={token.name} />
-                                                                    </MenuItem>
-                                                                )
-                                                            ))}
-                                                        </Select>
-                                                    </FormControl>
-                                                </Typography>
-                                                <Typography variant="h6" component="h5" sx={{ display: 'flex', justifyContent: 'space-between' }} color="text.secondary" gutterBottom>
-                                                    <div> Amount to be collateralized </div>
-                                                    <div>{parseFloat(colleteralAmount || 0).toFixed(5)} {collateralToken?.symbol}</div>
-                                                </Typography>
-                                                <Typography variant="h6" component="h5" sx={{ display: 'flex', justifyContent: 'space-between' }} color="text.secondary" gutterBottom>
-                                                    <div> Available amount </div>
-                                                    <div>{parseFloat(availableAmount || 0).toFixed(5)} {collateralToken?.symbol}</div>
-                                                </Typography>
-                                            </CardContent>
+                                        <Typography sx={{ fontSize: 12,  color: theme.lightText }} variant="h4" gutterBottom>
 
-                                        </Card>
+                                            <FormControl sx={{ width: '100%', color: theme.lightText + ' !important' }}>
+                                                <InputLabel sx={{ color: theme.lightText + ' !important' }} id="demo-multiple-checkbox-label">Select Collateral</InputLabel>
+                                                <Select
+                                                    labelId="demo-multiple-checkbox-label"
+                                                    id="demo-multiple-checkbox"
+                                                    value={collateralToken?.name}
+                                                    onChange={handleCollateralChange}
+                                                    input={<OutlinedInput label="Select Collateral" />}
+                                                    renderValue={(selected) => collateralToken?.name}
+                                                    MenuProps={MenuProps}
+                                                    sx={{
+                                                        color: theme.lightText + ' !important',
+                                                        padding: '6px'
+                                                    }}
+                                                    startAdornment={
+                                                        <Avatar key="rightDrawerAvatar" aria-label="Recipe" className={classes.avatar}
+                                                            sx={{
+                                                                marginRight: '10px', margin: '4px',
+                                                                width: '27px',
+                                                                height: '27px'
+                                                            }}
+                                                        >
+                                                            <img className="chainIcon" alt=""
+                                                                src={collateralToken?.icon} />
+                                                        </Avatar>} >
+                                                    {Tokens.map((token) => (
+                                                        !token.isPedgeToken &&
+                                                        token.address !== currentToken.address && (
+                                                            <MenuItem key={token.name} value={token.address}>
+                                                                <img className="chainIcon" alt=""
+                                                                    src={token.icon} />
+                                                                <ListItemText primary={token.name} />
+                                                            </MenuItem>
+                                                        )
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                        </Typography>
+                                        <Typography variant="p" sx={{ display: 'flex', justifyContent: 'space-between' }} gutterBottom>
+                                            <div> Amount to be collateralized </div>
+                                            <div>{parseFloat(colleteralAmount || 0).toFixed(5)} {collateralToken?.symbol}</div>
+                                        </Typography>
+                                        <Typography variant="p" sx={{ display: 'flex', justifyContent: 'space-between' }} gutterBottom>
+                                            <div> Available amount </div>
+                                            <div>{parseFloat(availableAmount || 0).toFixed(5)} {collateralToken?.symbol}</div>
+                                        </Typography>
+
                                     </Grid>
                                     <Grid item xs={12} sm={12} md={12}>
                                         <div><p sx={{ fontSize: '11px' }}>Minimum: <b>10 BNB</b> Maximum: <b>500BNB</b></p></div>
@@ -511,7 +520,7 @@ export default function BorrowItem(params) {
                 aria-describedby="child-modal-description"
             >
                 <Box sx={{ ...style, width: 'auto' }}>
-                    <Typography id="transition-modal-title" variant="h6" component="h2">
+                    <Typography id="transition-modal-title" variant="p" >
                         Redeem Token
                     </Typography>
                     <Typography sx={{ mt: 2 }}>

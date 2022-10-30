@@ -50,7 +50,7 @@ export default function StakingList(props) {
 
         <Grid container direction="row" justifyContent="start" alignItems="flex-start" spacing={2} style={{ width: '100%' }}>
             {rows.map((row, index) => (
-                <Grid item xs={6} sm={4} md={3} key={index + "-card"}>
+                <Grid item xs={12} sm={6} md={6} key={index + "-card"} sx={{backgroundColor: !row.isActive ? theme.contentBackGround : 'inherit'}}>
                     <StakingItem row={row} SetAndOpenAsset={SetAndOpenAsset} openDrawer={openDrawer}></StakingItem>
                 </Grid>
             ))}

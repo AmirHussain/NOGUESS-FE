@@ -44,7 +44,7 @@ const useStyles = makeStyles({
     modal: theme.modal,
     drawer: theme.drawer,
     drawerPaper: theme.rightDrawerPaper,
-    textBold: theme.textBold,    
+    textBold: theme.textBold,
     actionButton: theme.actionButton2
 });
 
@@ -52,7 +52,7 @@ export default function SupplyItem(params) {
     console.log(params)
     const currentRow = params.input.currentRow
     const classes = useStyles();
-    const { IntrestRateModal, TokenAggregators, TokenBorrowLimitations,  Tokens } = React.useContext(TokenContext);
+    const { IntrestRateModal, TokenAggregators, TokenBorrowLimitations, Tokens } = React.useContext(TokenContext);
 
     const { connectWallet, signer, account } = useContext(Web3ProviderContext);
     const { setAlert, setAlertToggle } = useContext(FluteAlertContext);
@@ -80,7 +80,7 @@ export default function SupplyItem(params) {
                     redeem: details.isRedeem,
                     startDay: formatDate(details.startDay),
                     endDay: formatDate(details.endDay),
-                    differnce: getDifference(new Date(Number(details.startDay)*1000), new Date(Number(details.endDay)*1000)),
+                    differnce: getDifference(new Date(Number(details.startDay) * 1000), new Date(Number(details.endDay) * 1000)),
                     tokenAmount: ethers.utils.formatEther(details.tokenAmount),
                     SuppliedAmount: ethers.utils.formatEther(details.SuppliedAmount)
                 }
@@ -97,7 +97,7 @@ export default function SupplyItem(params) {
         return a.diff(b) / 3600
     }
     const formatDate = (date) => {
-        return moment(new Date(Number(date)*1000)).format('MMMM Do YYYY, h:mm:ss a')
+        return moment(new Date(Number(date) * 1000)).format('MMMM Do YYYY, h:mm:ss a')
     }
     React.useEffect(() => {
         getSupplyDetailsFromContract()
@@ -115,7 +115,7 @@ export default function SupplyItem(params) {
             const wethResult = await fweth.approve(lendingContract.address, decimalToBig(row.tokenAmount));
             setAlert({ severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' });
             setAlert({ severity: 'info', title: 'Redeem', description: 'Redeem in progress' });
-            const result = await lendingContract.redeem(currentRow.token.symbol, decimalToBig(row.tokenAmount), currentRow.token.address, row.id,IntrestRateModal, { gasLimit: 1000000 });
+            const result = await lendingContract.redeem(currentRow.token.symbol, decimalToBig(row.tokenAmount), currentRow.token.address, row.id, IntrestRateModal, { gasLimit: 1000000 });
             await result.wait(1)
             setAlert({ severity: 'success', title: 'Redeem', description: 'Redeem completed successfully' });
             setInProgress(false)
@@ -167,13 +167,13 @@ export default function SupplyItem(params) {
 
     return (
         <React.Fragment key="RIGHTContent">
-          
+
             <Box
                 component="main"
                 sx={{
                     flexGrow: 1,
                     p: 3,
-                    height: theme.midContainerHeight,
+                    height: { xs: theme.modalXsMidContainerHeight, md: theme.modalMdMidContainerHeight },
                     display: 'block',
                     right: '0px',
                     overflow: 'auto'
@@ -186,6 +186,8 @@ export default function SupplyItem(params) {
                 </div>
                 <Card className={classes.innerCard} sx={{
                     display: 'block !important', padding: '10px',
+                    background: theme.TabsBackground,
+                    color: theme.lightText + ' !important',
                     fontSize: '11px',
                     fontStretch: 'semi-expanded'
                 }}>
@@ -196,9 +198,10 @@ export default function SupplyItem(params) {
                     display: 'block !important', padding: '4px',
                     fontSize: '12px',
                     fontWeight: '600',
+                    background: 'transparent !important',
+                    boxShadow:'none !important',
                     fontStretch: 'semi-expanded',
-                    background: theme.TabsBackground,
-                    color: theme.lightBlueText + ' !important',
+                    color: theme.lightText + ' !important',
                     marginTop: '10px',
                     width: 'auto'
                 }}>
@@ -218,21 +221,31 @@ export default function SupplyItem(params) {
                         <TabPanel value="1">
                             <Card key="form" className={classes.innerCard}
                                 sx={{
-                                    display: 'block !important', padding: '10px', paddingTop: '15px', marginBottom: '10px'
+
+                                    background: theme.TabsBackground,
+                                    color:theme.lightText,
+                                    display: 'block !important',
+                                     padding: '10px', 
+                                     paddingTop: '15px', marginBottom: '10px'
                                 }}>
                                 <Grid container direction="row" justifyContent="start" alignItems="flex-start" spacing={2} style={{ width: '100%' }}>
 
                                     {/* Boxes */}
                                     <Grid item xs={12} sm={12} md={12}>
 
-                                        <FormControl variant="standard">
-                                            <InputLabel htmlFor="input-with-icon-adornment">
+                                        <FormControl variant="standard" sx={{color:theme.lightText,width:'100%'}}>
+                                            <InputLabel htmlFor="input-with-icon-adornment" sx={{color:theme.lightText,borderColor:theme.lightText+' !important'}}>
                                                 Supply Requested
                                             </InputLabel>
                                             <Input
                                                 id="input-with-icon-adornment"
                                                 value={amount}
                                                 type="number"
+                                                sx={{
+                                                    color: theme.lightText + ' !important',
+                                                    padding: '6px',
+                                                    width:'100%'
+                                                }}
                                                 onChange={(e) => setAmount(e.target.value)}
                                                 startAdornment={
                                                     <Avatar key="rightDrawerAvatar" aria-label="Recipe" className={classes.avatar}
@@ -253,26 +266,26 @@ export default function SupplyItem(params) {
 
                                     <Grid item xs={12} sm={12} md={12}>
                                         <FormControl>
-                                            <div style={{ padding: '4px', fontSize: '13px', color: 'rgba(0, 0, 0, 0.6)', paddingTop: '24px' }}>
+                                            <div style={{ padding: '4px', fontSize: '13px',  paddingTop: '24px' }}>
 
                                                 Select lock period
                                             </div>
                                             <ButtonGroup variant="outlined" aria-label="text button group">
                                                 <div style={{ display: 'block', fontSize: '12px', padding: '4px', textAlign: 'center' }}>
-                                                    <Button onClick={() => { setLockDuration(0) }} sx={{ fontSize: '12px', padding: '4px', background: lockDuration === 0 ? 'lightgray' : 'inherit' }} >No lock</Button>
+                                                    <Button onClick={() => { setLockDuration(0) }} sx={{ fontSize: '12px', color:theme.lightText+' !important', border:'0px solid transparent !important',padding: '4px', background: lockDuration === 0 ? theme.headerBackground : theme.TabsBackground }} >No lock</Button>
                                                     <div>3.67%</div>
                                                 </div>
                                                 <div style={{ display: 'block', fontSize: '12px', padding: '4px', textAlign: 'center' }}>
-                                                    <Button onClick={() => { setLockDuration(3) }} sx={{ fontSize: '12px', padding: '4px', background: lockDuration === 3 ? 'lightgray' : 'inherit' }} >
+                                                    <Button onClick={() => { setLockDuration(3) }} sx={{ fontSize: '12px', color:theme.lightText+' !important', border:'0px solid transparent !important',padding: '4px', background: lockDuration === 3 ?  theme.headerBackground : theme.TabsBackground }} >
                                                         3 months</Button>
                                                     <div>3.80%</div>
                                                 </div>
                                                 <div style={{ display: 'block', fontSize: '12px', padding: '4px', textAlign: 'center' }}>
-                                                    <Button onClick={() => { setLockDuration(6) }} sx={{ fontSize: '12px', padding: '4px', background: lockDuration === 6 ? 'lightgray' : 'inherit' }} >6 months</Button>
+                                                    <Button onClick={() => { setLockDuration(6) }} sx={{ fontSize: '12px', color:theme.lightText+' !important', border:'0px solid transparent !important',padding: '4px', background: lockDuration === 6 ?  theme.headerBackground : theme.TabsBackground }} >6 months</Button>
                                                     <div>3.63%</div>
                                                 </div>
                                                 <div style={{ display: 'block', fontSize: '12px', padding: '4px', textAlign: 'center' }}>
-                                                    <Button onClick={() => { setLockDuration(12) }} sx={{ fontSize: '12px', padding: '4px', background: lockDuration === 12 ? 'lightgray' : 'inherit' }} > 1 year</Button>
+                                                    <Button onClick={() => { setLockDuration(12) }} sx={{ fontSize: '12px', color:theme.lightText+' !important', border:'0px solid transparent !important',padding: '4px', background: lockDuration === 12 ?  theme.headerBackground : theme.TabsBackground }} > 1 year</Button>
                                                     <div>3.86%</div>
                                                 </div>
                                             </ButtonGroup>
@@ -314,9 +327,9 @@ export default function SupplyItem(params) {
                                                 <TableCell align="right">{
                                                     !row.redeem && row.differnce <= 0 && (
 
-                                                        <Button 
-                                                        variant="contained" size="small"
-                                                        className={classes.actionButton} onClick={() => redeemAmount(row)}>
+                                                        <Button
+                                                            variant="contained" size="small"
+                                                            className={classes.actionButton} onClick={() => redeemAmount(row)}>
                                                             Redeem
                                                         </Button>
 

@@ -9,43 +9,46 @@ import HighchartsReact from 'highcharts-react-official'
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { Web3ProviderContext } from '../walletConnect/walletConnect';
 import { TokenContext } from '../../tokenFactory';
-import { bigToDecimal, bigToDecimalUints,  decimalToBigUints } from '../../utils/utils';
+import { bigToDecimal, bigToDecimalUints, decimalToBigUints } from '../../utils/utils';
 import { getAPY } from '../../utils/common';
-let currentUtilization=0
-let currentSupplyAPR=0
+let currentUtilization = 0
+let currentSupplyAPR = 0
 
-let currentBorrowAPR=0
+let currentBorrowAPR = 0
 const options = {
+    chart:{
+        background: theme.TabsBackground,
 
+    },
     title: {
         text: 'Intrest Rate Modal'
     },
     tooltip: {
         split: false,
-              backgroundColor: 'black',
-              borderColor: 'green',
-              borderWidth:3,
-              borderRadius: 3,
-              style: {
-                  color: 'white'
-              },
-        formatter: function() {
-          if(this.series
-            &&this.series.chart
-            &&this.series.chart.options
-            &&this.series.chart.options.series&&
-            this.series.chart.options.series.length){
+        backgroundColor: 'black',
+        borderColor: 'green',
+        borderWidth: 3,
+        borderRadius: 3,
+        style: {
+            color: 'white'
+        },
+        formatter: function () {
+            if (this.series
+                && this.series.chart
+                && this.series.chart.options
+                && this.series.chart.options.series &&
+                this.series.chart.options.series.length) {
                 return `
-                Utilization: ${this.point.x  } % <br>
-                Supply APR: ${this.series.chart.options.series[0].data[this.point.x ]} % <br>
-                Borrow APR: ${this.series.chart.options.series[1].data[this.point.x ]} % <br><hr>
+                Utilization: ${this.point.x} % <br>
+                Supply APR: ${this.series.chart.options.series[0].data[this.point.x]} % <br>
+                Borrow APR: ${this.series.chart.options.series[1].data[this.point.x]} % <br><hr>
                 Current Utilization / Supply / Borrow <br>
-                 ${parseFloat(currentUtilization||0).toFixed(2)} % /${parseFloat(currentSupplyAPR||0).toFixed(2)} % /${parseFloat(currentBorrowAPR||0).toFixed(2)}
+                 ${parseFloat(currentUtilization || 0).toFixed(2)} % /${parseFloat(currentSupplyAPR || 0).toFixed(2)} % /${parseFloat(currentBorrowAPR || 0).toFixed(2)}
                 `
-    
+
             }
         }
-      },
+    },
     subtitle: {
         text: ''
     },
@@ -60,7 +63,7 @@ const options = {
         title: {
             text: 'Utilization'
         },
-        
+
         accessibility: {
             rangeDescription: 'Utilization'
         }
@@ -132,8 +135,6 @@ const useStyles = makeStyles({
         color: 'white'
     },
     avatar: {
-        position: 'absolute  !important',
-        top: '100px  !important',
         height: '52px  !important',
         width: '52px  !important',
         borderRadius: '4px !important',
@@ -175,21 +176,21 @@ const useStyles = makeStyles({
         fontStyle: 'bold',
     },
     innerCard: {
+        ...theme.innerCard,
         display: 'block',
-        padding: '14px'
+        padding: '12px'
+
     }
-
-
 });
 
 export default function Asset(params) {
 
     const classes = useStyles();
-    const currentToken = params.currentRow?.token;
+    const currentToken = params.currentRow?.token || { icon: params.currentRow?.icon, address: params.currentRow?.address, name: params.currentRow?.name, symbol: params.currentRow?.symbol };
     const [callInProgress, setCallInProgress] = React.useState(true);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    
-  const { getTokenProperties, IntrestRateModal, TokenBorrowLimitations } = React.useContext(TokenContext);
+
+    const { getTokenProperties, IntrestRateModal, TokenBorrowLimitations } = React.useContext(TokenContext);
 
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
     const [tokendetails, setTokendetails] = React.useState({});
@@ -203,15 +204,15 @@ export default function Asset(params) {
             return
         }
         try {
-            console.log(            
-            currentToken.address,
+            console.log(
+                currentToken.address,
                 IntrestRateModal,
-                    decimalToBigUints(bigToDecimalUints(TokenBorrowLimitations.MAX_UTILIZATION_RATE, 2), 2))
-                console.log(lendingContract)
+                decimalToBigUints(bigToDecimalUints(TokenBorrowLimitations.MAX_UTILIZATION_RATE, 2), 2))
+            console.log(lendingContract)
             const chartData = await lendingContract.getChartData(
                 currentToken.address,
                 IntrestRateModal,
-                    decimalToBigUints(bigToDecimalUints(TokenBorrowLimitations.MAX_UTILIZATION_RATE, 2), 2)
+                decimalToBigUints(bigToDecimalUints(TokenBorrowLimitations.MAX_UTILIZATION_RATE, 2), 2)
             );
             console.log(chartData)
             options.series[0].data = chartData[0].map(item => Number(parseFloat(Number(bigToDecimal(item)) * 100).toFixed(2)))
@@ -266,11 +267,11 @@ export default function Asset(params) {
             tokendetails.token.address, borrowRatesResult[0], borrowRatesResult[1]
         );
         details['uratio'] = bigToDecimalUints(uratio, 2) * 100
-        currentUtilization=details['uratio'] 
+        currentUtilization = details['uratio']
         details['supplyAPR'] = bigToDecimalUints(supplyAPR, 2) * 100
         details['borrowAPR'] = bigToDecimalUints(borrowAPR, 2) * 100
-        currentSupplyAPR=details['supplyAPR'] 
-        currentBorrowAPR=details['borrowAPR'] 
+        currentSupplyAPR = details['supplyAPR']
+        currentBorrowAPR = details['borrowAPR']
         details['supplyAPY'] = getAPY(bigToDecimalUints(supplyAPR, 2)) * 100
         details['borrowAPY'] = getAPY(bigToDecimalUints(borrowAPR, 2)) * 100
 
@@ -321,7 +322,7 @@ export default function Asset(params) {
                         <Avatar key="assetAvatar" aria-label="Recipe"
                             sx={{ marginRight: '10px' }}
                         >
-                            <img className="chainIcon" alt=""
+                            <img className={classes.avatar} alt=""
                                 src={currentToken?.icon} />
 
                         </Avatar>
@@ -417,18 +418,18 @@ export default function Asset(params) {
                         {/* <Grid div md={2} xs={0}></Grid> */}
                         <Grid item md={6} xs={12}>
                             <Card className={classes.innerCard}>
-                               
-                                    {!callInProgress && (
-                                        <div className={classes.textMuted}>
-                                            <HighchartsReact
-                                                highcharts={Highcharts}
-                                                options={options}
-                                            />
-                                        </div>)
-                                    }
-                                    {callInProgress && (
-                                        <h4>Please wait intrest rate model is calculating</h4>
-                                    )}
+
+                                {!callInProgress && (
+                                    <div className={classes.textMuted}>
+                                        <HighchartsReact
+                                            highcharts={Highcharts}
+                                            options={options}
+                                        />
+                                    </div>)
+                                }
+                                {callInProgress && (
+                                    <h4>Please wait intrest rate model is calculating</h4>
+                                )}
                             </Card>
                         </Grid>
                         <Grid item md={12} xs={12}>

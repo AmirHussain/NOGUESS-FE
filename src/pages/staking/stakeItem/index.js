@@ -85,7 +85,7 @@ export default function StakeItem(params) {
                 sx={{
                     flexGrow: 1,
                     p: 3,
-                    height: theme.midContainerHeight,
+                    height: {xs:theme.modalXsMidContainerHeight,md:theme.modalMdMidContainerHeight},
                     display: 'block',
                     right: '0px',
                     overflow: 'auto'
@@ -97,6 +97,8 @@ export default function StakeItem(params) {
                     Summary
                 </div>
                 <Card className={classes.innerCard} sx={{
+                      background: theme.TabsBackground,
+                      color: theme.lightText + ' !important',
                     display: 'block !important', padding: '10px',
                     fontSize: '11px',
                     fontStretch: 'semi-expanded'
@@ -109,8 +111,16 @@ export default function StakeItem(params) {
                 <div className={classes.sectionHeading}>
                     Summary
                 </div>
-                <Card key="form" className={classes.innerCard} sx={{ display: 'block !important', padding: '10px', paddingTop: '15px' }}>
+                <Card key="form" className={classes.innerCard} sx={{
+                      background: theme.TabsBackground,
+                      color: theme.lightText + ' !important',
+                       display: 'block !important', padding: '10px', paddingTop: '15px' }}>
                     <Input
+                      sx={{
+                        color: theme.lightText + ' !important',
+                        padding: '6px',
+                        width:'100%'
+                    }}
                         id="input-with-icon-adornment"
                         value={amount}
                         type="number"

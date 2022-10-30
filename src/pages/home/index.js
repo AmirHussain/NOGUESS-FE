@@ -67,7 +67,7 @@ export default function Home() {
                         <Switch>
                             <Route path="/bridge" exact component={Bridge}></Route>
                             <Route path="/staking" exact component={Staking}></Route>
-
+                            <Route path="/market" exact component={Market}></Route>
                             <Route path="/governance" exact component={Governance}></Route>
                             <Route path="/" exact component={Lending}></Route>
                             <Route path="/lending" exact component={Lending}></Route>
