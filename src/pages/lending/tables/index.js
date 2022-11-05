@@ -26,7 +26,7 @@ const useStyles = makeStyles({
   boxRoot: theme.boxRoot,
   tableRow: {
     background: theme.DrawerBackground,
-    borderRadius: 8,
+    borderRadius: theme.cardBorderRadius,
     color: 'white',
     cursor: 'pointer !important',
     border: '0px solid transparent',
@@ -209,11 +209,11 @@ export default function SupplyTable(props) {
 
   return (
     <div>
-      <Grid container direction="row" justifyContent="center" alignItems="flex-center" spacing={1} style={{ width: '100%' }}>
+      <Grid container direction="row" justifyContent="center" alignItems="flex-center" spacing={2}>
 
         <Grid item xs={12} sm={12} md={6} style={{ marginBottom: '10px' }}>
         <Box  className={classes.boxRoot} >
-          <Typography varient="h2" p={2}  sx={{ textAlign: 'start',fontSize:'18px', marginBottom: '5px !important', fontWeight: 600 }}>
+          <Typography varient="h2" p={2}  sx={{ textAlign: 'start',fontSize:'18px', marginBottom: '5px !important', fontWeight: 500 }}>
               Supply Market
             </Typography>
          
@@ -228,7 +228,7 @@ export default function SupplyTable(props) {
         </Grid>
         <Grid item xs={12} sm={12} md={6} style={{ marginBottom: '10px' }}>
         <Box  className={classes.boxRoot} >
-          <Typography varient="h2" p={2} sx={{ textAlign: 'start',fontSize:'18px', marginBottom: '5px !important', fontWeight: 600 }}>
+          <Typography varient="h2" p={2} sx={{ textAlign: 'start',fontSize:'18px', marginBottom: '5px !important', fontWeight: 500 }}>
               Borrow Market
             </Typography>
         

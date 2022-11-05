@@ -1,4 +1,4 @@
-import { Typography, Grid, Box, Divider, Paper } from '@mui/material';
+import { Typography, Grid, Box, Divider, Paper, Card, CardContent, CardHeader, Avatar, AppBar } from '@mui/material';
 import React from 'react';
 import { makeStyles } from '@mui/styles';
 
@@ -22,7 +22,30 @@ const useStyles = makeStyles({
     marginTop: '0px !important',
     marginBottom: '1px !important'
   },
-  textMutedBold: theme.textMutedBold
+  textMutedBold: theme.textMutedBold,
+  listSection: {
+    backgroundColor: 'inherit',
+  },
+  ul: {
+    backgroundColor: 'inherit',
+    padding: 0,
+  },
+  cardmedia: {
+    objectFit: 'scale-down'
+  },
+
+  card: theme.card,
+  avatar: {
+    height: '20px  !important',
+    width: '20px  !important',
+  },
+  avatar2: {
+    height: '24px  !important',
+    width: '24px  !important',
+  },
+  cardContent: theme.cardContent,
+  walletConnect: theme.walletConnect,
+  actionButton: theme.actionButton2
 });
 
 function Lending() {
@@ -79,77 +102,160 @@ function Lending() {
   }, [signer, provider, drawerOpen, Tokens, TokenAggregators])
 
   return (
-    <>
-      <Grid container direction="row" justifyContent="center" alignItems="flex-center" spacing={1} style={{ width: '100%' }}>
+    <Grid container direction="row" justifyContent="center" alignItems="flex-center" spacing={2} >
 
-        <Grid item xs={12} sm={12} md={12} style={{ marginBottom: '10px' }}>
+      <Grid item xs={12} sm={12} md={6} >
+        <Card className={classes.card}>
+          <CardHeader
+            sx={{ color: 'white', fontWeight: 600, textAlign: 'left' }}
+           
+            title={
+              <Typography sx={{ fontSize: 18, fontWeight: 500 }} variant="h4" >
 
-          <Box elevation={3} className={classes.boxRoot} p={5} >
-            <Typography varient="h3" sx={{ textAlign: 'start', marginBottom: '5px !important', fontWeight: 600 }}>
-              Liquidity Overview
+                My account</Typography>}
+
+          />
+          <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
+            <Typography sx={{ fontSize: 14, width: '100%', fontWeight: 500, color: theme.lightText, textAlign: 'left' }} variant="p" >
+             Net Apy
             </Typography>
-            <Grid container spacing={1} style={{ width: '100%', }}>
-              <Grid item xs={12} sm={6} md={6} sx={{
-                textAlign: 'left',
-                borderRight: {
-                  xs: '0px solid grey',
-                  sm: '1px solid grey',
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+             
+              <p style={{ fontSize: '33px',color:'#18DF8B', fontWeight: 600, textAlign: 'left',  margin: '0px', lineHeight: 1 }}>
 
-                },
-                borderBottom: {
-                  xs: '1px solid grey',
-                  sm: '0px solid grey',
+                {currentRow?.balanceOf || 0.0} %</p>
 
-                },
-              }}>
-                <h4 className={classes.textMutedBold + ' ' + classes.lowMargin}>
-                  Supply
-                </h4>
-                <h3 style={{ display: 'inline-flex' }} className={classes.lowMargin}>
-                  <AttachMoney></AttachMoney>  {currentMarket.totalSupply || 0}
-                </h3>
+            </div>
+
+            <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', paddingTop: '40px' }}>
+
+              <Grid item xs={4} sm={4} md={4} style={{ borderRight: '0.5px solid ' + theme.borderColor }} >
+
+                <div >
+                  <Typography sx={{ color: theme.lightText }} variant="p" >
+                    Daily earnings
+                  </Typography>
+                </div>
+                <div>
+                  <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
+                    ${currentRow?.apy||0.0} 
+                  </span>
+                </div>
+
               </Grid>
-              <Grid item xs={12} sm={6} md={6} style={{ textAlign: 'right' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <div>
-                    <h4 className={classes.textMutedBold + ' ' + classes.lowMargin}>
-                      Borrowed
-                    </h4>
-                    <h3 style={{ display: 'inline-flex' }} className={classes.lowMargin}>
-                      <AttachMoney></AttachMoney>  {currentMarket.totalDebt || 0}
-                    </h3>
-                  </div>
-                  <div>
-                    <h4 className={classes.textMutedBold + ' ' + classes.lowMargin}>
-                      On Variable Rate
-                    </h4>
-                    <h3 style={{ display: 'inline-flex' }} className={classes.lowMargin}>
-                      <AttachMoney></AttachMoney>  {currentMarket.totalVariableDebt || 0}
-                    </h3>
-                    <h4 className={classes.textMutedBold + ' ' + classes.lowMargin}>
-                      On Stable Rate
-                    </h4>
-                    <h3 style={{ display: 'inline-flex' }} className={classes.lowMargin}>
-                      <AttachMoney></AttachMoney>  {currentMarket.totalStableDebt || 0}
-                    </h3>
-                  </div>
+
+              <Grid item xs={4} sm={4} md={4} style={{ borderRight: '0.5px solid ' + theme.borderColor }} >
+                <Typography sx={{ color: theme.lightText}} variant="p" >
+                  Supply balance
+                </Typography>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  
+                  <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
+                    ${currentRow?.b || 0.0}
+                  </span>
+                </div>
+
+              </Grid>
+
+              <Grid item xs={4} sm={4} md={4} >
+                <Typography sx={{ color: theme.lightText }} variant="p" >
+                  Borrow balance
+                </Typography>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  
+                  <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
+                    {currentRow?.totalSupply || 0.0}
+                  </span>
                 </div>
 
               </Grid>
             </Grid>
-          </Box>
-        </Grid>
+          </CardContent>
+        </Card>
+      </Grid>
+      
 
+      
+      <Grid item xs={12} sm={12} md={6} >
+        <Card className={classes.card} sx={{height: '100%'}}>
+          <CardHeader
+            sx={{ color: 'white', fontWeight: 600, textAlign: 'left' }}
+           
+            title={
+              <Typography sx={{ fontSize: 18, fontWeight: 500 }} variant="h4" >
+&nbsp;
+                </Typography>}
 
+          />
+          <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
+            <Typography sx={{ fontSize: 14, width: '100%', fontWeight: 500, color: theme.lightText, textAlign: 'left' }} variant="p" >
+            &nbsp;
+            </Typography>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+             
+              <p style={{ fontSize: '33px',color:'#18DF8B', fontWeight: 600, textAlign: 'left',  margin: '0px', lineHeight: 1 }}>
+              &nbsp;
+                
+                </p>
+
+            </div>
+
+            <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', paddingTop: '40px' }}>
+
+              <Grid item xs={4} sm={4} md={4} style={{ }} >
+
+                <div >
+                  <Typography sx={{ color: theme.lightText }} variant="p" >
+                    {/* Daily earnings */}
+                  </Typography>
+                </div>
+                <div>
+                  <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
+                    {/* ${currentRow?.apy||0.0}  */}
+                  </span>
+                </div>
+
+              </Grid>
+
+              <Grid item xs={4} sm={4} md={4} style={{ }} >
+                <Typography sx={{ color: theme.lightText}} variant="p" >
+                  {/* Supply balance */}
+                </Typography>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  
+                  <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
+                    {/* ${currentRow?.b || 0.0} */}
+                  </span>
+                </div>
+
+              </Grid>
+
+              <Grid item xs={4} sm={4} md={4} >
+                <Typography sx={{ color: theme.lightText }} variant="p" >
+                  {/* Borrow balance */}
+                </Typography>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  
+                  <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
+                    {/* {currentRow?.totalSupply || 0.0} */}
+                  </span>
+                </div>
+
+              </Grid>
+            </Grid>
+           
+          </CardContent>
+        </Card>
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
 
         <SupplyTable action={OpenDrawer} reload={reload} component="SupplyItem" />
       </Grid>
       {drawerOpen && (
-        <RightDrawer Opration={currentMethod === 'SupplyItem' ? 'Supply' : 'Borrow'} component={currentMethod} currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />
+        <RightDrawer Opration={currentMethod === 'SupplyItem' ? 'Supply' : 'Borrow'} component={currentMethod} currentRow={currentRow} icon={currentRow?.icon} title={currentRow?.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />
       )}
-    </>
+    </Grid>
+
   );
 }
 

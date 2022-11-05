@@ -85,7 +85,9 @@ export default function StakeItem(params) {
                 sx={{
                     flexGrow: 1,
                     p: 3,
-                    height: {xs:theme.modalXsMidContainerHeight,md:theme.modalMdMidContainerHeight},
+                    height: { xs: theme.modalXsMidContainerHeight, md: 'auto' },
+                    maxHeight:{ xs: theme.modalXsMidContainerMaxHeight, md: theme.modalMdMidContainerMaxHeight },
+                    minWidth:{ xs: '100%', md: '30vw' },
                     display: 'block',
                     right: '0px',
                     overflow: 'auto'
@@ -114,6 +116,7 @@ export default function StakeItem(params) {
                 <Card key="form" className={classes.innerCard} sx={{
                       background: theme.TabsBackground,
                       color: theme.lightText + ' !important',
+                      marginBottom:'20px',
                        display: 'block !important', padding: '10px', paddingTop: '15px' }}>
                     <Input
                       sx={{
@@ -142,12 +145,13 @@ export default function StakeItem(params) {
 
                     <div><p sx={{ fontSize: '11px' }}>Minimum: <b>10 BNB</b> Maximum: <b>500BNB</b></p></div>
                 </Card>
+                <div variant="dense" className="d-flexCenter" sx={{ height: theme.headerHeight }}>
+            <Button sx={{ width: "100%", borderRadius: theme.cardBorderRadius, minHeight: '45px', fontWeight: '600' }} variant="contained" onClick={startStaking} >Stake Now</Button>
+            </div>
+
             </Box>
 
-            <Toolbar variant="dense" className="d-flexCenter" sx={{ height: theme.headerHeight, background: theme.headerBackground }}>
-                <Button variant="contained" onClick={startStaking} >Stake Now</Button>
-            </Toolbar>
-
+ 
         </React.Fragment>
     );
 }

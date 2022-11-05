@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import { Card, CardHeader, Avatar, CardContent, Button, Link, Typography, Grid } from '@mui/material';
+import React, { useContext, useState } from 'react';
+import { Card, CardHeader, Avatar, CardContent, Button, Link, Typography, Grid, AppBar } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import theme from '../../../theme';
 import { abis, contractAddresses, makeContract } from '../../../contracts/useContracts';
 import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
-import { bigToDecimal } from '../../../utils/utils';
+import { bigToDecimal, bigToDecimalUints, decimalToBig } from '../../../utils/utils';
 import moment from 'moment';
+import { getAPY } from '../../../utils/common';
+import { FluteAlertContext } from '../../../Components/Alert';
 
 
 const useStyles = makeStyles({
@@ -22,8 +24,12 @@ const useStyles = makeStyles({
 
     card: theme.card,
     avatar: {
-        height: '30px  !important',
-        width: '30px  !important',
+        height: '20px  !important',
+        width: '20px  !important',
+    },
+    avatar2: {
+        height: '24px  !important',
+        width: '24px  !important',
     },
     cardContent: theme.cardContent,
     walletConnect: theme.walletConnect,
@@ -34,10 +40,53 @@ export default function StakingItem(props) {
     const classes = useStyles();
     const { provider, signer } = React.useContext(Web3ProviderContext);
 
+    const { setAlert, setAlertToggle } = useContext(FluteAlertContext);
     const [row, setRow] = useState({});
     const openDrawer = (row) => {
         row.token = { icon: row.staking_token?.token_image, address: row.staking_token?.token_address, symbol: row.staking_token?.token_symbol }
         props.openDrawer(row);
+    }
+    const [inProgress, setInProgress] = useState(false);
+    const claimReward = async () => {
+        try {
+            setInProgress(true)
+            const stakingContract = makeContract(row.staking_contract_address, abis.staking, signer);
+            // const weth = makeContract(row.staking_token.token_address, abis.WETH, signer);
+            // setAlert({ severity: 'info', title: 'Approval', description: 'Approval of transaction in progress' });
+            // const wethResult = await weth.approve(stakingContract.address, decimalToBig(amount));
+            // setAlert({ severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully' });
+            setAlert({ severity: 'info', title: 'Claim', description: 'Claim in progress' });
+            const result = await stakingContract.getReward({ gasLimit: 1000000 });
+            await result.wait(1)
+            setAlert({ severity: 'success', title: 'Claim reward', description: 'Reward added successfully' });
+            setInProgress(false);
+
+        } catch (err) {
+            setAlert({ severity: 'error', title: 'Claim', description: err.message });
+            setInProgress(false);
+        }
+
+    }
+
+    const withdrawSupply = async () => {
+        try {
+            setInProgress(true)
+            const stakingContract = makeContract(row.staking_contract_address, abis.staking, signer);
+            // const weth = makeContract(row.staking_token.token_address, abis.WETH, signer);
+            // setAlert({ severity: 'info', title: 'Approval', description: 'Approval of transaction in progress' });
+            // const wethResult = await weth.approve(stakingContract.address, decimalToBig(amount));
+            // setAlert({ severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully' });
+            setAlert({ severity: 'info', title: 'Withdraw', description: 'Withdraw in progress' });
+            const result = await stakingContract.withdraw({ gasLimit: 1000000 });
+            await result.wait(1)
+            setAlert({ severity: 'success', title: 'Withdraw', description: 'Withdraw amount successfully' });
+            setInProgress(false);
+
+        } catch (err) {
+            setAlert({ severity: 'error', title: 'Withdraw', description: err.message });
+            setInProgress(false);
+        }
+
     }
 
     const SetAndOpenAsset = (row) => {
@@ -59,9 +108,15 @@ export default function StakingItem(props) {
 
                 const earned = await stakingOfferingContract.earned(signerAddress);
                 const rewardRate = await stakingOfferingContract.rewardRate();
+                const totalSupply = await stakingOfferingContract.totalSupply();
+                
+                const balanceOf = await stakingOfferingContract.balanceOf(signerAddress);
+                
                 updatedRow.b = bigToDecimal(earned);
-                updatedRow.apy = bigToDecimal(rewardRate);
-
+                updatedRow.apy = getAPY(Number(rewardRate));
+                
+                updatedRow.balanceOf= bigToDecimal(balanceOf);
+                updatedRow.totalSupply= bigToDecimal(totalSupply);
 
             }
             setRow(updatedRow)
@@ -76,9 +131,9 @@ export default function StakingItem(props) {
         }
     }, [props.row, provider])
     return (
-        <Card className={classes.card} sx={{ backgroundColor: !row.isActive ? theme.contentBackGround : 'inherit', minHeight: '224px' }}>
-            <CardHeader 
-                sx={{ color: 'white', fontWeight: 600, textAlign: 'left', padding: '5px', backgroundColor: !row.isActive ? theme.contentBackGround : 'inherit' }}
+        <Card className={classes.card} sx={{ opacity: row.isActive ? 1 : 0.5, margin: '8px' }}>
+            <CardHeader
+                sx={{ color: 'white', fontWeight: 600, textAlign: 'left' }}
                 avatar={
                     <Avatar sx={{ cursor: 'pointer' }} aria-label="Recipe" className={classes.avatar}>
                         <img className={classes.avatar} alt=""
@@ -87,81 +142,113 @@ export default function StakingItem(props) {
                 }
                 // color: theme.lightText
                 title={
-                    <Typography sx={{ fontSize: 18, fontWeight: 500 }} variant="h4" gutterBottom>
+                    <Typography sx={{ fontSize: 18, fontWeight: 500 }} variant="h4" >
 
                         {row?.staking_token?.token_name}</Typography>}
 
             />
-            <CardContent className={classes.cardContent} sx={{ backgroundColor: !row.isActive ? theme.contentBackGround : 'inherit' }}>
-                <Typography sx={{ fontSize: 14, fontWeight: 500, color: theme.lightText, textAlign: 'left' }} variant="h4" gutterBottom>
-
-                    You are staking</Typography>
+            <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
+                <Typography sx={{ fontSize: 14, width: '100%', fontWeight: 500, color: theme.lightText, textAlign: 'left' }} variant="p" >
+                    You are staking
+                </Typography>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Avatar sx={{ cursor: 'pointer' }} aria-label="Recipe" className={classes.avatar}>
-                        <img className={classes.avatar} alt=""
+                    <Avatar sx={{ cursor: 'pointer' }} aria-label="Recipe" className={classes.avatar2}>
+                        <img className={classes.avatar2} alt=""
                             src={row?.staking_token?.token_image} />
                     </Avatar>
-                    <Typography sx={{ fontSize: 20, fontWeight: 600, textAlign: 'left', padding: '4px' }} variant="h4" gutterBottom>
+                    <p style={{ fontSize: '33px', fontWeight: 600, textAlign: 'left', paddingLeft: '10px', margin: '0px', lineHeight: 1 }}>
 
-                        {row.b || 0.0}</Typography>
+                        {row.balanceOf || 0.0}</p>
 
                 </div>
 
-                <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%' ,textAlign:'left'}}>
+                <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', paddingTop: '40px' }}>
 
-                    <Grid item xs={4} sm={4} md={4} style={{ borderRight: '1px solid ' + theme.lightText }} >
-                      
-                    <div >
-                            <span>
-                            APR
-                            </span>
+                    <Grid item xs={4} sm={4} md={4} style={{ borderRight: '0.5px solid ' + theme.borderColor }} >
+
+                        <div >
+                            <Typography sx={{ color: theme.lightText }} variant="p" >
+                                APY
+                            </Typography>
                         </div>
                         <div>
-                            <span>
-                                {row.apy} %
+                        <span style={{paddingLeft:'4px',fontSize:'20px',fontWeight:'600'}}>
+                                {parseFloat(Number(row.apy)).toFixed(2)} %
                             </span>
                         </div>
 
                     </Grid>
 
-                    <Grid item xs={4} sm={4} md={4} style={{ borderRight: '1px solid ' + theme.lightText }} >
-                        <div >
-                            <span>
-                                START TIME
-                            </span>
-                        </div>
-                        <div>
-                            <span>
-                                {row.staking_start_time}
+                    <Grid item xs={4} sm={4} md={4} style={{ borderRight: '0.5px solid ' + theme.borderColor }} >
+                        <Typography sx={{ color: theme.lightText }} variant="p" >
+                            Reward Earned
+                        </Typography>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <Avatar sx={{ cursor: 'pointer' }} aria-label="Recipe" className={classes.avatar}>
+                                <img className={classes.avatar} alt=""
+                                    src={row?.reward_token?.token_image} />
+                            </Avatar>
+                            <span style={{paddingLeft:'4px',fontSize:'20px',fontWeight:'600'}}>
+                                {row.b||0.0}
                             </span>
                         </div>
 
                     </Grid>
 
                     <Grid item xs={4} sm={4} md={4} >
-                    <div >
-                            <span>
-                            STAKING CYCLE
-                            </span>
-                        </div>
-                        <div>
-                            <span>
-                            {row.staking_duration} Month(s)
+                        <Typography sx={{ color: theme.lightText }} variant="p" >
+                            Total Stacked
+                        </Typography>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <Avatar sx={{ cursor: 'pointer' }} aria-label="Recipe" className={classes.avatar}>
+                                <img className={classes.avatar} alt=""
+                                    src={row?.staking_token?.token_image} />
+                            </Avatar>
+                            <span style={{paddingLeft:'4px',fontSize:'20px',fontWeight:'600'}}>
+                                {row.totalSupply||0.0} 
                             </span>
                         </div>
 
                     </Grid>
                 </Grid>
-                <div className='d-flexSpaceBetween'>  <b></b>
-                    <span>
-                        {(Number(row.b) && row.isExpired) > 0 && (
-                            <Button variant="text" size="small" className={classes.actionButton} onClick={() => openDrawer(row)}>Claim</Button>
+                <AppBar key="rightbar"
+                    position="relative"
+                    className={classes.rightDrawerHeader}
+                    sx={{ height: { xs: 'auto', md: '77px', boxShadow: 'none !important' } }}
+
+                    color="transparent"
+
+                >
+
+                    <Grid container direction="row" justifyContent="center" alignItems="flex-center"
+                        spacing={1} style={{ width: '100%', textAlign: 'left', paddingTop: '16px' }}>
+
+                        {row.isActive && !inProgress && (
+                            <Grid item xs={6} sm={6} md={6}  >
+                                <Button sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', fontWeight: '600' }} variant="contained" onClick={() => openDrawer(row)}>Stake</Button>
+                            </Grid>
                         )}
-                        {(row.isActive && !Number(row.b)) && (
-                            <Button variant="text" size="small" className={classes.actionButton} onClick={() => openDrawer(row)}>Stake Now</Button>
+
+                        {row.isExpired && (Number(row.b) > 0) && !inProgress && (
+                            <Grid item xs={6} sm={6} md={6} >
+
+                                <Button sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', fontWeight: '600' }} variant="outlined" onClick={() => withdrawSupply()}>Withdraw</Button>
+                            </Grid>
                         )}
-                    </span>
-                </div>
+
+
+                        {row.isActive && !inProgress && (
+                            <Grid item xs={6} sm={6} md={6}  >
+
+                                <Button sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', fontWeight: '600' }} variant="outlined" onClick={() => claimReward()}>Claim Reward</Button>
+                            </Grid>
+
+                        )}
+
+
+
+                    </Grid>
+                </AppBar>
             </CardContent>
         </Card>
 

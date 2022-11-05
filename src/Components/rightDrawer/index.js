@@ -14,7 +14,7 @@ const style = {
     transform: 'translate(-50%, -50%)',
     minWidth: 400,
     bgcolor: theme.contentBackGround,
-    borderRadius: '6%',
+    borderRadius: theme.cardBorderRadius,
     border: '0px solid transparent !important',
     boxShadow: 24,
 };
@@ -105,13 +105,14 @@ export default function RightDrawer(params) {
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
                         // minWidth: 400,
-                        height: { xs: '100vh', md: '70vh' },
+                        height: { xs: 'auto'},
 
                         maxHeight: { xs: '100vh', md: 'auto' },
                         bgcolor: theme.headerBackground,
                         borderRadius: { xs: '0px', md: '15px' },
                         border: '0px solid transparent !important',
                         boxShadow: { xs: 0, md: 24 },
+                       
                     }}
                     >
 

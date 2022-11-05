@@ -22,11 +22,11 @@ const useStyles = makeStyles({
     boxRoot: {
         height: '180px',
         width: '100%',
-        borderRadius: 8,
+        borderRadius: theme.cardBorderRadius,
     },
     tableRow: {
         background: theme.DrawerBackground,
-        borderRadius: 8,
+        borderRadius: theme.cardBorderRadius,
         padding:'2px 2px 0px 0px',
         color: 'white',
         cursor: 'pointer !important',
@@ -40,6 +40,8 @@ const useStyles = makeStyles({
         "& .MuiTableCell-root": {
             color: theme.DrawerText,
             border: '0px solid transparent',
+            fontWeight:500,
+            fontSize:'11px'
         }
     },
     tableCell: {
@@ -89,12 +91,12 @@ export default function LendingTable(props) {
     }, [props?.SupplyRows])
 
     return (
-        <TableContainer sx={{ borderRadius: '8px' }}>
+        <TableContainer sx={{ borderRadius: 'inherit' }}>
             <Table aria-label="simple table" >
                 <TableHead className={classes.tableHead}>
                     <TableRow className={classes.theadRow}>
                         <TableCell align="left">Asset</TableCell>
-                        <TableCell align="left">APY</TableCell>
+                        <TableCell align="right">APY</TableCell>
                         <TableCell align="right">Wallet</TableCell>
                         {/* <TableCell align="center">Action</TableCell> */}
                     </TableRow>

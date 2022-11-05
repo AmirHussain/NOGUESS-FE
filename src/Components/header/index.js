@@ -9,6 +9,7 @@ import { routeHeaders } from '../../routes';
 
 import theme from './../../theme';
 import ConnectWallet from '../walletConnect/login';
+import { TokenContext } from '../../tokenFactory';
 
 
 const drawerWidth = theme.drawerWidth;
@@ -24,13 +25,15 @@ const useStyles = makeStyles({
   title: {
     flexGrow: 1,
     textAlign: 'left',
-    color: theme.darkBlueText,
+    paddingLeft: '10px',
+    color: theme.headerText,
+    fontSize: '18px',
     fontWeight: 600
   },
   appBar: {
     zIndex: theme.drawerIndex + 1,
     background: theme.headerBackground,
-    boxShadow:'none !important',
+    boxShadow: 'none !important',
     color: theme.headerText,
     fontStyle: 'bold',
   },
@@ -87,18 +90,21 @@ const useStyles = makeStyles({
 function Header(props) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [headerText, setHeader] = React.useState(null);
   let location = useLocation();
+  const { headerText, setHeaderText } = React.useContext(TokenContext);
+  React.useEffect(() => { }, [headerText])
+  React.useEffect(() => {
+    const Locations = location.pathname.split('/');
 
-  // React.useEffect(() => {
-  //   setHeader(location)
-  // }, [location]);
+    setHeaderText(routeHeaders['/' + Locations[1]]?.name)
+  }, [location, routeHeaders]);
 
   let auth = true;
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -106,6 +112,8 @@ function Header(props) {
     props.setMobileOpen(!props.mobileOpen)
     // props.mobileOpen1=!mobileOpen
   };
+
+
 
   return (
     <>
@@ -119,10 +127,10 @@ function Header(props) {
           <IconButton aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2, display: { md: 'none' } }}>
             <MenuRoundedIcon color="primary" />
           </IconButton>
-          
-            <img className="chainIcon" alt=""
-              src={routeHeaders[location.pathname].icon} />
-          <Typography variant="div" sx={{ textTransform: 'upperCase' }} className={classes.title}> {routeHeaders[location.pathname].name}</Typography>
+
+          {/* <img className="chainIcon" alt=""
+              src={routeHeaders[location.pathname].icon} /> */}
+          <Typography variant="div" sx={{ }} className={classes.title}> {headerText}</Typography>
           <div><ConnectWallet /></div>
         </Toolbar>
         {/* <Divider className={classes.divider}></Divider> */}

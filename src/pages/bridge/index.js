@@ -50,8 +50,8 @@ const useStyles = makeStyles({
   tabBox: {
     '&.MuiBox-root': {
       background: theme.contentBackGround,
-      margin: '10px',
-      borderRadius: '10px',
+      margin: theme.cardBorderRadius,
+      borderRadius: theme.cardBorderRadius,
     },
   }
 

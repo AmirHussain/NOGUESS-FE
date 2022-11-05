@@ -10,7 +10,7 @@ import landingIcon from '../../assets/svg/1.svg';
 import stakingIcon from '../../assets/svg/2.svg';
 import governanceIcon from '../../assets/svg/3.svg';
 import bridgeIcon from '../../assets/svg/4.svg';
-import sIcon from '../../assets/svg/5.svg';
+import marketIcon from '../../assets/svg/5.svg';
 
 
 //constants
@@ -50,18 +50,18 @@ const useStyles = makeStyles({
     background: '#383944 !important',
     borderLeft:'4px solid blue !important',
     color: 'white  !important',
-    fontWeight: 600,
+    fontWeight: '500 !important',
   },
   linkItem: {
     padding: '0px !important'
   },
   linkText: {
-    fontWeight: 600,
+    fontWeight: '500 !important',
   },
   sideToolbar: {
     color: theme.SideHeaderText,
     background: theme.SideHeaderBackground,
-    fontWeight: 600,
+    fontWeight: '500 !important',
   },
   listItemIcon: {
     minWidth: '35px !important'
@@ -97,12 +97,12 @@ export default function Home(props) {
           <NavLink className={classes.linkClass}  to={routes.lending} activeClassName={classes.linkClassActive}>
             <ListItem button key={routes.lending} className={classes.linkItem}>
               <img className={classes.sideBarIcons} src={landingIcon} alt=''></img>
-              <ListItemText primary="Lending" className={classes.linkText} />
+              <ListItemText primary="Dashboard" className={classes.linkText} />
             </ListItem>
           </NavLink>
           <NavLink className={classes.linkClass}  to={routes.market} activeClassName={classes.linkClassActive}>
             <ListItem button key={routes.market} className={classes.linkItem}>
-              <img className={classes.sideBarIcons} src={landingIcon} alt=''></img>
+              <img className={classes.sideBarIcons} src={marketIcon} alt=''></img>
               <ListItemText primary="Market" className={classes.linkText} />
             </ListItem>
           </NavLink>

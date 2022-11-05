@@ -20,6 +20,7 @@ import Sidebar from "../../Components/sidebar"
 //constants
 import { routes } from '../../routes';
 import theme from './../../theme';
+import Asset from '../../Components/asset';
 
 const drawerWidth = theme.drawerWidth;
 const useStyles = makeStyles({
@@ -69,8 +70,9 @@ export default function Home() {
                             <Route path="/staking" exact component={Staking}></Route>
                             <Route path="/market" exact component={Market}></Route>
                             <Route path="/governance" exact component={Governance}></Route>
-                            <Route path="/" exact component={Lending}></Route>
                             <Route path="/lending" exact component={Lending}></Route>
+                            <Route path="/asset/:address" component={Asset} />
+                            <Route path="**" exact component={Lending}></Route>
                         </Switch>
                     </Container>
 

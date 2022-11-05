@@ -9,25 +9,33 @@ const headerText = 'white  !important';
 const SideHeaderBackground = '#282931 !important';
 const SideHeaderText = 'white  !important';
 const TabsBackground = '#282931 !important';
+const hoverBackground='#33343e  !important';
 const DrawerBackground = '#282931 !important';
 const DrawerText = '#9096a5  !important';
 const contentBackGround = '#1F2028 !important';
 const cardContentBackGround = '#282931 !important';
 const headerHeight = '66px';
 const sideHeaderHeight = '120px';
+const cardBorderRadius='28px !important';
 const footerHeight = '66px';
 const midContainerHeight = `calc(100% - ${(66 * 2) + 'px'})`;
 const modalMdMidContainerHeight = `calc(100% - 90px)`;
 const modalXsMidContainerHeight = `calc(100% - 48px)`;
+
+const modalMdMidContainerMaxHeight = `calc(100vh - 100px)`;
+const modalXsMidContainerMaxHeight = `calc(100vh - 48px)`;
+
 const darkText = '#d6d6d6';
 const lightText = 'rgb(149, 151, 161)';
 const lightBlueText = '#999999';
 const darkBlueText = '#c1dfff';
+const borderColor = "rgb(149 151 161 / 19%)"
 const theme = createTheme({
     spacing: (factor) => `${0.25 * factor}rem`,
     drawerIndex: drawerIndex,
     headerBackground,
     headerText,
+    hoverBackground,
     SideHeaderBackground,
     SideHeaderText,
     DrawerBackground,
@@ -40,12 +48,16 @@ const theme = createTheme({
     midContainerHeight,
     modalMdMidContainerHeight,
     modalXsMidContainerHeight,
+    modalMdMidContainerMaxHeight,
+    modalXsMidContainerMaxHeight,
     footerHeight,
     darkText,
     lightText,
     lightBlueText,
     darkBlueText,
     TabsBackground,
+    borderColor,
+    cardBorderRadius,
     rightDrawerHeader: {
         /* The image used */
         color: headerText,
@@ -69,7 +81,7 @@ const theme = createTheme({
         justifyContent: 'center',
         textAlign: 'left',
         width: '100%',
-        borderRadius: '6px',
+        borderRadius: cardBorderRadius,
         background: TabsBackground,
         color: lightText + ' !important',
         fontSize: '16px',
@@ -107,18 +119,19 @@ const theme = createTheme({
     card: {
         color: darkBlueText,
         background: cardContentBackGround,
-        borderRadius:'12px',
-        padding:'10px'
+        borderRadius: cardBorderRadius,
+        padding: '10px'
     },
     cardContent: {
         color: darkText,
-        background:cardContentBackGround,
+        background: cardContentBackGround,
         textTransform: 'initial',
         fontSize: '11px',
         lineHeight: '1.91234',
         /* margin: 4px 16px; */
         padding: '5px',
-        borderRadius: '0px 0px 4px 4px'
+        paddingBottom: 'inherit !important',
+        borderRadius: '0px 0px 28px 28px !important'
     },
     avatar: {
 
@@ -174,24 +187,22 @@ const theme = createTheme({
         color: 'white'
     },
     typography: {
-        fontFamily: [
-            'Roboto',
-            'Raleway',
-            'Open Sans',
-        ].join(','),
         h1: {
-            fontSize: '5rem',
-            fontFamily: 'Raleway',
+            fontSize: '5rem !important',
+
+            fontFamily: 'Tahu',
         },
         h2: {
-            fontSize: '3.5rem',
-            fontFamily: 'Open Sans',
-            fontStyle: 'bold',
+            fontSize: '3.5rem !important',
+            fontFamily: 'Tahu',
         },
         h3: {
-            fontSize: '2.5rem',
-            fontFamily: 'Roboto',
+            fontSize: '2.5rem !important',
+            fontFamily: 'Tahu',
         },
+        p: {
+            fontFamily: 'Tahu',
+        }
     },
     palette: {
         background: {
@@ -233,8 +244,8 @@ const theme = createTheme({
     boxRoot: {
         background: DrawerBackground,
         color: 'white !important',
-        borderRadius: 8,
-        border: "2px solid #0B0A0D"
+        borderRadius: cardBorderRadius,
+        border: "0px solid #0B0A0D"
     },
     modal: {
         position: 'absolute',
@@ -284,7 +295,7 @@ const theme = createTheme({
     },
     cardBackground: {
         background: contentBackGround,
-        color: darkText+' !important',
+        color: darkText + ' !important',
     },
 
 });

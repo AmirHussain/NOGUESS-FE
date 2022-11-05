@@ -173,7 +173,9 @@ export default function SupplyItem(params) {
                 sx={{
                     flexGrow: 1,
                     p: 3,
-                    height: { xs: theme.modalXsMidContainerHeight, md: theme.modalMdMidContainerHeight },
+                    height: { xs: theme.modalXsMidContainerHeight, md: 'auto' },
+                    maxHeight:{ xs: theme.modalXsMidContainerMaxHeight, md: theme.modalMdMidContainerMaxHeight },
+                    minWidth:{ xs: '100%', md: '30vw' },
                     display: 'block',
                     right: '0px',
                     overflow: 'auto'
@@ -298,7 +300,8 @@ export default function SupplyItem(params) {
                             </Card>
 
                             <div variant="dense" className="d-flexCenter" sx={{ height: theme.headerHeight }}>
-                                <Button variant="contained" onClick={startSupply}>Supply</Button>
+                            <Button sx={{ width: "100%", borderRadius: theme.cardBorderRadius, minHeight: '45px', fontWeight: '600' }} variant="contained" onClick={startSupply}>Supply</Button>
+
                             </div>
                         </TabPanel>
                         <TabPanel value="2">
@@ -314,7 +317,7 @@ export default function SupplyItem(params) {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {supplyDetails.map((row) => (
+                                        {supplyDetails?.map((row) => (
                                             <TableRow
                                                 key={row.id}
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}

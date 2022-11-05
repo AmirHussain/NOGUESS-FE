@@ -296,7 +296,9 @@ export default function BorrowItem(params) {
                 sx={{
                     flexGrow: 1,
                     p: 3,
-                    height: { xs: theme.modalXsMidContainerHeight, md: theme.modalMdMidContainerHeight },
+                    height: { xs: theme.modalXsMidContainerHeight, md: 'auto' },
+                    maxHeight:{ xs: theme.modalXsMidContainerMaxHeight, md: theme.modalMdMidContainerMaxHeight },
+                    minWidth:{ xs: '100%', md: '30vw' },
                     display: 'block',
                     right: '0px',
                     overflow: 'auto',
@@ -425,7 +427,7 @@ export default function BorrowItem(params) {
                                                             <img className="chainIcon" alt=""
                                                                 src={collateralToken?.icon} />
                                                         </Avatar>} >
-                                                    {Tokens.map((token) => (
+                                                    {Tokens?.map((token) => (
                                                         !token.isPedgeToken &&
                                                         token.address !== currentToken.address && (
                                                             <MenuItem key={token.name} value={token.address}>
@@ -457,7 +459,7 @@ export default function BorrowItem(params) {
 
 
                             <div variant="dense" className="d-flexCenter" sx={{ height: theme.headerHeight }}>
-                                <Button variant="contained" onClick={startBorrow} >Borrow</Button>
+                            <Button sx={{ width: "100%", borderRadius: theme.cardBorderRadius, minHeight: '45px', fontWeight: '600' }} variant="contained" onClick={startBorrow} >Borrow</Button>
                             </div>
                         </TabPanel>
                         <TabPanel value="2">
@@ -472,7 +474,7 @@ export default function BorrowItem(params) {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {borrowDetails.map((row) => (
+                                        {borrowDetails?.map((row) => (
                                             <TableRow
                                                 key={row.id}
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}

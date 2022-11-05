@@ -51,7 +51,7 @@ export default function Staking() {
     }
     function setActive(value) {
         console.log(value)
-        setStakingOptions(value?allStakingOptions.filter(option=>option.isActive):allStakingOptions)
+        setStakingOptions(value ? allStakingOptions.filter(option => option.isActive) : allStakingOptions)
 
     }
     const transformAndSetStakingOptions = (rows) => {
@@ -110,69 +110,28 @@ export default function Staking() {
     }, [provider]);
     return (
         <Box >
+            <div className="" sx={{
+                alignItems: 'baseline', textAlign: 'right', marginTop: '10px',
+                float: 'right'
+            }} >
 
-            <div >
-                <div className={classes.sectionHeading}>
-                    Overview
+                <div className={classes.textBold} style={{ textAlign: 'right', float: 'right' }}>
+                    Show all active
+                    <Switch onChange={(e) => setActive(e.target.checked)}></Switch>
                 </div>
-                <Grid container direction="row" justifyContent="start" alignItems="flex-start" spacing={2} style={{ width: '100%' }}>
-
-
-                    <Grid item md={4} xs={12}>
-                        <Card className={classes.innerCard}>
-                            <div className="text">
-                                <div className={classes.textHighlighted}>$ 0</div>
-                                <div className={classes.textMuted}>Your Total Assets Staked</div></div>
-                            <div className="image"></div>
-                        </Card>
-                    </Grid>
-                    {/* <Grid div md={2} xs={0}></Grid> */}
-                    <Grid item md={4} xs={12}>
-                        <Card className={classes.innerCard}>
-                            <div className="text">
-                                <div className={classes.textHighlighted}>$ 0</div>
-                                <div className={classes.textMuted}>Average APR</div></div>
-                            <div className="image"></div>
-                        </Card>
-                    </Grid>
-                    <Grid item md={4} xs={12}>
-                        <Card className={classes.innerCard}>
-                            <div className="text">
-                                <div className={classes.textHighlighted}>$ 0</div>
-                                <div className={classes.textMuted}>Est. Reward Accrued</div></div>
-                            <div className="image"></div>
-                        </Card>
-                    </Grid>
-                </Grid>
-                <div className="d-flex-evenly marginTop" sx={{ alignItems: 'baseline', textAlign: 'left', marginTop: '10px' }} >
-                    <div className={classes.sectionHeading} md={4}>
-                        Staking Programs
-                    </div>
-
-                    <div className={classes.textMutedBold} md={6}>
-                        Choose from the programs below to deposit your assets and receive corresponding rewards to the staking program
-                    </div>
-
-                    <div className={classes.textBold} md={2} sx={{ textAlign: 'right' }}>
-                        Show all active
-                        <Switch onChange={(e) => setActive(e.target.checked)}></Switch>
-                    </div>
-
-                </div>
-                {!loadingStakingOption && (
-                    <StakingList stakingOptions={stakingOptions} action={OpenDrawer} />
-                )
-
-                }
-                {loadingStakingOption && (
-                    <h5>Loading Options</h5>
-                )
-
-                }
-            </div>
-            <div>
 
             </div>
+            {!loadingStakingOption && (
+                <StakingList stakingOptions={stakingOptions} action={OpenDrawer} />
+            )
+
+            }
+            {loadingStakingOption && (
+                <h5>Loading Options</h5>
+            )
+
+            }
+
             {drawerOpen && (
                 <RightDrawer Opration="Staking" component="staking" currentStake={currentStake} icon={currentStake.icon} title={currentStake.name} toggleDrawer={toggleDrawer} drawerOpen={drawerOpen} />
             )}

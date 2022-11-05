@@ -7,17 +7,18 @@ import { Web3ProviderContext } from './Components/walletConnect/walletConnect';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { getStorage, setStorage } from './utils/common';
+import Header from './Components/header';
 export const TokenContext = createContext();
 
 export function TokenFactory({ children }) {
     const [Tokens, setTokens] = React.useState([]);
+    const [headerText, setHeaderText] = React.useState('');
     // const dispatch = useDispatch();
     const [TokenAggregators, setTokenAggregators] = React.useState([]);
 
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
     const getAllTokens = async (governanceContract) => {
-        console.log('localStorage.tokenStorage',localStorage.tokenStorage)
         if (localStorage.tokenStorage) {
             return JSON.parse(localStorage.tokenStorage||'[]')
         }
@@ -101,7 +102,6 @@ export function TokenFactory({ children }) {
 
     }
     React.useEffect(() => {
-
         setTokenFactory()
     }, [provider]);
     const TokenBorrowLimitations = {
@@ -110,12 +110,12 @@ export function TokenFactory({ children }) {
         LiquidationPenalty: decimalToBig('0.30'),
         ProtocolShare: decimalToBig('0.01'),
         InitialBorrowRate: decimalToBig('0.30'),
-        MAX_UTILIZATION_RATE: decimalToBig('0.80'),
+        MAX_UTILIZATION_RATE: decimalToBig('1.00'),
         OPTIMAL_UTILIZATION_RATE: decimalToBig('0.70'),
         StableRateSlope1: decimalToBig('0.04'),
-        StableRateSlope2: decimalToBig('0.50'),
+        StableRateSlope2: decimalToBig('0.15'),
         VariableRateSlope1: decimalToBig('0.02'),
-        VariableRateSlope2: decimalToBig('0.40'),
+        VariableRateSlope2: decimalToBig('0.10'),
         baseRate: decimalToBig('0.010'),
         AllowStableJob: true,
     }
@@ -150,7 +150,8 @@ export function TokenFactory({ children }) {
                 Tokens,
                 IntrestRateModal,
                 TokenAggregators,
-                TokenBorrowLimitations
+                TokenBorrowLimitations,
+                headerText, setHeaderText
             }}
         >
             {

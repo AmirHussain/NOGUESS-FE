@@ -11,22 +11,33 @@ import { Web3ProviderContext } from '../walletConnect/walletConnect';
 import { TokenContext } from '../../tokenFactory';
 import { bigToDecimal, bigToDecimalUints, decimalToBigUints } from '../../utils/utils';
 import { getAPY } from '../../utils/common';
+import { routeHeaders } from '../../routes';
 let currentUtilization = 0
 let currentSupplyAPR = 0
 
 let currentBorrowAPR = 0
 const options = {
-    chart:{
-        background: theme.TabsBackground,
-
+    chart: {
+        backgroundColor: '#282931',
+        type: 'line'
     },
+    colorAxis: [{
+        maxColor: '#000fb0',
+        minColor: '#e3e5ff',
+        labels: {
+            format: '{value}%'
+        },
+        reversed: true
+    }],
     title: {
-        text: 'Intrest Rate Modal'
+        text: 'Intrest Rate Modal',
+        style: {
+            color: 'white'
+        }
     },
     tooltip: {
         split: false,
-        backgroundColor: 'black',
-        borderColor: 'green',
+        backgroundColor: '#1F2028',
         borderWidth: 3,
         borderRadius: 3,
         style: {
@@ -55,15 +66,33 @@ const options = {
 
     yAxis: {
         title: {
-            text: 'Rate'
-        }
+            text: 'Rate',
+            style: {
+                color: 'white'
+            }
+        },
+
+        labels: {
+            style: {
+                color: 'white'
+            }
+        },
+        gridLineColor: '#282931',
+        gridLineDashStyle: 'longdash'
     },
 
     xAxis: {
         title: {
-            text: 'Utilization'
+            text: 'Utilization',
+            style: {
+                color: 'white'
+            }
         },
-
+        labels: {
+            style: {
+                color: 'white'
+            }
+        },
         accessibility: {
             rangeDescription: 'Utilization'
         }
@@ -74,7 +103,11 @@ const options = {
     legend: {
         layout: 'vertical',
         align: 'right',
-        verticalAlign: 'middle'
+        verticalAlign: 'middle',
+        style: {
+            color: '#282931'
+
+        }
     },
 
     plotOptions: {
@@ -88,11 +121,13 @@ const options = {
 
     series: [{
         name: 'Supply APR',
-        data: []
+        data: [],
+        color: 'blue'
 
     }, {
         name: 'Borrow APR',
-        data: []
+        data: [],
+        color: 'white'
     }],
 
     responsive: {
@@ -185,16 +220,20 @@ const useStyles = makeStyles({
 
 export default function Asset(params) {
 
+    const [tokenAddress, setTokenAddress] = React.useState(params?.match?.params.address || '');
     const classes = useStyles();
-    const currentToken = params.currentRow?.token || { icon: params.currentRow?.icon, address: params.currentRow?.address, name: params.currentRow?.name, symbol: params.currentRow?.symbol };
+
+    const [currentRow, setCurrentRow] = React.useState();
+
+    const [currentToken, setCurrentToken] = React.useState();
     const [callInProgress, setCallInProgress] = React.useState(true);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
-    const { getTokenProperties, IntrestRateModal, TokenBorrowLimitations } = React.useContext(TokenContext);
+    const { getTokenProperties, IntrestRateModal, TokenBorrowLimitations, Tokens,setHeaderText } = React.useContext(TokenContext);
 
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
-    const [tokendetails, setTokendetails] = React.useState({});
-    const [tokenSummary, setTokenSummary] = React.useState({});
+    const [tokendetails, setTokendetails] = React.useState();
+    const [tokenSummary, setTokenSummary] = React.useState();
 
 
     const supplySeries = [];
@@ -243,28 +282,29 @@ export default function Asset(params) {
         }
         const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
 
-        if (tokendetails.aggregator) {
-            const result = await lendingContract.getAggregatorPrice(tokendetails.aggregator.aggregator);
-            const priceInUSD = Number(result) / Math.pow(10, tokendetails.aggregator.decimals);
+        if (tokendetails?.aggregator) {
+            const result = await lendingContract.getAggregatorPrice(tokendetails?.aggregator?.aggregator);
+            const priceInUSD = Number(result) / Math.pow(10, tokendetails?.aggregator?.decimals);
 
             details['priceInUSD'] = priceInUSD
 
         }
-        const result = await lendingContract.getTokenMarketDetails(tokendetails.token.address);
+        const result = await lendingContract.getTokenMarketDetails(tokendetails?.token?.address);
         details['lendings'] = bigToDecimal(result[0])
         details['reserve'] = bigToDecimal(result[1])
         details['totalDebt'] = bigToDecimal(result[2])
+
         details['totalVariableDebt'] = bigToDecimal(result[3])
         details['totalStableDebt'] = bigToDecimal(result[4])
 
         const supplyAPR = await lendingContract.calculateCurrentLendingProfitRate(
-            tokendetails.token.address,
+            tokendetails?.token.address,
             IntrestRateModal
         );
-        const uratio = await lendingContract._utilizationRatio(tokendetails.token.address);
+        const uratio = await lendingContract._utilizationRatio(tokendetails?.token.address);
         const borrowRatesResult = await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal);
         const borrowAPR = await lendingContract.getOverallBorrowRate(
-            tokendetails.token.address, borrowRatesResult[0], borrowRatesResult[1]
+            tokendetails?.token.address, borrowRatesResult[0], borrowRatesResult[1]
         );
         details['uratio'] = bigToDecimalUints(uratio, 2) * 100
         currentUtilization = details['uratio']
@@ -279,9 +319,29 @@ export default function Asset(params) {
 
 
     }
+    React.useEffect(() => {
+        if (Tokens && Tokens.length && tokenAddress) {
+            const currentIcon = Tokens.find(token => token.address === tokenAddress);
+            console.log('currentIcon', currentIcon)
+
+            setCurrentRow(currentIcon)
+            if (currentIcon) {
+                routeHeaders['/asset'].name = currentIcon?.name;
+                setHeaderText(currentIcon?.name)
+                setCurrentToken({ icon: currentIcon?.icon, address: currentIcon?.address, name: currentRow?.name, symbol: currentRow?.symbol })
+
+            }
+
+        }
+    }, [Tokens, tokenAddress])
 
     React.useEffect(() => {
-        if (callInProgress) {
+        if (params?.match?.params.address) {
+            setTokenAddress(params?.match?.params.address)
+        }
+    }, [params?.match?.params.address])
+    React.useEffect(() => {
+        if (callInProgress && tokenAddress && currentToken && Tokens && Tokens.length) {
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
 
             setApyGraph(lendingContract)
@@ -289,20 +349,10 @@ export default function Asset(params) {
 
         }
 
-    }, [callInProgress, tokenSummary]); // Empty array means to only run once on mount.
+    }, [currentToken, provider]); // Empty array means to only run once on mount.
     return (
         <React.Fragment key="RIGHT1">
-            <Dialog
-                fullScreen={fullScreen}
-                fullWidth={fullScreen ? 'lg' : 'lg'}
-
-                fullHeight={fullScreen ? 'lg' : 'lg'}
-                maxWidth={'lg'}
-
-                // sx={{ width: fullScreen ? '100%' : '80%', height: fullScreen ? '100%' : '80%' }}
-                open={params.open} onClose={params.handleClose}>
-
-                <AppBar
+            {/* <AppBar
                     position="relative"
                     className={classes.appBar}
                     color="primary"
@@ -314,7 +364,7 @@ export default function Asset(params) {
                     }}>
 
 
-                        <IconButton aria-label="open drawer" edge="start" onClick={params.handleClose} >
+                        <IconButton aria-label="open drawer" edge="start" onClick={params?.handleClose} >
                             {fullScreen ? <ArrowBack color="primary" /> : <Close color="primary" />}
                         </IconButton>
 
@@ -334,89 +384,23 @@ export default function Asset(params) {
                     </Toolbar>
 
 
-                </AppBar>
-                <DialogContent
-                    sx={{
-                        height: `calc(100% - ${theme.headerHeight})`,
-                        background: theme.contentBackGround,
-                        fontSize: '12px'
-                    }}
+                </AppBar> */}
+            <Box
+                sx={{
+                    height: `calc(100% - ${theme.headerHeight})`,
+                    background: theme.contentBackGround,
+                    fontSize: '12px'
+                }}
+            >
+
+
+                <Grid container direction="row" justifyContent="start" alignItems="flex-start"
+                    spacing={2} style={{ width: '100%' }}
                 >
 
 
-                    <Grid container direction="row" justifyContent="start" alignItems="flex-start"
-                        spacing={2} style={{ width: '100%' }}
-                    >
-
-
-                        <Grid item md={6} xs={12}>
-                            <Card className={classes.innerCard}>
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>Price</div>
-                                    <div><b>$ {tokenSummary?.priceInUSD}</b></div>
-                                </div>
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>Total Supply</div>
-                                    <div><b>{tokenSummary?.lendings} {currentToken?.symbol}</b></div>
-                                </div>
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>• Total Borrowed</div>
-                                    <div><b>{tokenSummary?.totalDebt} {currentToken?.symbol}</b></div>
-                                </div>
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>• Borrowed On Variable Rate</div>
-                                    <div><b>{tokenSummary?.totalVariableDebt} {currentToken?.symbol}</b></div>
-                                </div>
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>• Borrowed On Stable Rate</div>
-                                    <div><b>{tokenSummary?.totalStableDebt} {currentToken?.symbol}</b></div>
-                                </div>
-                                <Divider sx={{ margin: '10px' }}></Divider>
-
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>Current Utilization</div>
-                                    <div><b>{parseFloat(tokenSummary?.uratio || 0).toFixed(3)}%</b></div>
-                                </div>
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>Supply APR / APY</div>
-                                    <div><b>{parseFloat(tokenSummary?.supplyAPR || 0).toFixed(3)}% / {parseFloat(tokenSummary?.supplyAPY || 0).toFixed(3)}%</b></div>
-                                </div>
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>• Lending APR</div>
-                                    <div><b>0.06%</b></div>
-                                </div>
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>• Leasing APR</div>
-                                    <div><b>3.6% / 3.66%</b></div>
-                                </div>
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>Rewards APR
-                                    </div>
-                                    <div><b>0.06%</b></div>
-                                </div>
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>Vires Rewards for Locked Supply (1y), APR</div>
-                                    <div><b>3.54%</b></div>
-                                </div>
-                                <Divider sx={{ margin: '10px' }}></Divider>
-
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>Reserve address</div>
-                                    <div><b> {'< 0.01%'}</b></div>
-                                </div>
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>Asset ID</div>
-                                    <div><b>3P8G747fnB1DTQ4d5uD114vjAaeezCW4FaM</b></div>
-                                </div>
-                                <div className="d-flexSpaceBetween">
-                                    <div className={classes.textMuted}>Borrow</div>
-                                    <div><b>{currentToken?.symbol}</b></div>
-                                </div>
-
-                            </Card>
-                        </Grid>
-                        {/* <Grid div md={2} xs={0}></Grid> */}
-                        <Grid item md={6} xs={12}>
+                    <Grid item md={8} xs={8} >
+                        <Grid item md={12} xs={12} >
                             <Card className={classes.innerCard}>
 
                                 {!callInProgress && (
@@ -432,7 +416,7 @@ export default function Asset(params) {
                                 )}
                             </Card>
                         </Grid>
-                        <Grid item md={12} xs={12}>
+                        <Grid item md={12} xs={12} sx={{marginTop:'16px'}}>
                             <Card className={classes.innerCard}>
                                 <div className="text">
                                     <div className={classes.textHighlighted}>
@@ -445,7 +429,7 @@ export default function Asset(params) {
                                 </div>
                             </Card>
                         </Grid>
-                        <Grid item md={6} xs={12}>
+                        <Grid item md={12} xs={12} sx={{marginTop:'16px'}}>
                             <Card className={classes.innerCard}>
                                 <div className="text">
                                     <div className={classes.textHighlighted}>
@@ -454,7 +438,7 @@ export default function Asset(params) {
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Borrow APR</div>
-                                    <div><b>3.94%</b></div>
+                                    <div><b>{tokendetails?.borrowAPY}%</b></div>
                                 </div>
                                 <div className="d-flexSpaceBetween">
                                     <div className={classes.textMuted}>Collateral Factor</div>
@@ -526,7 +510,7 @@ export default function Asset(params) {
                                 </div>
                             </Card>
                         </Grid>
-                        <Grid item md={6} xs={12}>
+                        <Grid item md={12} xs={12} sx={{marginTop:'16px'}}>
                             <Card className={classes.innerCard}>
                                 <div className="text">
                                     <div className={classes.textHighlighted}>
@@ -538,8 +522,77 @@ export default function Asset(params) {
                             </Card>
                         </Grid>
                     </Grid>
-                </DialogContent>
-            </Dialog>
+                    <Grid item md={4} xs={4}>
+
+                        <Card className={classes.innerCard}>
+                            <div className="d-flexSpaceBetween">
+                                <div className={classes.textMuted}>Price</div>
+                                <div><b>$ {tokenSummary?.priceInUSD}</b></div>
+                            </div>
+                            <div className="d-flexSpaceBetween">
+                                <div className={classes.textMuted}>Total Supply</div>
+                                <div><b>{tokenSummary?.lendings} {currentToken?.symbol}</b></div>
+                            </div>
+                            <div className="d-flexSpaceBetween">
+                                <div className={classes.textMuted}>• Total Borrowed</div>
+                                <div><b>{tokenSummary?.totalDebt} {currentToken?.symbol}</b></div>
+                            </div>
+                            <div className="d-flexSpaceBetween">
+                                <div className={classes.textMuted}>• Borrowed On Variable Rate</div>
+                                <div><b>{tokenSummary?.totalVariableDebt} {currentToken?.symbol}</b></div>
+                            </div>
+                            <div className="d-flexSpaceBetween">
+                                <div className={classes.textMuted}>• Borrowed On Stable Rate</div>
+                                <div><b>{tokenSummary?.totalStableDebt} {currentToken?.symbol}</b></div>
+                            </div>
+                            <Divider sx={{ margin: '10px' }}></Divider>
+
+                            <div className="d-flexSpaceBetween">
+                                <div className={classes.textMuted}>Current Utilization</div>
+                                <div><b>{parseFloat(tokenSummary?.uratio || 0).toFixed(3)}%</b></div>
+                            </div>
+                            <div className="d-flexSpaceBetween">
+                                <div className={classes.textMuted}>Supply APR / APY</div>
+                                <div><b>{parseFloat(tokenSummary?.supplyAPR || 0).toFixed(3)}% / {parseFloat(tokenSummary?.supplyAPY || 0).toFixed(3)}%</b></div>
+                            </div>
+                            <div className="d-flexSpaceBetween">
+                                <div className={classes.textMuted}>• Lending APR</div>
+                                <div><b>0.06%</b></div>
+                            </div>
+                            <div className="d-flexSpaceBetween">
+                                <div className={classes.textMuted}>• Leasing APR</div>
+                                <div><b>3.6% / 3.66%</b></div>
+                            </div>
+                            <div className="d-flexSpaceBetween">
+                                <div className={classes.textMuted}>Rewards APR
+                                </div>
+                                <div><b>0.06%</b></div>
+                            </div>
+                            <div className="d-flexSpaceBetween">
+                                <div className={classes.textMuted}>Vires Rewards for Locked Supply (1y), APR</div>
+                                <div><b>3.54%</b></div>
+                            </div>
+                            <Divider sx={{ margin: '10px' }}></Divider>
+
+                            <div className="d-flexSpaceBetween">
+                                <div className={classes.textMuted}>Reserve address</div>
+                                <div><b> {'< 0.01%'}</b></div>
+                            </div>
+                            <div className="d-flexSpaceBetween">
+                                <div className={classes.textMuted}>Asset ID</div>
+                                <div><b>3P8G747fnB1DTQ4d5uD114vjAaeezCW4FaM</b></div>
+                            </div>
+                            <div className="d-flexSpaceBetween">
+                                <div className={classes.textMuted}>Borrow</div>
+                                <div><b>{currentToken?.symbol}</b></div>
+                            </div>
+
+                        </Card>
+                    </Grid>
+                    {/* <Grid div md={2} xs={0}></Grid> */}
+
+                </Grid>
+            </Box>
         </React.Fragment >
     );
 }

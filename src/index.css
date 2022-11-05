@@ -1,19 +1,29 @@
 body {
-  font-family: "Trirong", serif;
+  font-family: Tahu;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
+
 
 .MuiDrawer-root .nav-item {
   color: var(--gray_400);
   padding: 8px 32px;
+}
+
+iframe {
+  display: none !important;
+}
+
+link {
+
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+
+.link:hover {
+  background: #393A41 !important
 }
