@@ -50,8 +50,8 @@ export function Web3Provider({ children }) {
     const handleWalleltDrawerToggle = () => {
         connectWallet();
     };
-    function setDefaultProviderAndChainID(){
-        setProvider( ethers.getDefaultProvider(Networks[0].internalName));
+    function setDefaultProviderAndChainID() {
+        setProvider(ethers.getDefaultProvider(Networks[0].internalName));
         setChainId(Networks[0].chainId);
 
     }
@@ -68,9 +68,9 @@ export function Web3Provider({ children }) {
                 setAccount(accounts[0]);
                 dispatch(loginUser({ address: accounts[0] }));
             }
-            setChainId(network?.chainId||Networks[0].chainId);
-
-            setSigner(library.getSigner())
+            setChainId(network?.chainId || Networks[0].chainId);
+            const ss = await library.getSigner()
+            setSigner(ss)
         } catch (error) {
             setError(error);
         }
@@ -78,6 +78,14 @@ export function Web3Provider({ children }) {
         return { provider: library, signer }
 
 
+    }
+
+    const connect = async () => {
+        const provider = await web3Modal.connect();
+        const library = new ethers.providers.Web3Provider(provider);
+        const sig = library.getSigner();
+        setSigner(sig)
+        return { signer:sig }
     }
     const handleNetwork = (id) => {
         setChainId(id)
@@ -179,9 +187,10 @@ export function Web3Provider({ children }) {
     };
 
     useEffect(() => {
+        console.log('signes in context =>', signer)
         if (web3Modal.cachedProvider) {
             connectWallet();
-        }else{
+        } else {
             setDefaultProviderAndChainID()
         }
     }, []);
@@ -230,7 +239,8 @@ export function Web3Provider({ children }) {
                 account,
                 connectWallet,
                 handleNetwork,
-                switchNetwork
+                switchNetwork,
+                connect
             }}
         >
             {

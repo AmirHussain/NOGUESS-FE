@@ -53,9 +53,23 @@ const useStyles = makeStyles({
 export default function Marketitem(props) {
     const classes = useStyles();
     const details = {}
-    const { provider, signer } = React.useContext(Web3ProviderContext);
-
+    const [tokenSummary, setTokenSummary] = React.useState({});
+    const [tokendetails, setTokendetails] = React.useState({});
     const [row, setRow] = useState({});
+    const { provider, signer,connectWallet,connect } = React.useContext(Web3ProviderContext);
+    const { getTokenProperties, IntrestRateModal, TokenBorrowLimitations } = React.useContext(TokenContext);
+
+
+    React.useEffect(() => {
+        if(props.row){
+            getData(props);
+        }
+
+    }, [row])
+
+    React.useEffect(() => {
+    }, [tokenSummary]); // Empty array means to only run once on mount.
+
     const openDrawer = (row) => {
         row.token = { icon: row.token?.icon, address: row.token?.token_address, symbol: row.token?.token_symbol }
         props.openDrawer(row);
@@ -66,27 +80,25 @@ export default function Marketitem(props) {
     };
 
 
-    React.useEffect(() => {
-        if (props.row && (signer)) {
-            setRow(props.row)
-            getTokenDetails()
-        }
-
-    }, [props.row, signer])
-    const [tokenSummary, setTokenSummary] = React.useState({});
-    const [tokendetails, setTokendetails] = React.useState({});
-
-    const { getTokenProperties, IntrestRateModal, TokenBorrowLimitations } = React.useContext(TokenContext);
-    const getTokenDetails = async () => {
-        const details = getTokenProperties(row.address)
-        setTokendetails(details);
-        setTimeout(() => {
-            getAndSetTokenMarketDetails(details)
-        })
+    const getData = async (p)=>{
+        await connect();
+       setRow(p.row)
+       getTokenDetails(p.row.address)
 
     }
-    React.useEffect(() => {
-    }, [tokenSummary]); // Empty array means to only run once on mount.
+
+    const getTokenDetails = async (address) => {
+        if (address) {
+            const details = getTokenProperties(address);
+            setTokendetails(details);
+            await getAndSetTokenMarketDetails(details)
+        }
+
+
+
+
+    }
+
 
     const getPrice = async (tokendetails, lendingContract) => {
         if (tokendetails.aggregator) {
@@ -159,7 +171,7 @@ export default function Marketitem(props) {
         }
     }
     const getAndSetTokenMarketDetails = async (tokendetails) => {
-
+        const {signer} = await connectWallet();
         const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
 
         const priceInUSD = await getPrice(tokendetails, lendingContract)
