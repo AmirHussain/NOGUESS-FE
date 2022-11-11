@@ -21,6 +21,8 @@ import Sidebar from "../../Components/sidebar"
 import { routes } from '../../routes';
 import theme from './../../theme';
 import Asset from '../../Components/asset';
+import Proposal from '../governance/proposal';
+import Admin from '../Admin';
 
 const drawerWidth = theme.drawerWidth;
 const useStyles = makeStyles({
@@ -71,7 +73,9 @@ export default function Home() {
                             <Route path="/market" exact component={Market}></Route>
                             <Route path="/governance" exact component={Governance}></Route>
                             <Route path="/lending" exact component={Lending}></Route>
+                            <Route path="/admin" exact component={Admin}></Route>
                             <Route path="/asset/:address" component={Asset} />
+                            <Route path="/proposal/:address" component={Proposal} />
                             <Route path="**" exact component={Lending}></Route>
                         </Switch>
                     </Container>

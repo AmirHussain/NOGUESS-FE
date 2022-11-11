@@ -10,17 +10,19 @@ export const routes = {
     lending: '/lending',
     market: '/market',
     asset:'/asset',
-    staking: '/staking'
+    staking: '/staking',
+    proposal: '/proposal'
 }
 
 export const routeHeaders = {
-    "/asset": { name: "Asset", icon: lendingIcon },
+    "/asset": { name: "Asset", icon: lendingIcon,showBackBotton:true },
     "/": { name: "Dashboard", icon: lendingIcon },
     '/login': { name: "Login", icon: lendingIcon },
     '/lending': { name: "Dashboard", icon: lendingIcon },
     '/market': { name: "Market", icon: marketIcon },
     '/staking': { name: "Staking", icon: stakingIcon },
     '/governance': { name: "Governance", icon: governanceIcon },
-    '/bridge': { name: "Bridge", icon: bridgeIcon }
+    '/bridge': { name: "Bridge", icon: bridgeIcon },
+    '/proposal': { name: "overview", icon: governanceIcon,showBackBotton:true }
 
 }

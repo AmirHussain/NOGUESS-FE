@@ -4,6 +4,7 @@ import { responsiveFontSizes, createTheme } from '@mui/material/styles'
 const drawerWidth = 224;
 const rightDrawerWidth = '40%';
 const drawerIndex = 1000;
+const greenColor='#18DF8B';
 const headerBackground = '#1F2028 !important';
 const headerText = 'white  !important';
 const SideHeaderBackground = '#282931 !important';
@@ -18,6 +19,7 @@ const headerHeight = '66px';
 const sideHeaderHeight = '120px';
 const cardBorderRadius='28px !important';
 const footerHeight = '66px';
+const chipBackground='#383944'
 const midContainerHeight = `calc(100% - ${(66 * 2) + 'px'})`;
 const modalMdMidContainerHeight = `calc(100% - 90px)`;
 const modalXsMidContainerHeight = `calc(100% - 48px)`;
@@ -31,6 +33,7 @@ const lightBlueText = '#999999';
 const darkBlueText = '#c1dfff';
 const borderColor = "rgb(149 151 161 / 19%)"
 const theme = createTheme({
+    
     spacing: (factor) => `${0.25 * factor}rem`,
     drawerIndex: drawerIndex,
     headerBackground,
@@ -43,6 +46,7 @@ const theme = createTheme({
     drawerWidth,
     rightDrawerWidth,
     contentBackGround,
+    greenColor,
     headerHeight,
     sideHeaderHeight,
     midContainerHeight,
@@ -120,7 +124,8 @@ const theme = createTheme({
         color: darkBlueText,
         background: cardContentBackGround,
         borderRadius: cardBorderRadius,
-        padding: '10px'
+        padding: '10px',
+        marginBottom:'10px'
     },
     cardContent: {
         color: darkText,
@@ -143,6 +148,19 @@ const theme = createTheme({
     //     background: '##28293124 !important',
     // },
     components: {
+        MuiStepIcon: {
+            styleOverrides: {
+            root: {
+                '&$completed': {
+                    color: 'pink',
+                },
+                '&$active': {
+                    color: 'red',
+                },
+            }, active: {},
+            completed: {},
+        }
+        },
         MuiAppBar: {
             styleOverrides: {
                 colorPrimary: {
@@ -297,6 +315,13 @@ const theme = createTheme({
         background: contentBackGround,
         color: darkText + ' !important',
     },
+    chip:{
+        background: chipBackground,
+        color: darkText + ' !important',
+        borderRadius:'4px',
+        marginRight:8,
+        padding:8
+    }
 
 });
 

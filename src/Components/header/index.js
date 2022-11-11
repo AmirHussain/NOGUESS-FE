@@ -1,9 +1,10 @@
 import React from 'react';
+import { useHistory } from "react-router-dom";
 import { useLocation } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
 import { AppBar, Toolbar, IconButton, Menu, MenuItem, Button, Typography, Divider, ListItem, ListItemIcon, ListItemText, Avatar } from '@mui/material';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import { AccountCircle } from '@mui/icons-material';
+import { AccountCircle, ArrowBack } from '@mui/icons-material';
 import WalletConnecter from '../walletConnect/walletConnect'
 import { routeHeaders } from '../../routes';
 
@@ -88,15 +89,18 @@ const useStyles = makeStyles({
 });
 
 function Header(props) {
+  let history = useHistory();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
   let location = useLocation();
   const { headerText, setHeaderText } = React.useContext(TokenContext);
+
+  const [ back, setBack ] = React.useState(false);
   React.useEffect(() => { }, [headerText])
   React.useEffect(() => {
     const Locations = location.pathname.split('/');
-
     setHeaderText(routeHeaders['/' + Locations[1]]?.name)
+    setBack(routeHeaders['/' + Locations[1]]?.showBackBotton)
   }, [location, routeHeaders]);
 
   let auth = true;
@@ -113,7 +117,9 @@ function Header(props) {
     // props.mobileOpen1=!mobileOpen
   };
 
-
+const moveBack=()=>{
+  history.goBack();
+}
 
   return (
     <>
@@ -127,10 +133,9 @@ function Header(props) {
           <IconButton aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2, display: { md: 'none' } }}>
             <MenuRoundedIcon color="primary" />
           </IconButton>
-
-          {/* <img className="chainIcon" alt=""
-              src={routeHeaders[location.pathname].icon} /> */}
-          <Typography variant="div" sx={{ }} className={classes.title}> {headerText}</Typography>
+          {back && (<ArrowBack sx={{ mr: 2 ,cursor:'pointer'}} onClick={moveBack}></ArrowBack>
+          )}
+          <Typography variant="div" sx={{}} className={classes.title}> {headerText}</Typography>
           <div><ConnectWallet /></div>
         </Toolbar>
         {/* <Divider className={classes.divider}></Divider> */}

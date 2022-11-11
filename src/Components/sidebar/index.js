@@ -12,6 +12,8 @@ import governanceIcon from '../../assets/svg/3.svg';
 import bridgeIcon from '../../assets/svg/4.svg';
 import marketIcon from '../../assets/svg/5.svg';
 
+import adminIcon from '../../assets/svg/7.svg';
+
 
 //constants
 import { routes } from '../../routes';
@@ -125,6 +127,13 @@ export default function Home(props) {
 
               <img className={classes.sideBarIcons} src={governanceIcon} alt=''></img>
               <ListItemText primary="Governance" className={classes.linkText} />
+            </ListItem>
+          </NavLink>
+          <NavLink className={classes.linkClass} to="/admin" activeClassName={classes.linkClassActive}>
+            <ListItem button key="Governance" className={classes.linkItem} >
+
+              <img className={classes.sideBarIcons} src={adminIcon} alt=''></img>
+              <ListItemText primary="Admin" className={classes.linkText} />
             </ListItem>
           </NavLink>
         </List>

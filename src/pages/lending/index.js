@@ -108,7 +108,7 @@ function Lending() {
         <Card className={classes.card}>
           <CardHeader
             sx={{ color: 'white', fontWeight: 600, textAlign: 'left' }}
-           
+
             title={
               <Typography sx={{ fontSize: 18, fontWeight: 500 }} variant="h4" >
 
@@ -117,11 +117,11 @@ function Lending() {
           />
           <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
             <Typography sx={{ fontSize: 14, width: '100%', fontWeight: 500, color: theme.lightText, textAlign: 'left' }} variant="p" >
-             Net Apy
+              Net Apy
             </Typography>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-             
-              <p style={{ fontSize: '33px',color:'#18DF8B', fontWeight: 600, textAlign: 'left',  margin: '0px', lineHeight: 1 }}>
+
+              <p style={{ fontSize: '33px', color: theme.greenColor, fontWeight: 600, textAlign: 'left', margin: '0px', lineHeight: 1 }}>
 
                 {currentRow?.balanceOf || 0.0} %</p>
 
@@ -138,18 +138,18 @@ function Lending() {
                 </div>
                 <div>
                   <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
-                    ${currentRow?.apy||0.0} 
+                    ${currentRow?.apy || 0.0}
                   </span>
                 </div>
 
               </Grid>
 
               <Grid item xs={4} sm={4} md={4} style={{ borderRight: '0.5px solid ' + theme.borderColor }} >
-                <Typography sx={{ color: theme.lightText}} variant="p" >
+                <Typography sx={{ color: theme.lightText }} variant="p" >
                   Supply balance
                 </Typography>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  
+
                   <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
                     ${currentRow?.b || 0.0}
                   </span>
@@ -162,7 +162,7 @@ function Lending() {
                   Borrow balance
                 </Typography>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  
+
                   <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
                     {currentRow?.totalSupply || 0.0}
                   </span>
@@ -173,36 +173,36 @@ function Lending() {
           </CardContent>
         </Card>
       </Grid>
-      
 
-      
+
+
       <Grid item xs={12} sm={12} md={6} >
-        <Card className={classes.card} sx={{height: '100%'}}>
+        <Card className={classes.card} sx={{ height: '100%' }}>
           <CardHeader
             sx={{ color: 'white', fontWeight: 600, textAlign: 'left' }}
-           
+
             title={
               <Typography sx={{ fontSize: 18, fontWeight: 500 }} variant="h4" >
-&nbsp;
-                </Typography>}
+                &nbsp;
+              </Typography>}
 
           />
           <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
             <Typography sx={{ fontSize: 14, width: '100%', fontWeight: 500, color: theme.lightText, textAlign: 'left' }} variant="p" >
-            &nbsp;
+              &nbsp;
             </Typography>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-             
-              <p style={{ fontSize: '33px',color:'#18DF8B', fontWeight: 600, textAlign: 'left',  margin: '0px', lineHeight: 1 }}>
-              &nbsp;
-                
-                </p>
+
+              <p style={{ fontSize: '33px', color: theme.greenColor, fontWeight: 600, textAlign: 'left', margin: '0px', lineHeight: 1 }}>
+                &nbsp;
+
+              </p>
 
             </div>
 
             <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', paddingTop: '40px' }}>
 
-              <Grid item xs={4} sm={4} md={4} style={{ }} >
+              <Grid item xs={4} sm={4} md={4} style={{}} >
 
                 <div >
                   <Typography sx={{ color: theme.lightText }} variant="p" >
@@ -217,12 +217,12 @@ function Lending() {
 
               </Grid>
 
-              <Grid item xs={4} sm={4} md={4} style={{ }} >
-                <Typography sx={{ color: theme.lightText}} variant="p" >
+              <Grid item xs={4} sm={4} md={4} style={{}} >
+                <Typography sx={{ color: theme.lightText }} variant="p" >
                   {/* Supply balance */}
                 </Typography>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  
+
                   <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
                     {/* ${currentRow?.b || 0.0} */}
                   </span>
@@ -235,7 +235,7 @@ function Lending() {
                   {/* Borrow balance */}
                 </Typography>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  
+
                   <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
                     {/* {currentRow?.totalSupply || 0.0} */}
                   </span>
@@ -243,7 +243,7 @@ function Lending() {
 
               </Grid>
             </Grid>
-           
+
           </CardContent>
         </Card>
       </Grid>
