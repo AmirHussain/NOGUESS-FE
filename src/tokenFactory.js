@@ -1,5 +1,4 @@
-import polygon from './assets/svg/polygon.svg';
-import ethereum from './assets/svg/ethereum.svg';
+
 import { abis, contractAddresses, makeContract } from './contracts/useContracts';
 import { bigToDecimal, bigToDecimalUints, decimalToBig, decimalToBigUints } from './utils/utils';
 import React, { createContext } from 'react';
@@ -12,18 +11,22 @@ export const TokenContext = createContext();
 
 export function TokenFactory({ children }) {
     const [Tokens, setTokens] = React.useState([]);
+    const [BorrowLimitations, setBorrowLimitations] = React.useState([]);
+    const [TokensIntrestRateModal, setTokensIntrestRateModal] = React.useState([]);
     const [headerText, setHeaderText] = React.useState('');
     // const dispatch = useDispatch();
     const [TokenAggregators, setTokenAggregators] = React.useState([]);
+
+
 
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
     const getAllTokens = async (governanceContract) => {
         if (localStorage.tokenStorage) {
-            return JSON.parse(localStorage.tokenStorage||'[]')
+            return JSON.parse(localStorage.tokenStorage || '[]')
         }
         if (!provider) {
-            return JSON.parse(localStorage.tokenStorage||'[]') || []
+            return JSON.parse(localStorage.tokenStorage || '[]') || []
         }
 
         const tokens = await governanceContract.getAllToken();
@@ -48,10 +51,10 @@ export function TokenFactory({ children }) {
     }
     const getAllAggregators = async (governanceContract) => {
         if (localStorage.aggregatorsStorage) {
-            return JSON.parse(localStorage.aggregatorsStorage||'[]')
+            return JSON.parse(localStorage.aggregatorsStorage || '[]')
         }
         if (!provider) {
-            return JSON.parse(localStorage.aggregatorsStorage||'[]') || []
+            return JSON.parse(localStorage.aggregatorsStorage || '[]') || []
         }
 
         const aggregators = await governanceContract.getAllAggregators();
@@ -68,9 +71,71 @@ export function TokenFactory({ children }) {
                 }
             });
         }
-        
+
         setStorage('aggregatorsStorage', JSON.stringify(UpdatedAggregators))
         return UpdatedAggregators || []
+    }
+
+    const getAllBorrowLimitations = async (governanceContract) => {
+        if (localStorage.borrowLimitations) {
+            return JSON.parse(localStorage.borrowLimitations || '[]')
+        }
+        if (!provider) {
+            return JSON.parse(localStorage.borrowLimitations || '[]') || []
+        }
+
+        const borrowLimitations = await governanceContract.getAllTokenBorrowLimitations();
+        const UpdatedborrowLimitations = []
+        if (borrowLimitations && borrowLimitations.length) {
+            borrowLimitations.forEach((borrowLimitation) => {
+
+                const newBorrowLimitation = {
+                    tokenAddress: borrowLimitation.tokenAddress,
+                    CollateralFator: borrowLimitation.CollateralFator,
+                    LiquidationThreshold: borrowLimitation.LiquidationThreshold,
+                    LiquidationPenalty: borrowLimitation.LiquidationPenalty,
+                    ProtocolShare: borrowLimitation.ProtocolShare,
+                    InitialBorrowRate: borrowLimitation.InitialBorrowRate,
+                    MAX_UTILIZATION_RATE: borrowLimitation.MAX_UTILIZATION_RATE,
+                    AllowStableJob: borrowLimitation.AllowStableJob,
+                }
+                UpdatedborrowLimitations.push(newBorrowLimitation)
+
+            });
+        }
+
+        setStorage('borrowLimitations', JSON.stringify(UpdatedborrowLimitations))
+        return UpdatedborrowLimitations || []
+    }
+
+    const getAllIntrestRateModel = async (governanceContract) => {
+        if (localStorage.tokensIntrestRateModels) {
+            return JSON.parse(localStorage.tokensIntrestRateModels || '[]')
+        }
+        if (!provider) {
+            return JSON.parse(localStorage.tokensIntrestRateModels || '[]') || []
+        }
+
+        const tokensIntrestRateModels = await governanceContract.getAllTokenIntrestRateModel();
+        const UpdatedtokensIntrestRateModels = []
+        if (tokensIntrestRateModels && tokensIntrestRateModels.length) {
+            tokensIntrestRateModels.forEach((borrowLimitation) => {
+                const newIntrestRateModels = {
+                    tokenAddress: borrowLimitation.tokenAddress,
+                    OPTIMAL_UTILIZATION_RATE: borrowLimitation.OPTIMAL_UTILIZATION_RATE,
+                    StableRateSlope1: borrowLimitation.StableRateSlope1,
+                    StableRateSlope2: borrowLimitation.StableRateSlope2,
+                    VariableRateSlope1: borrowLimitation.VariableRateSlope1,
+                    VariableRateSlope2: borrowLimitation.VariableRateSlope2,
+                    BaseRate: borrowLimitation.BaseRate
+                }
+                UpdatedtokensIntrestRateModels.push(newIntrestRateModels)
+
+            });
+        }
+
+        setStorage('tokensIntrestRateModels', JSON.stringify(UpdatedtokensIntrestRateModels))
+        return UpdatedtokensIntrestRateModels || []
     }
 
     async function setTokenFactory() {
@@ -100,6 +165,17 @@ export function TokenFactory({ children }) {
             aggregators
         )
 
+        const newborrowLimitations = await getAllBorrowLimitations(governanceContract);
+
+        setBorrowLimitations(
+            newborrowLimitations
+        )
+        const tokenIRS = await getAllIntrestRateModel(governanceContract);
+
+        setTokensIntrestRateModal(
+            tokenIRS
+        )
+
     }
     React.useEffect(() => {
         setTokenFactory()
@@ -116,17 +192,17 @@ export function TokenFactory({ children }) {
         StableRateSlope2: decimalToBig('0.15'),
         VariableRateSlope1: decimalToBig('0.02'),
         VariableRateSlope2: decimalToBig('0.10'),
-        baseRate: decimalToBig('0.010'),
+        BaseRate: decimalToBig('0.010'),
         AllowStableJob: true,
     }
 
     const IntrestRateModal = {
         OPTIMAL_UTILIZATION_RATE: TokenBorrowLimitations.OPTIMAL_UTILIZATION_RATE,
-        stableRateSlope1: TokenBorrowLimitations.StableRateSlope1,
-        stableRateSlope2: TokenBorrowLimitations.StableRateSlope2,
-        variableRateSlope1: TokenBorrowLimitations.VariableRateSlope1,
-        variableRateSlope2: TokenBorrowLimitations.VariableRateSlope2,
-        baseRate: TokenBorrowLimitations.baseRate,
+        StableRateSlope1: TokenBorrowLimitations.StableRateSlope1,
+        StableRateSlope2: TokenBorrowLimitations.StableRateSlope2,
+        VariableRateSlope1: TokenBorrowLimitations.VariableRateSlope1,
+        VariableRateSlope2: TokenBorrowLimitations.VariableRateSlope2,
+        BaseRate: TokenBorrowLimitations.BaseRate,
     }
 
     const getTokenProperties = (tokenAddress) => {
@@ -149,6 +225,8 @@ export function TokenFactory({ children }) {
                 getTokenProperties,
                 Tokens,
                 IntrestRateModal,
+                BorrowLimitations,
+                TokensIntrestRateModal,
                 TokenAggregators,
                 TokenBorrowLimitations,
                 headerText, setHeaderText

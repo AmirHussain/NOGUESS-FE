@@ -10,6 +10,7 @@
     "@mui/lab": "^5.0.0-alpha.96",
     "@mui/material": "^5.10.0",
     "@mui/styles": "^5.9.3",
+    "@mui/x-data-grid": "^5.17.11",
     "@reduxjs/toolkit": "^1.6.1",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",

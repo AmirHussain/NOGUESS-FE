@@ -7,8 +7,13 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Grid } from '@mui/material';
+import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
+import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
+import { FluteAlertContext } from '../../Components/Alert';
 
 export default function AddUpdateToken(params) {
+
+  const { setAlert, setAlertToggle } = React.useContext(FluteAlertContext);
 
   const [row, setRow] = React.useState({})
 
@@ -23,7 +28,39 @@ export default function AddUpdateToken(params) {
     setUpdatedRow(uprow)
 
   }, [params.currentRow])
+  const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
+  const addOrUpdateToken = async () => {
+    const governanceContract = makeContract(contractAddresses.governance, abis.governance, signer);
+
+    if (!provider || !signer) {
+      return
+    }
+    setAlert({ severity: 'info', title: 'Token ' + (params.newRow ? 'Addition' : 'Update'), description: 'Token addition in progress' }
+    );
+    try {
+      const response = await governanceContract.AddOrUpdateToken(
+        updatedRow.tokenAddress,
+        updatedRow.symbol || '',
+        updatedRow.name || '',
+        updatedRow.icon || '',
+        updatedRow.abiJSON || '[]',
+        updatedRow.pedgeToken || '',
+        false,
+        false,
+        params.newRow, { gasLimit: 1000000 }
+      )
+      await response.wait(1)
+      if (response) {
+        localStorage.clear();
+        window.location.reload();
+        params.setOpen(false)
+      }
+    } catch (err) {
+      setAlert({ severity: 'error', title: 'Token', description: err.message });
+
+    } finally { }
+  }
   const handleValueChange = (value, key) => {
     const uprow = {
       ...updatedRow
@@ -32,15 +69,39 @@ export default function AddUpdateToken(params) {
 
     setUpdatedRow(uprow)
   }
+  const handleDelete = async () => {
+    const governanceContract = makeContract(contractAddresses.governance, abis.governance, signer);
 
+    if (!provider || !signer) {
+      return
+    }
+    setAlert({ severity: 'info', title: 'Token Deletion', description: 'Token deletion in progress' }
+    );
+    try {
+      const response = await governanceContract.deleteToken(
+        updatedRow.tokenAddress,
+      true, { gasLimit: 100000 }
+      )
+      await response.wait(1)
+      if (response) {
+        localStorage.clear();
+        window.location.reload();
+        params.setOpen(false)
+      }
+    } catch (err) {
+      setAlert({ severity: 'error', title: 'Token', description: err.message });
+
+    } finally { }
+  }
   const saveToken = () => {
     const token = { ...updatedRow }
     token.pedgeToken = false;
+    addOrUpdateToken()
   }
   return (
     <div>
 
-      <Dialog open={params.open} onClose={params.handleClose} sx={{ maxWidth: '100vw', minWidth: '60vw' }}>
+      <Dialog open={params.open} onClose={params.handleClose} sx={{ zIndex: 1100, maxWidth: '100vw', minWidth: '60vw' }}>
         <DialogTitle>
           {params.newRow ? 'Add ' : 'Update '} Token
         </DialogTitle>
@@ -179,7 +240,7 @@ export default function AddUpdateToken(params) {
         <DialogActions>
           {!params.newRow && (
 
-            <Button onClick={params.handleClose} sx={{ position: 'absolute', left: '10px' }} variant="contained" color="error">Delete</Button>
+            <Button onClick={()=>handleDelete()} sx={{ position: 'absolute', left: '10px' }} variant="contained" color="error">Delete</Button>
           )}
           <Button onClick={params.handleClose} variant="outlined" >Cancel</Button>
           <Button onClick={() => saveToken()} variant="contained">Save</Button>

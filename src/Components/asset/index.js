@@ -222,19 +222,40 @@ export default function Asset(params) {
 
     const [tokenAddress, setTokenAddress] = React.useState(params?.match?.params.address || '');
     const classes = useStyles();
-
     const [currentRow, setCurrentRow] = React.useState();
 
     const [currentToken, setCurrentToken] = React.useState();
     const [callInProgress, setCallInProgress] = React.useState(true);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
-    const { getTokenProperties, IntrestRateModal, TokenBorrowLimitations, Tokens,setHeaderText } = React.useContext(TokenContext);
+    const { getTokenProperties, IntrestRateModal, TokensIntrestRateModal, TokenBorrowLimitations, BorrowLimitations, Tokens, setHeaderText } = React.useContext(TokenContext);
+    const [tokenIntrestRateModal, setTokenIntrestRateModal] = React.useState();
+    const [tokenBorrowLimitations, setTokenBorrowLimitations] = React.useState();
 
+    React.useEffect(() => {
+        if (BorrowLimitations && BorrowLimitations.length) {
+            const currentTokenBorrowLimitations = BorrowLimitations.find(IRM => IRM.tokenAddress === tokenAddress);
+            if (currentTokenBorrowLimitations) {
+                setTokenBorrowLimitations(currentTokenBorrowLimitations)
+            } else {
+                setTokenBorrowLimitations(TokenBorrowLimitations)
+            }
+        }
+    }, [BorrowLimitations]);
+
+    React.useEffect(() => {
+        if (TokensIntrestRateModal && TokensIntrestRateModal.length) {
+            const currentTokenIntrestRateModal = TokensIntrestRateModal.find(IRM => IRM.tokenAddress === tokenAddress);
+            if (currentTokenIntrestRateModal) {
+                setTokenIntrestRateModal(currentTokenIntrestRateModal)
+            } else {
+                setTokenIntrestRateModal(IntrestRateModal)
+            }
+        }
+    }, [TokensIntrestRateModal]);
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
     const [tokendetails, setTokendetails] = React.useState();
     const [tokenSummary, setTokenSummary] = React.useState();
-
 
     const supplySeries = [];
     const borrowSeries = [];
@@ -245,13 +266,21 @@ export default function Asset(params) {
         try {
             console.log(
                 currentToken.address,
-                IntrestRateModal,
-                decimalToBigUints(bigToDecimalUints(TokenBorrowLimitations.MAX_UTILIZATION_RATE, 2), 2))
+                tokenIntrestRateModal,
+                decimalToBigUints((Number(bigToDecimalUints(tokenBorrowLimitations.MAX_UTILIZATION_RATE, 2)) + 0.01).toString(), 2))
             console.log(lendingContract)
             const chartData = await lendingContract.getChartData(
                 currentToken.address,
-                IntrestRateModal,
-                decimalToBigUints(bigToDecimalUints(TokenBorrowLimitations.MAX_UTILIZATION_RATE, 2), 2)
+                {
+                    OPTIMAL_UTILIZATION_RATE: tokenIntrestRateModal.OPTIMAL_UTILIZATION_RATE,
+                    stableRateSlope1: tokenIntrestRateModal.StableRateSlope1,
+                    stableRateSlope2: tokenIntrestRateModal.StableRateSlope2,
+                    variableRateSlope1: tokenIntrestRateModal.VariableRateSlope1,
+                    variableRateSlope2: tokenIntrestRateModal.VariableRateSlope2,
+                    baseRate: tokenIntrestRateModal.BaseRate
+                },
+
+                decimalToBigUints((Number(bigToDecimalUints(tokenBorrowLimitations.MAX_UTILIZATION_RATE, 2)) + 0.01).toString(), 2)
             );
             console.log(chartData)
             options.series[0].data = chartData[0].map(item => Number(parseFloat(Number(bigToDecimal(item)) * 100).toFixed(2)))
@@ -299,10 +328,25 @@ export default function Asset(params) {
 
         const supplyAPR = await lendingContract.calculateCurrentLendingProfitRate(
             tokendetails?.token.address,
-            IntrestRateModal
+            {
+                OPTIMAL_UTILIZATION_RATE: tokenIntrestRateModal.OPTIMAL_UTILIZATION_RATE,
+                stableRateSlope1: tokenIntrestRateModal.StableRateSlope1,
+                stableRateSlope2: tokenIntrestRateModal.StableRateSlope2,
+                variableRateSlope1: tokenIntrestRateModal.VariableRateSlope1,
+                variableRateSlope2: tokenIntrestRateModal.VariableRateSlope2,
+                baseRate: tokenIntrestRateModal.BaseRate
+            },
         );
         const uratio = await lendingContract._utilizationRatio(tokendetails?.token.address);
-        const borrowRatesResult = await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal);
+        const borrowRatesResult = await lendingContract.getCurrentStableAndVariableBorrowRate(uratio,
+            {
+                OPTIMAL_UTILIZATION_RATE: tokenIntrestRateModal.OPTIMAL_UTILIZATION_RATE,
+                stableRateSlope1: tokenIntrestRateModal.StableRateSlope1,
+                stableRateSlope2: tokenIntrestRateModal.StableRateSlope2,
+                variableRateSlope1: tokenIntrestRateModal.VariableRateSlope1,
+                variableRateSlope2: tokenIntrestRateModal.VariableRateSlope2,
+                baseRate: tokenIntrestRateModal.BaseRate
+            },);
         const borrowAPR = await lendingContract.getOverallBorrowRate(
             tokendetails?.token.address, borrowRatesResult[0], borrowRatesResult[1]
         );
@@ -320,7 +364,7 @@ export default function Asset(params) {
 
     }
     React.useEffect(() => {
-        if (Tokens && Tokens.length && tokenAddress) {
+        if (Tokens && Tokens.length && tokenAddress && tokenIntrestRateModal && tokenBorrowLimitations) {
             const currentIcon = Tokens.find(token => token.address === tokenAddress);
             console.log('currentIcon', currentIcon)
 
@@ -333,7 +377,7 @@ export default function Asset(params) {
             }
 
         }
-    }, [Tokens, tokenAddress])
+    }, [Tokens, tokenAddress, tokenIntrestRateModal, tokenBorrowLimitations])
 
     React.useEffect(() => {
         if (params?.match?.params.address) {
@@ -416,7 +460,7 @@ export default function Asset(params) {
                                 )}
                             </Card>
                         </Grid>
-                        <Grid item md={12} xs={12} sx={{marginTop:'16px'}}>
+                        <Grid item md={12} xs={12} sx={{ marginTop: '16px' }}>
                             <Card className={classes.innerCard}>
                                 <div className="text">
                                     <div className={classes.textHighlighted}>
@@ -429,7 +473,7 @@ export default function Asset(params) {
                                 </div>
                             </Card>
                         </Grid>
-                        <Grid item md={12} xs={12} sx={{marginTop:'16px'}}>
+                        <Grid item md={12} xs={12} sx={{ marginTop: '16px' }}>
                             <Card className={classes.innerCard}>
                                 <div className="text">
                                     <div className={classes.textHighlighted}>
@@ -510,7 +554,7 @@ export default function Asset(params) {
                                 </div>
                             </Card>
                         </Grid>
-                        <Grid item md={12} xs={12} sx={{marginTop:'16px'}}>
+                        <Grid item md={12} xs={12} sx={{ marginTop: '16px' }}>
                             <Card className={classes.innerCard}>
                                 <div className="text">
                                     <div className={classes.textHighlighted}>

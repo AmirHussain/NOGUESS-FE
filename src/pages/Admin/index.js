@@ -7,6 +7,9 @@ import { Box, Tab, Tabs } from '@mui/material';
 import theme from './../../theme';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import AdminTokens from './tokens';
+import AdminAggregators from './aggregators';
+import AdminBorrowLimitations from './borrowLimitations';
+import AdaptiveLimitations from './adptiveLimitations';
 
 const useStyles = makeStyles({
     tabs: {
@@ -21,12 +24,12 @@ const useStyles = makeStyles({
             }
         },
 
-        
+
     },
     tabPanel: {
         height: 'calc(100vh - 90px)',
         background: '#383944  !important',
-        padding:'20px !important',
+        padding: '20px !important',
         borderRadius: '0px 8px 8px 8px',
     },
 
@@ -62,17 +65,27 @@ export default function Admin() {
                         aria-label="lab API tabs example" centered>
                         <Tab label="Tokens" value="1" />
                         <Tab label="Aggregators" value="2" />
-                        <Tab label="Governance" value="3" />
+                        <Tab label="Borrow Limitations" value="3" />
+                        <Tab label="Adaptive Limitations" value="4" />
+                        <Tab label="Governance" value="5" />
                     </TabList>
                 </Box>
-                <TabPanel className={classes.tabPanel} sx={{ width: { md: 'calc(100vw - 170px)', xs: 'calc(100vw - 170px)' } }} value="1">
+                <TabPanel className={classes.tabPanel} sx={{ width: { md: 'calc(100% - 166px)', xs: 'calc(100% - 166px)' } }} value="1">
                     <AdminTokens />
                 </TabPanel>
-                <TabPanel className={classes.tabPanel} sx={{ width: { md: 'calc(100vw - 170px)', xs: 'calc(100vw - 170px)' } }} value="2">
-                    <h1>Jello</h1>
+                <TabPanel className={classes.tabPanel} sx={{ width: { md: 'calc(100% - 166px)', xs: 'calc(100% - 166px)' } }} value="2">
+                   <AdminAggregators/>
 
                 </TabPanel>
-                <TabPanel className={classes.tabPanel} sx={{ width: { md: 'calc(100vw - 170px)', xs: 'calc(100vw - 170px)' } }} value="3">
+                <TabPanel className={classes.tabPanel} sx={{ width: { md: 'calc(100% - 166px)', xs: 'calc(100% - 166px)' } }} value="3">
+
+                    <AdminBorrowLimitations/>
+                </TabPanel>
+                <TabPanel className={classes.tabPanel} sx={{ width: { md: 'calc(100% - 166px)', xs: 'calc(100% - 166px)' } }} value="4">
+
+                    <AdaptiveLimitations />
+                </TabPanel>
+                <TabPanel className={classes.tabPanel} sx={{ width: { md: 'calc(100% - 166px)', xs: 'calc(100% - 166px)' } }} value="5">
 
                     <h1>Jello</h1>
                 </TabPanel>
