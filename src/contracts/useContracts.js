@@ -18,6 +18,7 @@ const contractAddresses = {
   governance: '0xc72c5c9457c2EE23D8CF6D9eBEBe0610eF72809E',
   stakingOfferings:'0xB87a10A083C0e30FCCEdafB83c66fBd7fdc4E2e1',
   staking:'0xeAd6E170D5f6508F575a9e9D9396C300609430Bb',
+  governanceVoting:'0x994A232FfDE46485A0ee7F41e1FC59272a49EA3B',
 };
 
 const useCustomContractCall = (abi, contractAddress, method, args, transformFunc) => {

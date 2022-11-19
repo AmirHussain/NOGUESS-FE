@@ -28,6 +28,7 @@ const useStyles = makeStyles({
     },
     tabPanel: {
         height: 'calc(100vh - 90px)',
+        overflow: 'auto',
         background: '#383944  !important',
         padding: '20px !important',
         borderRadius: '0px 8px 8px 8px',
@@ -74,12 +75,12 @@ export default function Admin() {
                     <AdminTokens />
                 </TabPanel>
                 <TabPanel className={classes.tabPanel} sx={{ width: { md: 'calc(100% - 166px)', xs: 'calc(100% - 166px)' } }} value="2">
-                   <AdminAggregators/>
+                    <AdminAggregators />
 
                 </TabPanel>
                 <TabPanel className={classes.tabPanel} sx={{ width: { md: 'calc(100% - 166px)', xs: 'calc(100% - 166px)' } }} value="3">
 
-                    <AdminBorrowLimitations/>
+                    <AdminBorrowLimitations />
                 </TabPanel>
                 <TabPanel className={classes.tabPanel} sx={{ width: { md: 'calc(100% - 166px)', xs: 'calc(100% - 166px)' } }} value="4">
 

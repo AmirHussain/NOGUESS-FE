@@ -6,13 +6,15 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
-import { ArrowCircleUpRounded, Edit, ExpandCircleDown, Token } from '@mui/icons-material';
+import { AddCircle, ArrowCircleUpRounded, Delete, Edit, EditOutlined, ExpandCircleDown, Token } from '@mui/icons-material';
 import { TokenContext } from '../../tokenFactory';
 
 import theme from './../../theme';
 import { makeStyles } from '@mui/styles';
-import AddUpdateAggregator from './addUpdateAggregator';
-import { DataGrid } from '@mui/x-data-grid';
+import { Checkbox, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import AddUpdateAdaptiveLimitation from './addUpdateAdaptiveLimitation';
+import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
+import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 const useStyles = makeStyles({
     tabs: {
         "& .MuiButtonBase-root": {
@@ -31,9 +33,50 @@ const useStyles = makeStyles({
 
 
     },
+
+
     tabPanel: {
         height: 'calc(100vh - 90px)',
         borderLeft: '1px solid blue'
+    },
+    tableRow: {
+        background: theme.DrawerBackground,
+        borderRadius: theme.cardBorderRadius,
+        padding: '2px 2px 0px 0px',
+        color: 'white',
+        cursor: 'pointer !important',
+        border: '0px solid transparent',
+        "&:hover": {
+            background: '#393A41 !important'
+        }
+    },
+    theadRow: {
+        padding: '2px 2px 0px 0px',
+        "& .MuiTableCell-root": {
+            color: theme.DrawerText,
+            border: '0px solid transparent',
+            fontWeight: 500,
+            fontSize: '11px'
+        }
+    },
+    tableCell: {
+        color: 'white !important',
+        padding: '0px',
+        minHeight: '10px !important',
+        lineHeight: '1 !important',
+        border: '0px solid transparent !important',
+        fontSize: '12px !important',
+        fontWeight: '500',
+    },
+    tableHead: {
+        background: theme.DrawerBackground,
+        color: theme.DrawerText,
+        width: '100%',
+        fontSize: '10px !important',
+        fontWeight: '500',
+        justifyItems: 'center',
+        padding: '16px 24px',
+        border: '0px solid transparent'
     },
 
     content: {
@@ -45,106 +88,131 @@ const useStyles = makeStyles({
         overflow: 'auto',
         // height:'calc(100% - '+theme.headerHeight+') !important'
     },
-    card: theme.card
+    card:
+    {
+        ...theme.card,
+
+        "& .MuiListItemSecondaryAction-root": {
+            position: 'absolute',
+            top: '35px !important',
+            right: '16px !important'
+        }
+    }
 });
 export default function AdaptiveLimitations() {
-    const columns = [
-        { field: 'id', headerName: 'ID', width: 90 },
-        {
-            field: 'firstName',
-            headerName: 'First name',
-            width: 150,
-            editable: true,
-        },
-        {
-            field: 'lastName',
-            headerName: 'Last name',
-            width: 150,
-            editable: true,
-        },
-        {
-            field: 'age',
-            headerName: 'Age',
-            type: 'number',
-            width: 110,
-            editable: true,
-        },
-        {
-            field: 'fullName',
-            headerName: 'Full name',
-            description: 'This column has a value getter and is not sortable.',
-            sortable: false,
-            width: 160,
-            valueGetter: (params) =>
-                `${params.row.firstName || ''} ${params.row.lastName || ''}`,
-        },
-    ];
 
-    const tableRows = [
-        { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
-        { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42 },
-        { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
-        { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
-        { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
-        { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
-        { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
-        { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
-        { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-    ];
+
 
     const { Tokens, TokenAggregators } = React.useContext(TokenContext);
     const [rows, setRows] = React.useState([]);
     const [newRow, setNewRow] = React.useState(true);
+
+    const [tableRows, setTableRow] = React.useState([]);
+
+    const [currentToken, setCurrentToken] = React.useState([]);
+    const [currentIndex, setCurrentIndex] = React.useState(-1);
     const [currentRow, setCurrentRow] = React.useState([]);
     const classes = useStyles();
+    const [loading, setLoading] = React.useState(false);
     const [openAddress, setOpenAddress] = React.useState();
-    const handleClickOpen = (id) => {
-        setOpenAddress(id);
+    const [open, setOpen] = React.useState(false);
+    const handleClickOpen = () => {
+        setOpen(true);
     };
 
-    const handleClose = () => {
+    const handleCollapse = () => {
         setOpenAddress('');
     };
+    const handleClose = () => {
+        setOpen(false);
+    };
 
-    const editToken = (row) => {
+    const editAdaptiveLimit = (row, trow, index) => {
         setNewRow(false)
-        setCurrentRow(row)
-        setOpenAddress(row.address);
+        setOpen(true);
+        setCurrentToken(row);
+        setCurrentIndex(index);
+        setCurrentRow(trow);
+    }
+    const addAdaptiveLimit = (row) => {
+        setNewRow(true)
+        setOpen(true);
+        setCurrentToken(row);
+        setCurrentIndex(-1);
+        setCurrentRow({});
     }
 
-    const setAggregatorsAddress = (row) => {
-        if (TokenAggregators && TokenAggregators.length) {
 
-            const currentAggregator = TokenAggregators.find(agg => agg.tokenAddress === row.address);
-            row.aggregator = currentAggregator
+
+    const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
+
+    const getAdaptiveLimits = async (address) => {
+        setTableRow([])
+        const governanceContract = makeContract(contractAddresses.governance, abis.governance, signer);
+        const adaptiveLimiations = await governanceContract.getTokenAdaptiveLimitations(
+            address
+        );
+        const tRows = []
+        if (adaptiveLimiations && adaptiveLimiations.length) {
+            adaptiveLimiations.forEach((adl) => {
+                const newAggregator = {
+                    operator: adl.operator,
+                    Utilization: adl.Utilization,
+                    Withdraw: adl.Withdraw,
+                    Borrow: adl.Borrow,
+                    Replenish: adl.Replenish,
+                    IsApplicable:adl.IsApplicable,
+                    Redeem: adl.Redeem
+                }
+                tRows.push(newAggregator)
+            });
         }
+        setTableRow(tRows)
+    }
+
+    const expandToken = async (row) => {
+        setLoading(true)
+        setOpenAddress(row.address);
+        await getAdaptiveLimits(row.address);
+
+        setLoading(false)
+
+
     }
     React.useEffect(() => {
+    }, [tableRows])
+    React.useEffect(() => {
         if (Tokens && Tokens.length) {
-            const updatedTokens = Object.assign([], Tokens);
-            updatedTokens.forEach(row => setAggregatorsAddress(row))
             setRows(Tokens)
         }
 
     }, [Tokens, TokenAggregators]);
 
+
     return (
         <>
+            {open && (<AddUpdateAdaptiveLimitation open={open}
+                newRow={newRow} currentRow={currentRow}
+                currentToken={currentToken}
+                rowIndex={currentIndex}
+                setOpen={setOpen} handleClickOpen={handleClickOpen} handleClose={handleClose}></AddUpdateAdaptiveLimitation>)}
             <List sx={{ width: '100%' }}>
 
                 {rows.map(row => {
                     return (
                         <>
 
+
                             <ListItem alignItems="flex-start" className={classes.card}
+                                key={row.address}
                                 secondaryAction={
                                     <>
                                         {openAddress !== row.address && (
-                                            <ExpandCircleDown sx={{ cursor: 'pointer' }} onClick={() => editToken(row)}></ExpandCircleDown>
+                                            <ExpandCircleDown sx={{ cursor: 'pointer' }} onClick={() => expandToken(row)}></ExpandCircleDown>
 
                                         )}
                                         {openAddress === row.address && (
-                                            <ExpandCircleDown sx={{ cursor: 'pointer', transform: 'rotate(180deg)' }} onClick={() => handleClose()}></ExpandCircleDown>
+                                            <ExpandCircleDown sx={{ cursor: 'pointer', transform: 'rotate(180deg)' }} onClick={() => handleCollapse()}></ExpandCircleDown>
 
                                         )
                                         }
@@ -164,23 +232,68 @@ export default function AdaptiveLimitations() {
                                             >
                                                 {row?.aggregator?.decimals || 18} decimals {" — "} {row?.aggregator?.aggregator}
                                             </Typography>
+                                            {
+                                                openAddress === row.address && (
+                                                    <TableContainer sx={{ borderRadius: 'inherit' }}>
+                                                        <Table aria-label="simple table" >
+                                                            <TableHead className={classes.tableHead}>
+                                                                <TableRow className={classes.theadRow}>
+                                                                    <TableCell align="center">Utilization</TableCell>
+                                                                    <TableCell align="center">Withdraw</TableCell>
+                                                                    <TableCell align="center">Borrow</TableCell>
+                                                                    <TableCell align="center">Replenish</TableCell>
+                                                                    <TableCell align="center">Redeem</TableCell>
+                                                                    <TableCell align="right" width="20px">
+                                                                        <AddCircle onClick={() => addAdaptiveLimit(row)} sx={{ width: "20px", cursor: "pointer" }}></AddCircle>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            </TableHead>
+                                                            <TableBody>
+                                                                {tableRows?.map((trow, index) => (
 
+
+
+                                                                    <>
+                                                                        {trow.IsApplicable && (
+                                                                            <TableRow className={classes.tableRow} key={row?.token?.address} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                                onClick={() => editAdaptiveLimit(row, trow, index)}
+                                                                            >
+                                                                                <TableCell className={classes.tableCell} align="center">{trow.operator} {trow.Utilization} %</TableCell>
+                                                                                <TableCell className={classes.tableCell} align="center">{trow.Withdraw} {row.symbol}</TableCell>
+                                                                                <TableCell className={classes.tableCell} align="center">{trow.Borrow} {row.symbol}</TableCell>
+                                                                                <TableCell className={classes.tableCell} align="center">
+                                                                                    <Checkbox
+                                                                                        checked={trow.Replenish}
+                                                                                        disabled
+                                                                                    />
+
+                                                                                </TableCell>
+                                                                                <TableCell className={classes.tableCell} align="center">
+                                                                                    <Checkbox
+                                                                                        checked={trow.Redeem}
+                                                                                        disabled
+                                                                                    />
+                                                                                </TableCell>
+
+                                                                            </TableRow>
+
+                                                                        )}
+                                                                    </>
+
+
+                                                                ))}
+                                                            </TableBody>
+                                                        </Table>
+                                                    </TableContainer>
+                                                )
+                                            }
                                         </React.Fragment>
                                     }
+
                                 />
-                                {
-                                openAddress === row.address && (
-                                    <DataGrid
-                                        rows={tableRows}
-                                        columns={columns}
-                                        pageSize={5}
-                                        rowsPerPageOptions={[5]}
-                                        checkboxSelection
-                                    />
-                                )
-                            }
+
                             </ListItem>
-                            
+
                         </>
 
                     )
