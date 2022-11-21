@@ -3,9 +3,12 @@ import { AppBar, Avatar, Button, Card, CardContent, CardHeader, Grid, Typography
 import { makeStyles } from '@mui/styles';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
+import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { Icons } from '../../icons';
 import { routes } from '../../routes';
 import theme from '../../theme';
+import CreateProposal from './createProposal';
 
 const useStyles = makeStyles({
   listSection: {
@@ -33,16 +36,16 @@ const useStyles = makeStyles({
     zIndex: 100,
     textDecoration: 'none  !important', color: 'inherit  !important',
     "&:hover": {
+      background: theme.hoverBackground,
+      "& $card": {
         background: theme.hoverBackground,
-        "& $card": {
-            background: theme.hoverBackground,
-            "& $cardContent": {
-                background: theme.hoverBackground
-            }
-        },
+        "& $cardContent": {
+          background: theme.hoverBackground
+        }
+      },
 
     }
-},
+  },
 
   cardContent: theme.cardContent,
   walletConnect: theme.walletConnect,
@@ -52,18 +55,52 @@ const useStyles = makeStyles({
 function Governance() {
   const [rows, setRows] = React.useState([])
   const classes = useStyles();
+
+  const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
+  const getGovernanceProposals = async () => {
+    setRows([])
+    const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
+    const allUsers = await governanceContract.getAllUserAddresses(
+    );
+    const tRows = []
+    if (allUsers && allUsers.length) {
+      allUsers.forEach(async (adl) => {
+        const Proposals = await governanceContract.getProposal(
+          adl
+        );
+        console.log(Proposals)
+      });
+    }
+    setRows(tRows)
+  }
   const setDataRows = () => {
     const r = []
     for (var i = 0; i < 5; i++) {
-      r.push({id:77})
+      r.push({ id: 77 })
     }
     setRows(r)
   }
   React.useEffect(() => {
-    setDataRows()
-  }, [])
+    if (provider) {
+      getGovernanceProposals()
+
+    }
+  }, [signer, provider])
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+
   return (
     < >
+      {open && (<CreateProposal open={open} setOpen={setOpen} handleClickOpen={handleClickOpen} handleClose={handleClose}></CreateProposal>)}
+
       <Grid container direction="row" justifyContent="center" alignItems="flex-center"
         spacing={2} style={{ width: '100%', textAlign: 'left' }}>
 
@@ -72,7 +109,9 @@ function Governance() {
             <Typography sx={{ fontSize: '18px', fontWeight: 600, color: 'white', textAlign: 'left' }} variant="p" >
               Proposals
             </Typography>
-            <Typography sx={{ fontSize: 14, fontWeight: 600, color: theme.lightText, paddingBottom: '10px' }} variant="p" >
+            <Typography sx={{ fontSize: 14, fontWeight: 600, color: theme.lightText, paddingBottom: '10px',cursor:'pointer' }} variant="p" 
+            onClick={()=>handleClickOpen()}
+            >
               + create proposal
             </Typography>
           </div>
@@ -93,38 +132,38 @@ function Governance() {
             return (
               <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + row.id }} >
 
-              <Card className={classes.card} >
-                <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
+                <Card className={classes.card} >
+                  <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
 
-                  <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', margin: 0 }}>
+                    <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', margin: 0 }}>
 
-                    <Grid item xs={10} sm={10} md={10} style={{ borderRight: '0.5px solid ' + theme.borderColor, padding: 20 }} >
+                      <Grid item xs={10} sm={10} md={10} style={{ borderRight: '0.5px solid ' + theme.borderColor, padding: 20 }} >
 
-                      <Typography sx={{ fontSize: 12, fontWeight: 500, paddingBottom: '28px' }} variant="h4" >
-                        <span className={classes.chip}>
-                          #77
-                        </span>
-                        <Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
-                          Not voted
+                        <Typography sx={{ fontSize: 12, fontWeight: 500, paddingBottom: '28px' }} variant="h4" >
+                          <span className={classes.chip}>
+                            #77
+                          </span>
+                          <Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
+                            Not voted
+                          </Typography>
                         </Typography>
-                      </Typography>
-                      <Typography sx={{ fontSize: '18px', width: '100%', color: 'white', textAlign: 'left' }} variant="h3" >
-                        VIP-77 Upgrade comptroller and set supply
-                      </Typography>
+                        <Typography sx={{ fontSize: '18px', width: '100%', color: 'white', textAlign: 'left' }} variant="h3" >
+                          VIP-77 Upgrade comptroller and set supply
+                        </Typography>
+                      </Grid>
+
+                      <Grid item xs={2} sm={2} md={2} sx={{ margin: 'auto', textAlign: 'center' }} >
+                        <div className='d-flexSpaceAround'>
+                          <CheckCircle htmlColor={theme.greenColor} color="white" fontSize='large'></CheckCircle>
+                        </div>
+                        <Typography sx={{ fontSize: '14px', width: '100%', color: 'white' }} variant="h3" >
+                          Executed</Typography>
+                      </Grid>
+
                     </Grid>
 
-                    <Grid item xs={2} sm={2} md={2} sx={{ margin: 'auto', textAlign: 'center' }} >
-                      <div className='d-flexSpaceAround'>
-                        <CheckCircle htmlColor={theme.greenColor} color="white" fontSize='large'></CheckCircle>
-                      </div>
-                      <Typography sx={{ fontSize: '14px', width: '100%', color: 'white' }} variant="h3" >
-                        Executed</Typography>
-                    </Grid>
-
-                  </Grid>
-
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
               </NavLink>
             )
           }
@@ -141,7 +180,7 @@ function Governance() {
               <Typography sx={{ fontSize: 14, fontWeight: 600, paddingBottom: '40px', color: theme.lightText }} variant="p" >
                 Voting Weight
               </Typography>
-              <div style={{ display: 'flex', alignItems: 'center' ,paddingBottom: '20px', }}>
+              <div style={{ display: 'flex', alignItems: 'center', paddingBottom: '20px', }}>
                 <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
                   {0.0}
                 </span>
@@ -149,7 +188,7 @@ function Governance() {
               <Typography sx={{ fontSize: 14, fontWeight: 600, paddingBottom: '40px', color: theme.lightText }} variant="p" >
                 Total Locked
               </Typography>
-              <div style={{ display: 'flex', alignItems: 'center',paddingBottom: '20px', }}>
+              <div style={{ display: 'flex', alignItems: 'center', paddingBottom: '20px', }}>
                 <Avatar sx={{ cursor: 'pointer' }} aria-label="Recipe" className={classes.avatar}>
                   <img className={classes.avatar} alt=""
                     src={Icons.ethereum} />
@@ -160,7 +199,7 @@ function Governance() {
               <AppBar key="rightbar"
                 position="relative"
                 className={classes.rightDrawerHeader}
-                sx={{ height:  'auto', boxShadow: 'none !important' } }
+                sx={{ height: 'auto', boxShadow: 'none !important' }}
 
                 color="transparent"
 
