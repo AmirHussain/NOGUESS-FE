@@ -9,7 +9,7 @@ import { Icons } from '../../icons';
 import { routes } from '../../routes';
 import theme from '../../theme';
 import CreateProposal from './createProposal';
-import { bigToDecimal } from "../../utils/utils"
+import { bigToDecimal, bigToDecimalUints, decimalToBigUints } from "../../utils/utils"
 
 const useStyles = makeStyles({
   listSection: {
@@ -56,50 +56,60 @@ const useStyles = makeStyles({
 function Governance() {
   const [open, setOpen] = React.useState(false);
   const [rows, setRows] = React.useState([])
+
+  const [loading, setLoading] = React.useState(false)
   const classes = useStyles();
   const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
   React.useEffect(() => {
-    if (provider) {
+    if (provider && !loading) {
+
       getGovernanceProposals()
 
     }
-  }, [signer, provider])
+  }, [provider])
+  function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+  }
 
   const getGovernanceProposals = async () => {
-    // setRows([])
+    setLoading(true)
+    let trows = []
     const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
-    const allUsers = await governanceContract.getAllUserAddresses();
-   let trows=[]
-   let useradded=0
+    const users = await governanceContract.getAllUserAddresses();
+
+    let useradded = 0
+    const allUsers = users.filter(onlyUnique);
+    console.log(allUsers.length, allUsers);
     if (allUsers && allUsers.length) {
       allUsers.forEach(async (adl) => {
         const Proposals = await governanceContract.getProposal(adl);
-        console.log(Proposals.length,'proposal length');
+        console.log(Proposals.length, 'proposal length');
         if (Proposals.length) {
           let obj = {}
           for (let i = 0; i < Proposals.length; i++) {
-            obj['id'] = Proposals[i].id
+            obj['id'] = Number(Proposals[i].id)
             obj['status'] = Proposals[i].status
             obj['title'] = Proposals[i].title
             obj['description'] = Proposals[i].description
             obj['userAddress'] = Proposals[i].userAddress
 
             trows.push(obj);
-           
+            console.log(obj)
           }
         }
         useradded++
-       });
-       let interval = setInterval(() => {
+      });
+      let interval = setInterval(() => {
         if (useradded === allUsers.length) {
           setRows(trows)
+          setLoading(false)
           clearInterval(interval);
         }
       })
     }
 
-   
+
   }
   const setDataRows = () => {
     const r = []
@@ -143,50 +153,51 @@ function Governance() {
       </Grid>
       <Grid container direction="row" justifyContent="center" alignItems="flex-center"
         spacing={2} style={{ width: '100%', textAlign: 'left' }}>
-         <Grid item xs={8} sm={8} md={8}  >
+        <Grid item xs={8} sm={8} md={8}  >
           {rows.map((r) => (
-       
-         
-              <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + "row.id" }} >
-                <Card className={classes.card} >
-                  <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
-                    <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', margin: 0 }}>
-                      <Grid item xs={10} sm={10} md={10} style={{ borderRight: '0.5px solid ' + theme.borderColor, padding: 20 }} >
-                        <Typography sx={{ fontSize: 12, fontWeight: 500, paddingBottom: '28px' }} variant="h4" >
-                          <span className={classes.chip}>
-                            #77
-                          </span>
-                          <Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
-                            Not voted
-                          </Typography>
-                        </Typography>
-                        <Typography sx={{ fontSize: '18px', width: '100%', color: 'white', textAlign: 'left' }} variant="h3" >
-                          {r.title}
-                        </Typography>
-                      </Grid>
 
-                      <Grid item xs={2} sm={2} md={2} sx={{ margin: 'auto', textAlign: 'center' }} >
-                        <div className='d-flexSpaceAround'>
-                          <CheckCircle htmlColor={theme.greenColor} color="white" fontSize='large'></CheckCircle>
-                        </div>
-                        <Typography sx={{ fontSize: '14px', width: '100%', color: 'white' }} variant="h3" >
-                          Executed</Typography>
-                      </Grid>
 
+            <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + "row.id" }} >
+              <Card className={classes.card} >
+                <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
+                  <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', margin: 0 }}>
+                    <Grid item xs={10} sm={10} md={10} style={{ borderRight: '0.5px solid ' + theme.borderColor, padding: 20 }} >
+                      <Typography sx={{ fontSize: 12, fontWeight: 500, paddingBottom: '28px' }} variant="h4" >
+                        <span className={classes.chip}>
+                          #{r.id}
+                        </span>
+                        <Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
+                          {r.status === 'created' ? 'Not voted' : ''}
+                        </Typography>
+                      </Typography>
+                      <Typography sx={{ fontSize: '18px', width: '100%', color: 'white', textAlign: 'left' }} variant="h3" >
+                        {r.title}
+                      </Typography>
                     </Grid>
 
-                  </CardContent>
-                </Card>
-              </NavLink>
-             
-              ))}
-{/* 
+                    <Grid item xs={2} sm={2} md={2} sx={{ margin: 'auto', textAlign: 'center' }} >
+                      <div className='d-flexSpaceAround'>
+                        
+                        <CheckCircle htmlColor={theme.greenColor} color="white" fontSize='large'></CheckCircle>
+                      </div>
+                      <Typography sx={{ fontSize: '14px', width: '100%', color: 'white' }} variant="h3" >
+                        {r.status}</Typography>
+                    </Grid>
+
+                  </Grid>
+
+                </CardContent>
+              </Card>
+            </NavLink>
+
+          ))}
+          {/* 
               {rows.map((r)=><Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
                             Not voted
                           </Typography>)} */}
-           
 
-           </Grid>
+
+        </Grid>
         <Grid item xs={4} sm={4} md={4} >
           <Card className={classes.card} >
 
