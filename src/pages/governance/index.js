@@ -9,7 +9,7 @@ import { Icons } from '../../icons';
 import { routes } from '../../routes';
 import theme from '../../theme';
 import CreateProposal from './createProposal';
-import {bigToDecimal} from "../../utils/utils"
+import { bigToDecimal } from "../../utils/utils"
 
 const useStyles = makeStyles({
   listSection: {
@@ -70,31 +70,36 @@ function Governance() {
     // setRows([])
     const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
     const allUsers = await governanceContract.getAllUserAddresses();
-    const tRows = []
+   let trows=[]
+   let useradded=0
     if (allUsers && allUsers.length) {
       allUsers.forEach(async (adl) => {
         const Proposals = await governanceContract.getProposal(adl);
-        if (Proposals.length){
-          let obj={}
+        console.log(Proposals.length,'proposal length');
+        if (Proposals.length) {
+          let obj = {}
           for (let i = 0; i < Proposals.length; i++) {
             obj['id'] = Proposals[i].id
             obj['status'] = Proposals[i].status
             obj['title'] = Proposals[i].title
             obj['description'] = Proposals[i].description
             obj['userAddress'] = Proposals[i].userAddress
-            tRows.push(obj);
-            obj={};
+
+            trows.push(obj);
+           
           }
         }
-        console.log("=> tRows ",tRows)
-        
-      }); 
-      if(tRows.length){
-        setRows(tRows)
-      } 
-      console.log("=> rows ",rows)
+        useradded++
+       });
+       let interval = setInterval(() => {
+        if (useradded === allUsers.length) {
+          setRows(trows)
+          clearInterval(interval);
+        }
+      })
     }
 
+   
   }
   const setDataRows = () => {
     const r = []
@@ -122,8 +127,8 @@ function Governance() {
             <Typography sx={{ fontSize: '18px', fontWeight: 600, color: 'white', textAlign: 'left' }} variant="p" >
               Proposals
             </Typography>
-            <Typography sx={{ fontSize: 14, fontWeight: 600, color: theme.lightText, paddingBottom: '10px',cursor:'pointer' }} variant="p" 
-            onClick={()=>handleClickOpen()}
+            <Typography sx={{ fontSize: 14, fontWeight: 600, color: theme.lightText, paddingBottom: '10px', cursor: 'pointer' }} variant="p"
+              onClick={() => handleClickOpen()}
             >
               + create proposal
             </Typography>
@@ -138,8 +143,9 @@ function Governance() {
       </Grid>
       <Grid container direction="row" justifyContent="center" alignItems="flex-center"
         spacing={2} style={{ width: '100%', textAlign: 'left' }}>
-
-        <Grid item xs={8} sm={8} md={8}  >
+         <Grid item xs={8} sm={8} md={8}  >
+          {rows.map((r) => (
+       
          
               <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + "row.id" }} >
                 <Card className={classes.card} >
@@ -155,7 +161,7 @@ function Governance() {
                           </Typography>
                         </Typography>
                         <Typography sx={{ fontSize: '18px', width: '100%', color: 'white', textAlign: 'left' }} variant="h3" >
-                          VIP-77 Upgrade comptroller and set supply
+                          {r.title}
                         </Typography>
                       </Grid>
 
@@ -172,13 +178,15 @@ function Governance() {
                   </CardContent>
                 </Card>
               </NavLink>
-
+             
+              ))}
+{/* 
               {rows.map((r)=><Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
                             Not voted
-                          </Typography>)}
+                          </Typography>)} */}
            
 
-        </Grid>
+           </Grid>
         <Grid item xs={4} sm={4} md={4} >
           <Card className={classes.card} >
 
