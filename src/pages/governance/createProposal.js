@@ -14,11 +14,10 @@ import { FluteAlertContext } from '../../Components/Alert';
 export default function CreateProposal(params) {
 
     const { setAlert, setAlertToggle } = React.useContext(FluteAlertContext);
-
-
     const [updatedRow, setUpdatedRow] = React.useState({})
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
+    
     const addOrUpdateProposal = async () => {
         const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
 

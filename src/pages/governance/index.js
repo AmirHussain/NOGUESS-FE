@@ -9,6 +9,7 @@ import { Icons } from '../../icons';
 import { routes } from '../../routes';
 import theme from '../../theme';
 import CreateProposal from './createProposal';
+import {bigToDecimal} from "../../utils/utils"
 
 const useStyles = makeStyles({
   listSection: {
@@ -53,25 +54,47 @@ const useStyles = makeStyles({
 });
 
 function Governance() {
+  const [open, setOpen] = React.useState(false);
   const [rows, setRows] = React.useState([])
   const classes = useStyles();
-
   const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
+
+  React.useEffect(() => {
+    if (provider) {
+      getGovernanceProposals()
+
+    }
+  }, [signer, provider])
+
   const getGovernanceProposals = async () => {
-    setRows([])
+    // setRows([])
     const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
-    const allUsers = await governanceContract.getAllUserAddresses(
-    );
+    const allUsers = await governanceContract.getAllUserAddresses();
     const tRows = []
     if (allUsers && allUsers.length) {
       allUsers.forEach(async (adl) => {
-        const Proposals = await governanceContract.getProposal(
-          adl
-        );
-        console.log(Proposals)
-      });
+        const Proposals = await governanceContract.getProposal(adl);
+        if (Proposals.length){
+          let obj={}
+          for (let i = 0; i < Proposals.length; i++) {
+            obj['id'] = Proposals[i].id
+            obj['status'] = Proposals[i].status
+            obj['title'] = Proposals[i].title
+            obj['description'] = Proposals[i].description
+            obj['userAddress'] = Proposals[i].userAddress
+            tRows.push(obj);
+            obj={};
+          }
+        }
+        console.log("=> tRows ",tRows)
+        
+      }); 
+      if(tRows.length){
+        setRows(tRows)
+      } 
+      console.log("=> rows ",rows)
     }
-    setRows(tRows)
+
   }
   const setDataRows = () => {
     const r = []
@@ -80,22 +103,12 @@ function Governance() {
     }
     setRows(r)
   }
-  React.useEffect(() => {
-    if (provider) {
-      getGovernanceProposals()
-
-    }
-  }, [signer, provider])
-  const [open, setOpen] = React.useState(false);
-
   const handleClickOpen = () => {
     setOpen(true);
   };
-
   const handleClose = () => {
     setOpen(false);
   };
-
 
   return (
     < >
@@ -127,18 +140,12 @@ function Governance() {
         spacing={2} style={{ width: '100%', textAlign: 'left' }}>
 
         <Grid item xs={8} sm={8} md={8}  >
-          {rows.map(row => {
-
-            return (
-              <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + row.id }} >
-
+         
+              <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + "row.id" }} >
                 <Card className={classes.card} >
                   <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
-
                     <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', margin: 0 }}>
-
                       <Grid item xs={10} sm={10} md={10} style={{ borderRight: '0.5px solid ' + theme.borderColor, padding: 20 }} >
-
                         <Typography sx={{ fontSize: 12, fontWeight: 500, paddingBottom: '28px' }} variant="h4" >
                           <span className={classes.chip}>
                             #77
@@ -165,12 +172,11 @@ function Governance() {
                   </CardContent>
                 </Card>
               </NavLink>
-            )
-          }
 
-          )
-
-          }
+              {rows.map((r)=><Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
+                            Not voted
+                          </Typography>)}
+           
 
         </Grid>
         <Grid item xs={4} sm={4} md={4} >
