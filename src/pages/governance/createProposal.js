@@ -6,10 +6,12 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Grid } from '@mui/material';
+import { FormControl, Grid, InputLabel } from '@mui/material';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { FluteAlertContext } from '../../Components/Alert';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export default function CreateProposal(params) {
 
@@ -17,7 +19,7 @@ export default function CreateProposal(params) {
     const [updatedRow, setUpdatedRow] = React.useState({})
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
-    
+
     const addOrUpdateProposal = async () => {
         const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
 
@@ -82,7 +84,7 @@ export default function CreateProposal(params) {
 
                     <Grid container direction="row" spacing={2} >
                         <Grid item xs={8} sm={8} md={8} >
-                            <TextField
+                            {/* <TextField
                                 InputLabelProps={{
                                     shrink: true,
                                 }}
@@ -96,6 +98,14 @@ export default function CreateProposal(params) {
                                 variant="standard"
 
 
+                            /> */}
+     
+     <p style={{fontSize:'12px'}}>
+        Description
+     </p>
+                            <ReactQuill theme="snow" value={updatedRow?._description}
+                            style={{minWidth:'40vw'}}
+                                onChange={(e) => handleValueChange(e, '_description')}
                             />
                         </Grid>
 

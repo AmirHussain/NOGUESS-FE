@@ -1,4 +1,4 @@
-import { CheckCircle, LibraryAddCheck, Cancel } from '@mui/icons-material';
+import { AddCircleOutline, AddTask, CheckCircle, HowToVote, LibraryAddCheck, Queue } from '@mui/icons-material';
 import { AppBar, Avatar, Button, Card, CardContent, CardHeader, Grid, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React from 'react';
@@ -9,7 +9,8 @@ import { Icons } from '../../icons';
 import { routes } from '../../routes';
 import theme from '../../theme';
 import CreateProposal from './createProposal';
-import { bigToDecimal } from "../../utils/utils"
+import { bigToDecimal, bigToDecimalUints, decimalToBigUints } from "../../utils/utils"
+import { ProposalStatus } from '../../utils/common';
 
 const useStyles = makeStyles({
   listSection: {
@@ -56,50 +57,98 @@ const useStyles = makeStyles({
 function Governance() {
   const [open, setOpen] = React.useState(false);
   const [rows, setRows] = React.useState([])
+
+  const [loading, setLoading] = React.useState(false)
   const classes = useStyles();
   const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
   React.useEffect(() => {
-    if (provider) {
-      getGovernanceProposals()
+    if (provider && !loading) {
+      setLoading(true)
+      setTimeout(() => {
+        getGovernanceProposals()
+
+      }, 100);
 
     }
-  }, [signer, provider])
+  }, [provider])
+  function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+  }
 
+  // const setUserProposals = (governanceContract) => {
+  //   return new Promise((resolve, reject) => {
+
+  //     const rows = []
+  //     if (Tokens && Tokens.length) {
+  //       let rowadded = 0
+  //       Tokens.forEach(element => {
+  //         if (!element.isPedgeToken) {
+  //           getSupplyDetailsFromContract(element).then((resp) => {
+  //             const row = createSupplyData(element, 0, 0, 6.0, 'Button')
+  //             row.supplyAmount = resp.amount
+  //             row.borrowAmount = resp.borrowAmount
+  //             row.supplyAPY = resp.supplyAPY
+  //             row.borrowAPY = resp.borrowAPY
+  //             rows.push(row);
+  //             rowadded++;
+  //             console.log(SupplyRows)
+  //           })
+  //         }
+  //       });
+  //       let interval = setInterval(() => {
+  //         if (rowadded === Tokens.length) {
+  //           resolve(rows);
+  //           clearInterval(interval);
+  //         }
+  //       })
+  //     }
+
+  //   })
+  // }
   const getGovernanceProposals = async () => {
-    // setRows([])
-    const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
-    const allUsers = await governanceContract.getAllUserAddresses();
-   let trows=[]
-   let useradded=0
-    if (allUsers && allUsers.length) {
-      allUsers.forEach(async (adl) => {
-        const Proposals = await governanceContract.getProposal(adl);
-        console.log(Proposals.length,'proposal length');
-        if (Proposals.length) {
-          let obj = {}
-          for (let i = 0; i < Proposals.length; i++) {
-            obj['id'] = parseInt(Proposals[i].id)
-            obj['status'] = Proposals[i].status
-            obj['title'] = Proposals[i].title
-            obj['description'] = Proposals[i].description
-            obj['userAddress'] = Proposals[i].userAddress
 
-            trows.push(obj);
-           
+    let trows = []
+    setRows([]);
+    console.log("called")
+    let useradded = 0;
+    const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
+    const users = await governanceContract.getAllUserAddresses();
+    const allUsers = users.filter(onlyUnique);
+    console.log(allUsers.length, allUsers);
+    if (allUsers && allUsers.length) {
+      allUsers.forEach(async (user) => {
+        governanceContract.getProposal(user).then(res => {
+          const Proposals = Object.assign([], res)
+
+          console.log(user, Proposals)
+          if (Proposals.length) {
+
+
+            Proposals.forEach(proposal => {
+              const obj = {}
+              obj['id'] = Number(proposal.id)
+              obj['status'] = proposal.status
+              obj['title'] = proposal.title
+              obj['description'] = proposal.description
+              obj['userAddress'] = proposal.userAddress
+              trows.push(obj)
+            })
+
           }
-        }
-        useradded++
-       });
-       let interval = setInterval(() => {
+          useradded++
+        });
+      });
+      let interval = setInterval(() => {
         if (useradded === allUsers.length) {
           setRows(trows)
+          setLoading(false)
           clearInterval(interval);
         }
-      })
+      },1000)
     }
 
-   
+
   }
   const setDataRows = () => {
     const r = []
@@ -115,6 +164,31 @@ function Governance() {
     setOpen(false);
   };
 
+  const getVoteDetails =  (row) => {
+    // const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
+    // const users = await governanceContract.weightageMap(decimalToBigUints( row.id.toString(), 0));
+   
+    return <HowToVote htmlColor={'white'} color="white" fontSize='large'></HowToVote>;
+  }
+
+  const renderStatus = (row) => {
+    switch (row.status) {
+      case ProposalStatus.created:
+        return <AddCircleOutline htmlColor={'white'} color="white" fontSize='large'></AddCircleOutline>;
+      case ProposalStatus.active:
+        return  getVoteDetails(row);
+      case ProposalStatus.success:
+        return <AddTask htmlColor={theme.greenColor} color="white" fontSize='large'></AddTask>;
+      case ProposalStatus.rejected:
+        return <CheckCircle htmlColor={'red'} color="white" fontSize='large'></CheckCircle>;
+      case ProposalStatus.queued:
+        return <Queue htmlColor={theme.greenColor} color="white" fontSize='large'></Queue>;
+      case ProposalStatus.executed:
+        return <CheckCircle htmlColor={theme.greenColor} color="white" fontSize='large'></CheckCircle>;
+      default:
+        return '';
+    }
+  }
   return (
     < >
       {open && (<CreateProposal open={open} setOpen={setOpen} handleClickOpen={handleClickOpen} handleClose={handleClose}></CreateProposal>)}
@@ -143,50 +217,46 @@ function Governance() {
       </Grid>
       <Grid container direction="row" justifyContent="center" alignItems="flex-center"
         spacing={2} style={{ width: '100%', textAlign: 'left' }}>
-         <Grid item xs={8} sm={8} md={8}  >
-          {rows?.map((r) => (
-       
-         
-              <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + r.id+'/' +r.userAddress }} >
-                <Card className={classes.card} >
-                  <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
-                    <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', margin: 0 }}>
-                      <Grid item xs={10} sm={10} md={10} style={{ borderRight: '0.5px solid ' + theme.borderColor, padding: 20 }} >
-                        <Typography sx={{ fontSize: 12, fontWeight: 500, paddingBottom: '28px' }} variant="h4" >
-                          <span className={classes.chip}>
-                           {r.id}
-                          </span>
-                          <Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
-                            Not voted
-                          </Typography>
-                        </Typography>
-                        <Typography sx={{ fontSize: '18px', width: '100%', color: 'white', textAlign: 'left' }} variant="h3" >
-                          {r.title}
-                        </Typography>
-                      </Grid>
+        <Grid item xs={8} sm={8} md={8}  >
+          {rows.map((r) => (
 
-                      <Grid item xs={2} sm={2} md={2} sx={{ margin: 'auto', textAlign: 'center' }} >
-                        <div className='d-flexSpaceAround'>
-                          {r.status==='active' && <CheckCircle htmlColor={theme.greenColor} color="white" fontSize='large'/>}
-                          
-                          {r.status==='created' && <Cancel  htmlColor={""} color="white" fontSize='large' />}
-                        </div>
-                        <Typography sx={{ fontSize: '14px', width: '100%', color: 'white',marginTop:'5px' }} variant="h3" >
-                          {r?.status.toUpperCase()}
-                        </Typography>
-                      </Grid>
 
+            <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + r.id }} >
+              <Card className={classes.card} >
+                <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
+                  <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', margin: 0 }}>
+                    <Grid item xs={10} sm={10} md={10} style={{ borderRight: '0.5px solid ' + theme.borderColor, padding: 20 }} >
+                      <Typography sx={{ fontSize: 12, fontWeight: 500, paddingBottom: '28px' }} variant="h4" >
+                        <span className={classes.chip}>
+                          #{r.id}
+                        </span>
+                        <Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
+                          {r.status === 'created' ? 'Not voted' : ''}
+                        </Typography>
+                      </Typography>
+                      <Typography sx={{ fontSize: '18px', width: '100%', color: 'white', textAlign: 'left' }} variant="h3" >
+                        {r.title}
+                      </Typography>
                     </Grid>
 
-                  </CardContent>
-                </Card>
-              </NavLink>
-             
-              ))}
+                    <Grid item xs={2} sm={2} md={2} sx={{ margin: 'auto', textAlign: 'center' }} >
+                      <div className='d-flexSpaceAround'>
+                        {renderStatus(r)}
+                      </div>
+                      <Typography sx={{ fontSize: '14px', width: '100%', color: 'white' }} variant="h3" >
+                        {r.status}
+                      </Typography>
+                    </Grid>
 
-           
+                  </Grid>
 
-           </Grid>
+                </CardContent>
+              </Card>
+            </NavLink>
+
+          ))}
+
+        </Grid>
         <Grid item xs={4} sm={4} md={4} >
           <Card className={classes.card} >
 
