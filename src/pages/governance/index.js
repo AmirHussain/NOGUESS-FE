@@ -63,8 +63,11 @@ function Governance() {
 
   React.useEffect(() => {
     if (provider && !loading) {
-
-      getGovernanceProposals()
+      setLoading(true)
+      setTimeout(() => {
+        getGovernanceProposals()
+        
+      }, 100);
 
     }
   }, [provider])
@@ -73,7 +76,7 @@ function Governance() {
   }
 
   const getGovernanceProposals = async () => {
-    setLoading(true)
+  
     let trows = []
     const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
     const users = await governanceContract.getAllUserAddresses();
@@ -84,7 +87,7 @@ function Governance() {
     if (allUsers && allUsers.length) {
       allUsers.forEach(async (adl) => {
         const Proposals = await governanceContract.getProposal(adl);
-        console.log(Proposals.length, 'proposal length');
+        console.log(Proposals.length, Proposals);
         if (Proposals.length) {
           let obj = {}
           for (let i = 0; i < Proposals.length; i++) {
@@ -157,7 +160,7 @@ function Governance() {
           {rows.map((r) => (
 
 
-            <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + "row.id" }} >
+            <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + r.id }} >
               <Card className={classes.card} >
                 <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
                   <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', margin: 0 }}>

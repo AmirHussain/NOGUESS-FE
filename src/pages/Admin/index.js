@@ -10,6 +10,7 @@ import AdminTokens from './tokens';
 import AdminAggregators from './aggregators';
 import AdminBorrowLimitations from './borrowLimitations';
 import AdaptiveLimitations from './adptiveLimitations';
+import AdminGovernance from './governance';
 
 const useStyles = makeStyles({
     tabs: {
@@ -88,7 +89,7 @@ export default function Admin() {
                 </TabPanel>
                 <TabPanel className={classes.tabPanel} sx={{ width: { md: 'calc(100% - 166px)', xs: 'calc(100% - 166px)' } }} value="5">
 
-                    <h1>Jello</h1>
+                 <AdminGovernance/>
                 </TabPanel>
             </TabContext>
         </Box>
