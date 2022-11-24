@@ -1,4 +1,4 @@
-import { CheckCircle, LibraryAddCheck } from '@mui/icons-material';
+import { AddCircleOutline, AddTask, CheckCircle, HowToVote, LibraryAddCheck, Queue } from '@mui/icons-material';
 import { AppBar, Avatar, Button, Card, CardContent, CardHeader, Grid, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React from 'react';
@@ -10,6 +10,7 @@ import { routes } from '../../routes';
 import theme from '../../theme';
 import CreateProposal from './createProposal';
 import { bigToDecimal, bigToDecimalUints, decimalToBigUints } from "../../utils/utils"
+import { ProposalStatus } from '../../utils/common';
 
 const useStyles = makeStyles({
   listSection: {
@@ -66,7 +67,7 @@ function Governance() {
       setLoading(true)
       setTimeout(() => {
         getGovernanceProposals()
-        
+
       }, 100);
 
     }
@@ -75,33 +76,68 @@ function Governance() {
     return self.indexOf(value) === index;
   }
 
+  // const setUserProposals = (governanceContract) => {
+  //   return new Promise((resolve, reject) => {
+
+  //     const rows = []
+  //     if (Tokens && Tokens.length) {
+  //       let rowadded = 0
+  //       Tokens.forEach(element => {
+  //         if (!element.isPedgeToken) {
+  //           getSupplyDetailsFromContract(element).then((resp) => {
+  //             const row = createSupplyData(element, 0, 0, 6.0, 'Button')
+  //             row.supplyAmount = resp.amount
+  //             row.borrowAmount = resp.borrowAmount
+  //             row.supplyAPY = resp.supplyAPY
+  //             row.borrowAPY = resp.borrowAPY
+  //             rows.push(row);
+  //             rowadded++;
+  //             console.log(SupplyRows)
+  //           })
+  //         }
+  //       });
+  //       let interval = setInterval(() => {
+  //         if (rowadded === Tokens.length) {
+  //           resolve(rows);
+  //           clearInterval(interval);
+  //         }
+  //       })
+  //     }
+
+  //   })
+  // }
   const getGovernanceProposals = async () => {
-  
+
     let trows = []
+    setRows([]);
+    console.log("called")
+    let useradded = 0;
     const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
     const users = await governanceContract.getAllUserAddresses();
-
-    let useradded = 0
     const allUsers = users.filter(onlyUnique);
     console.log(allUsers.length, allUsers);
     if (allUsers && allUsers.length) {
-      allUsers.forEach(async (adl) => {
-        const Proposals = await governanceContract.getProposal(adl);
-        console.log(Proposals.length, Proposals);
-        if (Proposals.length) {
-          let obj = {}
-          for (let i = 0; i < Proposals.length; i++) {
-            obj['id'] = Number(Proposals[i].id)
-            obj['status'] = Proposals[i].status
-            obj['title'] = Proposals[i].title
-            obj['description'] = Proposals[i].description
-            obj['userAddress'] = Proposals[i].userAddress
+      allUsers.forEach(async (user) => {
+        governanceContract.getProposal(user).then(res => {
+          const Proposals = Object.assign([], res)
 
-            trows.push(obj);
-            console.log(obj)
+          console.log(user, Proposals)
+          if (Proposals.length) {
+
+
+            Proposals.forEach(proposal => {
+              const obj = {}
+              obj['id'] = Number(proposal.id)
+              obj['status'] = proposal.status
+              obj['title'] = proposal.title
+              obj['description'] = proposal.description
+              obj['userAddress'] = proposal.userAddress
+              trows.push(obj)
+            })
+
           }
-        }
-        useradded++
+          useradded++
+        });
       });
       let interval = setInterval(() => {
         if (useradded === allUsers.length) {
@@ -109,7 +145,7 @@ function Governance() {
           setLoading(false)
           clearInterval(interval);
         }
-      })
+      },1000)
     }
 
 
@@ -128,6 +164,31 @@ function Governance() {
     setOpen(false);
   };
 
+  const getVoteDetails =  (row) => {
+    // const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
+    // const users = await governanceContract.weightageMap(decimalToBigUints( row.id.toString(), 0));
+   
+    return <HowToVote htmlColor={'white'} color="white" fontSize='large'></HowToVote>;
+  }
+
+  const renderStatus = (row) => {
+    switch (row.status) {
+      case ProposalStatus.created:
+        return <AddCircleOutline htmlColor={'white'} color="white" fontSize='large'></AddCircleOutline>;
+      case ProposalStatus.active:
+        return  getVoteDetails(row);
+      case ProposalStatus.success:
+        return <AddTask htmlColor={theme.greenColor} color="white" fontSize='large'></AddTask>;
+      case ProposalStatus.rejected:
+        return <CheckCircle htmlColor={'red'} color="white" fontSize='large'></CheckCircle>;
+      case ProposalStatus.queued:
+        return <Queue htmlColor={theme.greenColor} color="white" fontSize='large'></Queue>;
+      case ProposalStatus.executed:
+        return <CheckCircle htmlColor={theme.greenColor} color="white" fontSize='large'></CheckCircle>;
+      default:
+        return '';
+    }
+  }
   return (
     < >
       {open && (<CreateProposal open={open} setOpen={setOpen} handleClickOpen={handleClickOpen} handleClose={handleClose}></CreateProposal>)}
@@ -180,11 +241,11 @@ function Governance() {
 
                     <Grid item xs={2} sm={2} md={2} sx={{ margin: 'auto', textAlign: 'center' }} >
                       <div className='d-flexSpaceAround'>
-                        
-                        <CheckCircle htmlColor={theme.greenColor} color="white" fontSize='large'></CheckCircle>
+                        {renderStatus(r)}
                       </div>
                       <Typography sx={{ fontSize: '14px', width: '100%', color: 'white' }} variant="h3" >
-                        {r.status}</Typography>
+                        {r.status}
+                      </Typography>
                     </Grid>
 
                   </Grid>
@@ -194,11 +255,6 @@ function Governance() {
             </NavLink>
 
           ))}
-          {/* 
-              {rows.map((r)=><Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
-                            Not voted
-                          </Typography>)} */}
-
 
         </Grid>
         <Grid item xs={4} sm={4} md={4} >

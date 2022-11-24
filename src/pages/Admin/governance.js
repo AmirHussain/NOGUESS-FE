@@ -15,6 +15,9 @@ import AddUpdateAggregator from './addUpdateAggregator';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { Button } from '@mui/material';
+import { FluteAlertContext } from '../../Components/Alert';
+import { ProposalStatus } from '../../utils/common';
+import { decimalToBig, decimalToBigUints } from '../../utils/utils';
 const useStyles = makeStyles({
     tabs: {
         "& .MuiButtonBase-root": {
@@ -51,6 +54,7 @@ const useStyles = makeStyles({
 });
 export default function AdminGovernance() {
     const { Tokens, TokenAggregators } = React.useContext(TokenContext);
+    const { setAlert, setAlertToggle } = React.useContext(FluteAlertContext);
     const [rows, setRows] = React.useState([]);
     const [newRow, setNewRow] = React.useState(true);
     const [currentRow, setCurrentRow] = React.useState([]);
@@ -69,8 +73,33 @@ export default function AdminGovernance() {
         setOpen(true);
     }
 
-    const editToken = (row) => {
-       
+    const updateProposalStatus = async (row) => {
+        const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
+
+        if (!provider || !signer) {
+            return
+        }
+        setAlert({ severity: 'info', title: 'Create Proposal', description: 'Proposal addition in progress' }
+        );
+        try {
+            if (row.status === ProposalStatus.active) {
+                // markVoteCompleted
+            }
+            const response = await governanceContract.updateProposalStatus(
+                getRowNextStatus(row.status),
+                row.userAddress,
+                decimalToBigUints(row.id.toString(), 0),
+                { gasLimit: 1000000 }
+            )
+            await response.wait(1)
+            if (response) {
+                window.location.reload();
+            }
+        } catch (err) {
+            setAlert({ severity: 'error', title: 'Proposal', description: err.message });
+
+        } finally { }
+
     }
 
     const [loading, setLoading] = React.useState(false)
@@ -80,6 +109,12 @@ export default function AdminGovernance() {
         return self.indexOf(value) === index;
     }
 
+    const getRowNextStatus = (status) => {
+        return status === ProposalStatus.created ? ProposalStatus.active
+            : (status === ProposalStatus.active ? ProposalStatus.complete
+                : (status === ProposalStatus.success ? status === ProposalStatus.queued
+                    : (status === ProposalStatus.queued ? status === ProposalStatus.executed : '')))
+    }
     const getGovernanceProposals = async () => {
 
         let trows = []
@@ -94,8 +129,9 @@ export default function AdminGovernance() {
                 const Proposals = await governanceContract.getProposal(adl);
                 console.log(Proposals.length, Proposals);
                 if (Proposals.length) {
-                    let obj = {}
+                   
                     for (let i = 0; i < Proposals.length; i++) {
+                        let obj = {}
                         obj['id'] = Number(Proposals[i].id)
                         obj['status'] = Proposals[i].status
                         obj['title'] = Proposals[i].title
@@ -147,12 +183,12 @@ export default function AdminGovernance() {
                                             disabled
                                             sx={{ color: 'lightgrey !important' }}
                                         > {row.status}</Button>
-                                        {(row.status == "created" || row.status == "active" || row.status == "queued" || row.status == "executed") && (
+                                        {(row.status !== ProposalStatus.executed && row.status !== ProposalStatus.rejected) && (
                                             <Button variant="contained"
-                                                onClick={() => editToken(row)}
+                                                onClick={() => updateProposalStatus(row)}
 
                                                 sx={{ color: 'lightgrey !important' }}
-                                            > Mark as {row.status == "created" ? 'Active' : (row.status == "active" ? 'complete' : (row.status == "queued" ? 'Executed' : ''))}
+                                            > Mark as {getRowNextStatus(row.status)}
 
                                             </Button>
 
