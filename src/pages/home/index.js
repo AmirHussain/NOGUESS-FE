@@ -75,7 +75,7 @@ export default function Home() {
                             <Route path="/lending" exact component={Lending}></Route>
                             <Route path="/admin" exact component={Admin}></Route>
                             <Route path="/asset/:address" component={Asset} />
-                            <Route path="/proposal/:address" component={Proposal} />
+                            <Route path="/proposal/:id/:address" component={Proposal} />
                             <Route path="**" exact component={Lending}></Route>
                         </Switch>
                     </Container>

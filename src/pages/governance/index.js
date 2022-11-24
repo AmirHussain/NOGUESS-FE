@@ -1,4 +1,4 @@
-import { CheckCircle, LibraryAddCheck } from '@mui/icons-material';
+import { CheckCircle, LibraryAddCheck, Cancel } from '@mui/icons-material';
 import { AppBar, Avatar, Button, Card, CardContent, CardHeader, Grid, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React from 'react';
@@ -79,7 +79,7 @@ function Governance() {
         if (Proposals.length) {
           let obj = {}
           for (let i = 0; i < Proposals.length; i++) {
-            obj['id'] = Proposals[i].id
+            obj['id'] = parseInt(Proposals[i].id)
             obj['status'] = Proposals[i].status
             obj['title'] = Proposals[i].title
             obj['description'] = Proposals[i].description
@@ -144,17 +144,17 @@ function Governance() {
       <Grid container direction="row" justifyContent="center" alignItems="flex-center"
         spacing={2} style={{ width: '100%', textAlign: 'left' }}>
          <Grid item xs={8} sm={8} md={8}  >
-          {rows.map((r) => (
+          {rows?.map((r) => (
        
          
-              <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + "row.id" }} >
+              <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + r.id+'/' +r.userAddress }} >
                 <Card className={classes.card} >
                   <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
                     <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', margin: 0 }}>
                       <Grid item xs={10} sm={10} md={10} style={{ borderRight: '0.5px solid ' + theme.borderColor, padding: 20 }} >
                         <Typography sx={{ fontSize: 12, fontWeight: 500, paddingBottom: '28px' }} variant="h4" >
                           <span className={classes.chip}>
-                            #77
+                           {r.id}
                           </span>
                           <Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
                             Not voted
@@ -167,10 +167,13 @@ function Governance() {
 
                       <Grid item xs={2} sm={2} md={2} sx={{ margin: 'auto', textAlign: 'center' }} >
                         <div className='d-flexSpaceAround'>
-                          <CheckCircle htmlColor={theme.greenColor} color="white" fontSize='large'></CheckCircle>
+                          {r.status==='active' && <CheckCircle htmlColor={theme.greenColor} color="white" fontSize='large'/>}
+                          
+                          {r.status==='created' && <Cancel  htmlColor={""} color="white" fontSize='large' />}
                         </div>
-                        <Typography sx={{ fontSize: '14px', width: '100%', color: 'white' }} variant="h3" >
-                          Executed</Typography>
+                        <Typography sx={{ fontSize: '14px', width: '100%', color: 'white',marginTop:'5px' }} variant="h3" >
+                          {r?.status.toUpperCase()}
+                        </Typography>
                       </Grid>
 
                     </Grid>
@@ -180,10 +183,7 @@ function Governance() {
               </NavLink>
              
               ))}
-{/* 
-              {rows.map((r)=><Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
-                            Not voted
-                          </Typography>)} */}
+
            
 
            </Grid>

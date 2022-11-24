@@ -3,6 +3,12 @@ import { Grid, Box, Card, CardContent, Typography, Stepper, Step, StepLabel, Ste
 import { makeStyles } from '@mui/styles'
 import theme from '../../theme';
 import { CheckCircle } from '@mui/icons-material';
+import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
+import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
+
+
+
+
 
 
 
@@ -109,10 +115,14 @@ export default function Proposal(params) {
         `
     }
     const [ProposalAddress, setProposalAddress] = React.useState(params?.match?.params.address || '');
+    const [data, setData] = React.useState({id:'',title:'',address:'',status:'',description:''});
     const classes = useStyles();
-
-    const [currentRow, setCurrentRow] = React.useState();
     const [activeStep, setActiveStep] = React.useState(2);
+    const { provider, signer } = React.useContext(Web3ProviderContext);
+
+    
+
+
     const forVotes = [
         { address: '0xc4...2391', vote: '938.29K' },
         { address: '0xc4...2391', vote: '938.29K' },
@@ -155,10 +165,30 @@ export default function Proposal(params) {
         },
     ];
     React.useEffect(() => {
+        console.log("=>",params?.match?.params?.id)
+        console.log("=>",params?.match?.params?.address);
+        getData(params?.match?.params?.address,params?.match?.params?.id);
         if (params?.match?.params.address) {
             setProposalAddress(params?.match?.params.address)
+            // setData({...data, id:params?.match?.params?.id})
         }
     }, [params?.match?.params.address])
+
+    const getData = async (_address,_id)=>{
+        
+        const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
+        let proposals = await governanceContract.getProposal(_address);
+        proposals = proposals.map((p)=>{ return {...p} })
+        proposals = proposals.filter((p)=> parseInt(p.id)===parseInt(_id));
+        setData({...data,
+            description:proposals[0].description,
+            title:proposals[0].title,
+            address:proposals[0].userAddress,
+            status:proposals[0].status,
+            id:_id,
+        })
+    }
+
     return (
         <React.Fragment key="RIGHT1">
 
@@ -198,14 +228,14 @@ export default function Proposal(params) {
 
                                         <Typography sx={{ fontSize: 12, fontWeight: 500, paddingBottom: '28px' }} variant="h4" >
                                             <span className={classes.chip}>
-                                                #77
+                                               {data?.id}
                                             </span>
                                             <Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
                                                 Not voted
                                             </Typography>
                                         </Typography>
                                         <Typography sx={{ fontSize: '20px', width: '100%', color: 'white', fontWeight: 600, textAlign: 'left' }} variant="h3" >
-                                            VIP-77 Upgrade comptroller and set supply
+                                           {data?.title}
                                         </Typography>
                                     </Grid>
 
@@ -237,7 +267,7 @@ export default function Proposal(params) {
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid item md={12} xs={12} container direction="row" justifyContent="start" alignItems="flex-start"
+                    {data.status==='active' &&<Grid item md={12} xs={12} container direction="row" justifyContent="start" alignItems="flex-start"
                         spacing={2} style={{ width: '100%' }}
                     >
 
@@ -445,8 +475,8 @@ export default function Proposal(params) {
                             </Card>
                         </Grid>
 
-                    </Grid>
-                    {/* <Grid div md={2} xs={0}></Grid> */}
+                    </Grid> }
+                    
 
                 </Grid>
                 <Grid container direction="row" justifyContent="start" alignItems="flex-start"
