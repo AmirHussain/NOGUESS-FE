@@ -221,7 +221,7 @@ function Governance() {
           {rows.map((r) => (
 
 
-            <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + r.id }} >
+            <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + r.id+'/'+r.userAddress }} >
               <Card className={classes.card} >
                 <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
                   <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', margin: 0 }}>

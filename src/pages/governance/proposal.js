@@ -165,8 +165,7 @@ export default function Proposal(params) {
         },
     ];
     React.useEffect(() => {
-        console.log("=>",params?.match?.params?.id)
-        console.log("=>",params?.match?.params?.address);
+
         getData(params?.match?.params?.address,params?.match?.params?.id);
         if (params?.match?.params.address) {
             setProposalAddress(params?.match?.params.address)
@@ -178,15 +177,18 @@ export default function Proposal(params) {
         
         const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
         let proposals = await governanceContract.getProposal(_address);
-        proposals = proposals.map((p)=>{ return {...p} })
-        proposals = proposals.filter((p)=> parseInt(p.id)===parseInt(_id));
-        setData({...data,
-            description:proposals[0].description,
-            title:proposals[0].title,
-            address:proposals[0].userAddress,
-            status:proposals[0].status,
-            id:_id,
-        })
+        proposals = proposals?.map((p)=>{ return {...p} })
+        proposals = proposals?.filter((p)=> parseInt(p.id)===parseInt(_id));
+        if(proposals){
+            setData({...data,
+                description:proposals[0].description,
+                title:proposals[0].title,
+                address:proposals[0].userAddress,
+                status:proposals[0].status,
+                id:_id,
+            })
+        }
+        
     }
 
     return (
