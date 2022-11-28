@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export const getAPY = (apr, seconds) => {
   if (apr) {
     if (!seconds) {
@@ -18,10 +20,18 @@ export const getStorage = (title) => {
 }
 export const ProposalStatus = {
   created: 'created',
-  active: 'active',  
+  active: 'active',
   complete: 'complete',
   success: 'succeeded',
   rejected: 'rejected',
   queued: 'queued',
   executed: 'executed'
+}
+
+export const formatDate = (date) => {
+  if (Number(date) > 0) {
+    return moment(new Date(Number(date) * 1000)).format('MMMM Do YYYY, h:mm:ss a')
+
+  }
+  return ''
 }

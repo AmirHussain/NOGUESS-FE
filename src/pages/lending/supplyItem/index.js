@@ -11,6 +11,7 @@ import { TokenContext } from '../../../tokenFactory';
 import { bigToDecimal, decimalToBig } from '../../../utils/utils';
 import moment from 'moment/moment';
 import { FluteAlertContext } from '../../../Components/Alert';
+import { formatDate } from '../../../utils/common';
 require('dotenv').config();
 
 const useStyles = makeStyles({
@@ -96,9 +97,7 @@ export default function SupplyItem(params) {
         var b = moment(startDay);
         return a.diff(b) / 3600
     }
-    const formatDate = (date) => {
-        return moment(new Date(Number(date) * 1000)).format('MMMM Do YYYY, h:mm:ss a')
-    }
+  
     React.useEffect(() => {
         getSupplyDetailsFromContract()
     }, [])
