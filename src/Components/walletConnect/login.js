@@ -6,6 +6,7 @@ import { makeStyles } from '@mui/styles';
 import theme from '../../theme';
 import { Web3ProviderContext } from "./walletConnect";
 import { Networks } from "./providers";
+import { start_and_end } from "../../utils/common";
 
 const useStyles = makeStyles({
     walletConnect: theme.actionButton,
@@ -46,12 +47,7 @@ function ConnectWallet() {
         setAnchorEl(null);
     };
 
-    function start_and_end(str) {
-        if (str && str.length > 35) {
-            return str.substr(0, 3) + '..' + str.substr(str.length - 2, str.length);
-        }
-        return str;
-    }
+   
 
 
     return (

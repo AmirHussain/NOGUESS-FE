@@ -35,3 +35,9 @@ export const formatDate = (date) => {
   }
   return ''
 }
+export const start_and_end=(str,startIndex=3,lastIndex=2)=> {
+  if (str && str.length > 35) {
+      return str.substr(0, startIndex) + '..' + str.substr(str.length - lastIndex, str.length);
+  }
+  return str;
+}

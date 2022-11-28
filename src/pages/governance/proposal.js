@@ -5,8 +5,8 @@ import theme from '../../theme';
 import { CheckCircle } from '@mui/icons-material';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
-import { bigToDecimalUints, decimalToBig, decimalToBigUints } from '../../utils/utils';
-import { formatDate } from '../../utils/common';
+import { bigToDecimal, bigToDecimalUints, decimalToBig, decimalToBigUints } from '../../utils/utils';
+import { formatDate, ProposalStatus, start_and_end } from '../../utils/common';
 import { FluteAlertContext } from '../../Components/Alert';
 
 
@@ -97,28 +97,35 @@ export default function Proposal(params) {
     const [data, setData] = React.useState({ id: '', title: '', address: '', status: '', description: '' });
     const classes = useStyles();
     const [activeStep, setActiveStep] = React.useState(0);
-    const { provider, signer } = React.useContext(Web3ProviderContext);
+    const { provider, signer, account } = React.useContext(Web3ProviderContext);
     const { setAlert, setAlertToggle } = React.useContext(FluteAlertContext);
 
 
-    const forVotes = [
-        { address: '0xc4...2391', vote: '938.29K' },
-        { address: '0xc4...2391', vote: '938.29K' },
-        { address: '0xc4...2391', vote: '938.29K' },
-        { address: '0xc4...2391', vote: '938.29K' },
-        { address: '0xc4...2391', vote: '938.29K' },
-        { address: '0xc4...2391', vote: '938.29K' },
-        { address: '0xc4...2391', vote: '938.29K' },
-        { address: '0xc4...2391', vote: '938.29K' },
-        { address: '0xc4...2391', vote: '938.29K' },
-        { address: '0xc4...2391', vote: '938.29K' },
-        { address: '0xc4...2391', vote: '938.29K' },
-        { address: '0xc4...2391', vote: '938.29K' },
-        { address: '0xc4...2391', vote: '938.29K' },
-        { address: '0xc4...2391', vote: '938.29K' },
-    ]
-    const againstVotes = []
-    const abstainVotes = []
+    const [forVotes, setForVotes] = React.useState([])
+    const [voteCount, setVoteCount] = React.useState({})
+    const [totalVote, setTotalVote] = React.useState({})
+    const [againstVotes, setAgainstVotes] = React.useState([])
+    const [abstainVotes, setAbstainVotes] = React.useState([])
+
+    const [enableVote, setEnableVote] = React.useState(false)
+
+
+    React.useEffect(() => {
+        if (account && data?.status === "active") {
+            const disable =
+                (forVotes.find(vote => vote.userAddress.toLowerCase() === account.toLowerCase())
+                    ||
+                    againstVotes.find(vote => vote.userAddress.toLowerCase() === account.toLowerCase())
+                    ||
+                    abstainVotes.find(vote => vote.userAddress.toLowerCase() === account.toLowerCase())
+                )
+                ;
+            setEnableVote(!disable);
+
+        } else {
+            setEnableVote(false)
+        }
+    }, [data, account, forVotes, againstVotes, abstainVotes])
     const [history, setHistory] = React.useState([]);
     React.useEffect(() => {
 
@@ -128,6 +135,7 @@ export default function Proposal(params) {
             // setData({...data, id:params?.match?.params?.id})
         }
         getProposalHistory(decimalToBigUints(params?.match?.params?.id, 0))
+        getWeightageMap(decimalToBigUints(params?.match?.params?.id, 0))
     }, [params?.match?.params.address]);
 
     const getData = async (_address, _id) => {
@@ -145,6 +153,50 @@ export default function Proposal(params) {
                 id: _id,
             })
         }
+    }
+
+
+
+    const getWeightageMap = async (_id) => {
+        const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
+        let weightageMap = await governanceContract.getWeightageMap(decimalToBigUints(params?.match?.params?.id, 0));
+        console.log(weightageMap)
+        const forVotesWeight = []
+        const againstVotesWeight = []
+        const abstainVotesWeight = []
+        let total = 0
+        const voteCountPerCat = { for: 0, against: 0, abstain: 0 }
+        weightageMap.forEach(wei => {
+            if (wei.statusAction === "for") {
+                forVotesWeight.push({
+                    userAddress: wei.userAddress,
+                    address: start_and_end(wei.userAddress, 5, 5), vote: bigToDecimal(wei.weightage)
+                })
+                voteCountPerCat.for += Number(bigToDecimal(wei.weightage));
+            } else if (wei.statusAction === "against") {
+                againstVotesWeight.push({
+                    userAddress: wei.userAddress,
+                    address: start_and_end(wei.userAddress, 5, 5), vote: bigToDecimal(wei.weightage)
+                })
+                voteCountPerCat.against += Number(bigToDecimal(wei.weightage));
+            } else if (wei.statusAction === "abstain") {
+                abstainVotesWeight.push({
+                    userAddress: wei.userAddress,
+                    address: start_and_end(wei.userAddress, 5, 5), vote: bigToDecimal(wei.weightage)
+                })
+                voteCountPerCat.abstain += Number(bigToDecimal(wei.weightage));
+            }
+
+            total += Number(bigToDecimal(wei.weightage))
+        })
+        console.log(voteCountPerCat)
+
+        console.log(total)
+        setForVotes(forVotesWeight);
+        setAgainstVotes(againstVotesWeight);
+        setAbstainVotes(abstainVotesWeight);
+        setTotalVote(total);
+        setVoteCount(voteCountPerCat);
     }
 
     const getProposalHistory = async (_id) => {
@@ -248,10 +300,10 @@ export default function Proposal(params) {
 
                                         <Typography sx={{ fontSize: 12, fontWeight: 500, paddingBottom: '28px' }} variant="h4" >
                                             <span className={classes.chip}>
-                                                {data?.id}
+                                                # {data?.id}
                                             </span>
                                             <Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
-                                                Not voted
+                                                {data.status !== ProposalStatus.created ? "Not voted" : ''}
                                             </Typography>
                                         </Typography>
                                         <Typography sx={{ fontSize: '20px', width: '100%', color: 'white', fontWeight: 600, textAlign: 'left' }} variant="h3" >
@@ -287,7 +339,7 @@ export default function Proposal(params) {
                             </CardContent>
                         </Card>
                     </Grid>
-                    {data.status === 'active' && <Grid item md={12} xs={12} container direction="row" justifyContent="start" alignItems="flex-start"
+                    <Grid item md={12} xs={12} container direction="row" justifyContent="start" alignItems="flex-start"
                         spacing={2} style={{ width: '100%' }}
                     >
 
@@ -301,12 +353,12 @@ export default function Proposal(params) {
                                             For
                                         </Typography>
                                         <Typography sx={{ fontSize: 15, fontWeight: 600, marginBottom: '10px' }} variant="h2" >
-                                            50%
+                                            {voteCount?.for / totalVote * 100}%
                                         </Typography>
 
                                     </div>
                                     <div className={classes.LinearProgress}>
-                                        <LinearProgress variant="determinate" value={50} />
+                                        <LinearProgress variant="determinate" value={voteCount?.for / totalVote * 100} />
                                     </div>
 
                                     <AppBar key="rightbar"
@@ -317,7 +369,7 @@ export default function Proposal(params) {
                                         color="transparent"
 
                                     >
-                                        <Button onClick={() => voteNow("For")} disabled={data?.status == "active" ? null : ''} sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', color: data?.status == "active" ? 'white' : theme.lightText + ' ! important', fontWeight: '600' }} variant="contained" >
+                                        <Button onClick={() => voteNow("For")} disabled={!enableVote} sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', color: enableVote ? 'white' : theme.lightText + ' ! important', fontWeight: '600' }} variant="contained" >
                                             For</Button>
                                     </AppBar>
 
@@ -369,12 +421,12 @@ export default function Proposal(params) {
                                             Against
                                         </Typography>
                                         <Typography sx={{ fontSize: 15, fontWeight: 600, marginBottom: '10px' }} variant="h2" >
-                                            0%
+                                            {voteCount?.against / totalVote * 100}%
                                         </Typography>
 
                                     </div>
                                     <div className={classes.LinearProgress}>
-                                        <LinearProgress variant="determinate" value={0} />
+                                        <LinearProgress variant="determinate" value={voteCount?.against / totalVote} />
                                     </div>
 
                                     <AppBar key="rightbar"
@@ -385,7 +437,7 @@ export default function Proposal(params) {
                                         color="transparent"
 
                                     >
-                                        <Button onClick={() => voteNow("Against")} disabled={data?.status == "active" ? null : ''} sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', color: data?.status == "active" ? 'white' : theme.lightText + ' ! important', fontWeight: '600' }} variant="contained" >
+                                        <Button onClick={() => voteNow("Against")} disabled={!enableVote} sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', color: enableVote ? 'white' : theme.lightText + ' ! important', fontWeight: '600' }} variant="contained" >
                                             Against</Button>
                                     </AppBar>
 
@@ -436,12 +488,12 @@ export default function Proposal(params) {
                                             Abstain
                                         </Typography>
                                         <Typography sx={{ fontSize: 15, fontWeight: 600, marginBottom: '10px' }} variant="h2" >
-                                            0%
+                                            {voteCount?.abstain / totalVote * 100}%
                                         </Typography>
 
                                     </div>
                                     <div className={classes.LinearProgress}>
-                                        <LinearProgress variant="determinate" value={0} />
+                                        <LinearProgress variant="determinate" value={voteCount?.abstain / totalVote} />
                                     </div>
 
                                     <AppBar key="rightbar"
@@ -452,7 +504,7 @@ export default function Proposal(params) {
                                         color="transparent"
 
                                     >
-                                        <Button onClick={() => voteNow("Abstain")} disabled={data?.status == "active" ? null : ''} sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', color: data?.status == "active" ? 'white' : theme.lightText + ' ! important', fontWeight: '600' }} variant="contained" >
+                                        <Button onClick={() => voteNow("Abstain")} disabled={!enableVote} sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', color: enableVote ? 'white' : theme.lightText + ' ! important', fontWeight: '600' }} variant="contained" >
                                             Abstain</Button>
                                     </AppBar>
 
@@ -495,7 +547,7 @@ export default function Proposal(params) {
                             </Card>
                         </Grid>
 
-                    </Grid>}
+                    </Grid>
 
 
                 </Grid>

@@ -17,7 +17,7 @@ import { abis, contractAddresses, makeContract } from '../../contracts/useContra
 import { Button } from '@mui/material';
 import { FluteAlertContext } from '../../Components/Alert';
 import { ProposalStatus } from '../../utils/common';
-import { decimalToBig, decimalToBigUints } from '../../utils/utils';
+import { bigToDecimal, decimalToBig, decimalToBigUints } from '../../utils/utils';
 const useStyles = makeStyles({
     tabs: {
         "& .MuiButtonBase-root": {
@@ -73,6 +73,24 @@ export default function AdminGovernance() {
         setOpen(true);
     }
 
+    const getVoteStatus = async (_id) => {
+        const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
+        let weightageMap = await governanceContract.getWeightageMap(decimalToBigUints(_id, 0));
+
+        const voteCountPerCat = { for: 0, against: 0 }
+        weightageMap.forEach(wei => {
+            if (wei.statusAction === "for") {
+
+                voteCountPerCat.for += Number(bigToDecimal(wei.weightage));
+            } else if (wei.statusAction === "against") {
+
+                voteCountPerCat.against += Number(bigToDecimal(wei.weightage));
+            }
+        });
+        return voteCountPerCat.for > voteCountPerCat.against ? ProposalStatus.success : ProposalStatus.rejected
+
+    }
+
     const updateProposalStatus = async (row) => {
         const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
 
@@ -82,11 +100,12 @@ export default function AdminGovernance() {
         setAlert({ severity: 'info', title: 'Create Proposal', description: 'Proposal addition in progress' }
         );
         try {
-            if (row.status === ProposalStatus.active) {
-                // markVoteCompleted
+            let newStatus= getRowNextStatus(row.status)
+            if (row.status === ProposalStatus.active||row.status === '') {
+                newStatus= await getVoteStatus(row.id)
             }
             const response = await governanceContract.updateProposalStatus(
-                getRowNextStatus(row.status),
+                newStatus,
                 row.userAddress,
                 decimalToBigUints(row.id.toString(), 0),
                 { gasLimit: 1000000 }
@@ -112,8 +131,8 @@ export default function AdminGovernance() {
     const getRowNextStatus = (status) => {
         return status === ProposalStatus.created ? ProposalStatus.active
             : (status === ProposalStatus.active ? ProposalStatus.complete
-                : (status === ProposalStatus.success ? status === ProposalStatus.queued
-                    : (status === ProposalStatus.queued ? status === ProposalStatus.executed : '')))
+                : (status === ProposalStatus.success ? ProposalStatus.queued
+                    : (status === ProposalStatus.queued ? ProposalStatus.executed : '')))
     }
     const getGovernanceProposals = async () => {
 
@@ -129,7 +148,7 @@ export default function AdminGovernance() {
                 const Proposals = await governanceContract.getProposal(adl);
                 console.log(Proposals.length, Proposals);
                 if (Proposals.length) {
-                   
+
                     for (let i = 0; i < Proposals.length; i++) {
                         let obj = {}
                         obj['id'] = Number(Proposals[i].id)
@@ -186,7 +205,6 @@ export default function AdminGovernance() {
                                         {(row.status !== ProposalStatus.executed && row.status !== ProposalStatus.rejected) && (
                                             <Button variant="contained"
                                                 onClick={() => updateProposalStatus(row)}
-
                                                 sx={{ color: 'lightgrey !important' }}
                                             > Mark as {getRowNextStatus(row.status)}
 
