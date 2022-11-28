@@ -494,7 +494,9 @@ export default function Proposal(params) {
                                     Description
                                 </h4>
 
-                                    <div dangerouslySetInnerHTML={{__html: proposal.description}}></div>
+                                {data?.description && (
+                                    <div dangerouslySetInnerHTML={{ __html: data?.description }}></div>
+                                )}
                                 <h4 style={{ color: theme.lightText, fontSize: '18px', paddingTop: '30px' }}>
                                     Voting options
                                 </h4>
