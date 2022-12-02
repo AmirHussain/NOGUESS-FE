@@ -8,6 +8,7 @@ import { Web3ProviderContext } from '../../Components/walletConnect/walletConnec
 import { bigToDecimal, bigToDecimalUints, decimalToBig, decimalToBigUints } from '../../utils/utils';
 import { formatDate, ProposalStatus, start_and_end } from '../../utils/common';
 import { FluteAlertContext } from '../../Components/Alert';
+import { getUserSuppliedAmount } from '../../utils/userDetails';
 
 
 
@@ -108,8 +109,13 @@ export default function Proposal(params) {
     const [abstainVotes, setAbstainVotes] = React.useState([])
 
     const [enableVote, setEnableVote] = React.useState(false)
+    const checkUserSupplyAmountAndMinVotingWeight = async () => {
+        const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
 
-
+        const minWeight = await governanceContract.minimumVoteWeight();
+        const supplied = await getUserSuppliedAmount(signer, 'WETH')
+        setEnableVote(!(supplied < bigToDecimal(minWeight)))
+    }
     React.useEffect(() => {
         if (account && data?.status === "active") {
             const disable =
@@ -120,7 +126,8 @@ export default function Proposal(params) {
                     abstainVotes.find(vote => vote.userAddress.toLowerCase() === account.toLowerCase())
                 )
                 ;
-            setEnableVote(!disable);
+
+            disable ? setEnableVote(!disable) : checkUserSupplyAmountAndMinVotingWeight();
 
         } else {
             setEnableVote(false)
@@ -160,7 +167,7 @@ export default function Proposal(params) {
     const getWeightageMap = async (_id) => {
         const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
         let weightageMap = await governanceContract.getWeightageMap(decimalToBigUints(params?.match?.params?.id, 0));
-        console.log(weightageMap)
+        console.log('wieghtageMAp', weightageMap)
         const forVotesWeight = []
         const againstVotesWeight = []
         const abstainVotesWeight = []
@@ -353,12 +360,13 @@ export default function Proposal(params) {
                                             For
                                         </Typography>
                                         <Typography sx={{ fontSize: 15, fontWeight: 600, marginBottom: '10px' }} variant="h2" >
-                                            {voteCount?.for / totalVote * 100}%
+
+                                            {voteCount && voteCount?.for ? (voteCount?.for / totalVote * 100) : 0}%
                                         </Typography>
 
                                     </div>
                                     <div className={classes.LinearProgress}>
-                                        <LinearProgress variant="determinate" value={voteCount?.for / totalVote * 100} />
+                                        <LinearProgress variant="determinate" value={voteCount && voteCount.for ? (voteCount?.for / totalVote * 100) : 0} />
                                     </div>
 
                                     <AppBar key="rightbar"
@@ -421,12 +429,12 @@ export default function Proposal(params) {
                                             Against
                                         </Typography>
                                         <Typography sx={{ fontSize: 15, fontWeight: 600, marginBottom: '10px' }} variant="h2" >
-                                            {voteCount?.against / totalVote * 100}%
+                                            {voteCount && voteCount?.against ? (voteCount?.against / totalVote * 100) : 0}%
                                         </Typography>
 
                                     </div>
                                     <div className={classes.LinearProgress}>
-                                        <LinearProgress variant="determinate" value={voteCount?.against / totalVote} />
+                                        <LinearProgress variant="determinate" value={voteCount && voteCount.against ? (voteCount?.against / totalVote) : 0} />
                                     </div>
 
                                     <AppBar key="rightbar"
@@ -488,13 +496,14 @@ export default function Proposal(params) {
                                             Abstain
                                         </Typography>
                                         <Typography sx={{ fontSize: 15, fontWeight: 600, marginBottom: '10px' }} variant="h2" >
-                                            {voteCount?.abstain / totalVote * 100}%
+                                            {voteCount && voteCount?.abstain ? (voteCount?.abstain / totalVote * 100) : 0}%
                                         </Typography>
 
                                     </div>
                                     <div className={classes.LinearProgress}>
-                                        <LinearProgress variant="determinate" value={voteCount?.abstain / totalVote} />
+                                        <LinearProgress variant="determinate" value={voteCount && voteCount.abstain ? (voteCount?.abstain / totalVote * 100) : 0} />
                                     </div>
+
 
                                     <AppBar key="rightbar"
                                         position="relative"

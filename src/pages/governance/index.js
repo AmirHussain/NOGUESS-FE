@@ -1,5 +1,5 @@
 import { AddCircleOutline, AddTask, CheckCircle, HowToVote, LibraryAddCheck, Queue } from '@mui/icons-material';
-import { AppBar, Avatar, Button, Card, CardContent, CardHeader, Grid, Typography } from '@mui/material';
+import { AppBar, Avatar, Button, Card, CardContent, CardHeader, Grid, LinearProgress, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
@@ -11,6 +11,8 @@ import theme from '../../theme';
 import CreateProposal from './createProposal';
 import { bigToDecimal, bigToDecimalUints, decimalToBigUints } from "../../utils/utils"
 import { ProposalStatus } from '../../utils/common';
+import { getUserSuppliedAmount } from '../../utils/userDetails';
+import Proposal from './proposal';
 
 const useStyles = makeStyles({
   listSection: {
@@ -62,6 +64,22 @@ function Governance() {
   const classes = useStyles();
   const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
+  const [supplyAmount, setSupplyAmount] = React.useState(0);
+  const [votingWeightage, setVotingWeightage] = React.useState(0);
+
+  const fetchSupplyAmount = async () => {
+    if (signer) {
+      const supplied = await getUserSuppliedAmount(signer, 'WETH')
+      setSupplyAmount(supplied)
+    } else {
+      setSupplyAmount(0)
+    }
+  }
+  React.useEffect(() => {
+    fetchSupplyAmount();
+  }, [signer])
+
+
   React.useEffect(() => {
     if (provider && !loading) {
       setLoading(true)
@@ -106,6 +124,32 @@ function Governance() {
 
   //   })
   // }
+  const getWeightageMap = async (_id) => {
+    const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
+    let weightageMap = await governanceContract.getWeightageMap(decimalToBigUints(_id, 0));
+    console.log('wieghtageMAp', weightageMap)
+    let total = 0
+    const voteCountPerCat = {
+      for: 0,
+      forPercent: 0, against: 0, againstPercent: 0, abstain: 0, abstainPercent: 0,
+    }
+    weightageMap.forEach(wei => {
+      if (wei.statusAction === "for") {
+        voteCountPerCat.for += Number(bigToDecimal(wei.weightage));
+      } else if (wei.statusAction === "against") {
+        voteCountPerCat.against += Number(bigToDecimal(wei.weightage));
+      } else if (wei.statusAction === "abstain") {
+        voteCountPerCat.abstain += Number(bigToDecimal(wei.weightage));
+      }
+      total += Number(bigToDecimal(wei.weightage))
+    })
+    voteCountPerCat.forPercent = voteCountPerCat.for ? (voteCountPerCat.for / total * 100) : 0;
+    voteCountPerCat.againstPercent = voteCountPerCat.against ? (voteCountPerCat.against / total * 100) : 0;
+    voteCountPerCat.abstainPercent = voteCountPerCat.abstain ? (voteCountPerCat.abstain / total * 100) : 0;
+    return voteCountPerCat
+
+  }
+
   const getGovernanceProposals = async () => {
 
     let trows = []
@@ -114,38 +158,44 @@ function Governance() {
     let useradded = 0;
     const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
     const users = await governanceContract.getAllUserAddresses();
+    const minWeight = await governanceContract.minimumVoteWeight();
+    setVotingWeightage(bigToDecimal(minWeight))
     const allUsers = users.filter(onlyUnique);
     console.log(allUsers.length, allUsers);
     if (allUsers && allUsers.length) {
-      allUsers.forEach(async (user) => {
-        governanceContract.getProposal(user).then(res => {
-          const Proposals = Object.assign([], res)
-
-          console.log(user, Proposals)
-          if (Proposals.length) {
-
-
-            Proposals.forEach(proposal => {
-              const obj = {}
-              obj['id'] = Number(proposal.id)
-              obj['status'] = proposal.status
-              obj['title'] = proposal.title
-              obj['description'] = proposal.description
-              obj['userAddress'] = proposal.userAddress
-              trows.push(obj)
-            })
+      for (var ui = 0; ui < allUsers.length; ui++) {
+        const user = allUsers[ui]
+        const res = await governanceContract.getProposal(user)
+        const Proposals = Object.assign([], res)
+        console.log(user, Proposals)
+        if (Proposals.length) {
+          for (var j = 0; j < Proposals.length; j++) {
+            const proposal = Proposals[j]
+            const obj = {};
+            obj['id'] = Number(proposal.id);
+            obj['status'] = proposal.status;
+            obj['title'] = proposal.title;
+            obj['description'] = proposal.description;
+            obj['userAddress'] = proposal.userAddress;
+            if (obj['status'] === ProposalStatus.active) {
+              const weightage = await getWeightageMap(obj['id'].toString());
+              console.log('weightage', weightage)
+              obj['for'] = weightage.for;
+              obj['forPercent'] = weightage.forPercent;
+              obj['against'] = weightage.against;
+              obj['againstPercent'] = weightage.againstPercent;
+              obj['abstain'] = weightage.abstain;
+              obj['abstainPercent'] = weightage.abstainPercent;
+            }
+            trows.push(obj)
 
           }
-          useradded++
-        });
-      });
-      let interval = setInterval(() => {
-        if (useradded === allUsers.length) {
-          setRows(trows)
-          setLoading(false)
-          clearInterval(interval);
         }
-      },1000)
+
+      }
+      setRows(trows)
+      setLoading(false)
+
     }
 
 
@@ -164,11 +214,56 @@ function Governance() {
     setOpen(false);
   };
 
-  const getVoteDetails =  (row) => {
-    // const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
-    // const users = await governanceContract.weightageMap(decimalToBigUints( row.id.toString(), 0));
-   
-    return <HowToVote htmlColor={'white'} color="white" fontSize='large'></HowToVote>;
+  const getVoteDetails = (row) => {
+
+    return <div>
+      <div style={{marginBottom: '20px'}}>
+
+        <div className='d-flexSpaceBetween'>
+          <Typography sx={{ fontSize: 11, color: theme.lightText, marginBottom: '10px' }} variant="h2" >
+            For
+          </Typography>
+          <Typography sx={{ fontSize: 11, fontWeight: 600, marginBottom: '10px' }} variant="h2" >
+
+            {row.for || 0} FF
+          </Typography>
+
+        </div>
+        <div className={classes.LinearProgress}>
+          <LinearProgress variant="determinate" value={row.forPercent} />
+        </div>
+      </div>
+      <div style={{marginBottom: '20px'}}>
+        <div className='d-flexSpaceBetween'>
+          <Typography sx={{ fontSize: 11, color: theme.lightText, marginBottom: '10px' }} variant="h2" >
+            Against
+          </Typography>
+          <Typography sx={{ fontSize: 11, fontWeight: 600, marginBottom: '10px' }} variant="h2" >
+
+            {row.against || 0} FF
+          </Typography>
+
+        </div>
+        <div className={classes.LinearProgress}>
+          <LinearProgress variant="determinate" value={row.againstPercent} />
+        </div>
+
+      </div>
+      <div style={{marginBottom: '20px'}}>
+        <div className='d-flexSpaceBetween'>
+          <Typography sx={{ fontSize: 11, color: theme.lightText, marginBottom: '10px' }} variant="h2" >
+            Abstain
+          </Typography>
+          <Typography sx={{ fontSize: 11, fontWeight: 600, marginBottom: '10px' }} variant="h2" >
+
+            {row.abstain || 0} FF
+          </Typography>
+        </div>
+        <div className={classes.LinearProgress}>
+          <LinearProgress variant="determinate" value={row.abstainPercent} />
+        </div>
+      </div>
+    </div>;
   }
 
   const renderStatus = (row) => {
@@ -176,7 +271,7 @@ function Governance() {
       case ProposalStatus.created:
         return <AddCircleOutline htmlColor={'white'} color="white" fontSize='large'></AddCircleOutline>;
       case ProposalStatus.active:
-        return  getVoteDetails(row);
+        return getVoteDetails(row);
       case ProposalStatus.success:
         return <AddTask htmlColor={theme.greenColor} color="white" fontSize='large'></AddTask>;
       case ProposalStatus.rejected:
@@ -201,11 +296,9 @@ function Governance() {
             <Typography sx={{ fontSize: '18px', fontWeight: 600, color: 'white', textAlign: 'left' }} variant="p" >
               Proposals
             </Typography>
-            <Typography sx={{ fontSize: 14, fontWeight: 600, color: theme.lightText, paddingBottom: '10px', cursor: 'pointer' }} variant="p"
-              onClick={() => handleClickOpen()}
-            >
+            <Button sx={{ fontSize: 14, fontWeight: 600, color: theme.lightText, paddingBottom: '10px', cursor: 'pointer' }} onClick={() => handleClickOpen()} disabled={supplyAmount < votingWeightage}>
               + create proposal
-            </Typography>
+            </Button>
           </div>
 
         </Grid>
@@ -219,9 +312,7 @@ function Governance() {
         spacing={2} style={{ width: '100%', textAlign: 'left' }}>
         <Grid item xs={8} sm={8} md={8}  >
           {rows.map((r) => (
-
-
-            <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + r.id+'/'+r.userAddress }} >
+            <NavLink className={classes.link} to={{ pathname: routes.proposal + '/' + r.id + '/' + r.userAddress }} >
               <Card className={classes.card} >
                 <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
                   <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', margin: 0 }}>
@@ -231,7 +322,7 @@ function Governance() {
                           #{r.id}
                         </span>
                         <Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
-                          {r.status === 'created' ? 'Not voted' : ''}
+                          {r.status === ProposalStatus.created ? 'Not voted' : ''}
                         </Typography>
                       </Typography>
                       <Typography sx={{ fontSize: '18px', width: '100%', color: 'white', textAlign: 'left' }} variant="h3" >
@@ -244,7 +335,7 @@ function Governance() {
                         {renderStatus(r)}
                       </div>
                       <Typography sx={{ fontSize: '14px', width: '100%', color: 'white' }} variant="h3" >
-                        {r.status}
+                        {r.status === ProposalStatus.active?'':r.status }
                       </Typography>
                     </Grid>
 
@@ -266,7 +357,7 @@ function Governance() {
               </Typography>
               <div style={{ display: 'flex', alignItems: 'center', paddingBottom: '20px', }}>
                 <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
-                  {0.0}
+                  {votingWeightage || 0.0}
                 </span>
               </div>
               <Typography sx={{ fontSize: 14, fontWeight: 600, paddingBottom: '40px', color: theme.lightText }} variant="p" >
@@ -277,7 +368,7 @@ function Governance() {
                   <img className={classes.avatar} alt=""
                     src={Icons.ethereum} />
                 </Avatar>  <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
-                  {0.0}
+                  {supplyAmount || 0.0}
                 </span>
               </div>
               <AppBar key="rightbar"
@@ -288,8 +379,13 @@ function Governance() {
                 color="transparent"
 
               >
-                <Button sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', fontWeight: '600' }} variant="contained" >
-                  Supply FluteToken</Button>
+                {
+                  supplyAmount < votingWeightage && (
+                    <Button sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', fontWeight: '600' }} variant="contained" >
+                      Supply FluteToken</Button>
+
+                  )
+                }
               </AppBar>
             </CardContent>
           </Card>

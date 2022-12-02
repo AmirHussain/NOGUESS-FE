@@ -57,6 +57,7 @@ export default function AdminGovernance() {
     const { setAlert, setAlertToggle } = React.useContext(FluteAlertContext);
     const [rows, setRows] = React.useState([]);
     const [newRow, setNewRow] = React.useState(true);
+    
     const [currentRow, setCurrentRow] = React.useState([]);
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
