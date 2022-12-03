@@ -91,11 +91,11 @@ function Governance() {
   }, [signer])
   let interval;
   React.useEffect(() => {
-    
+
     setRemainingTime()
     return () => {
       // Anything in here is fired on component unmount.
-      if(interval){
+      if (interval) {
         clearInterval(interval)
       }
     };
@@ -151,7 +151,7 @@ function Governance() {
     console.log('wieghtageMAp', weightageMap)
     let total = 0
     const voteCountPerCat = {
-      userVoted:false,
+      userVoted: false,
       for: 0,
       forPercent: 0, against: 0, againstPercent: 0, abstain: 0, abstainPercent: 0,
     }
@@ -202,18 +202,15 @@ function Governance() {
             obj['description'] = proposal.description;
             obj['userAddress'] = proposal.userAddress;
             obj['activeUntil'] = proposal.activeUntil;
-            if (obj['status'] === ProposalStatus.active) {
-              const weightage = await getWeightageMap(obj['id'].toString());
-              console.log('weightage', weightage)
-              obj['for'] = weightage.for;
-              obj['forPercent'] = weightage.forPercent;
-              obj['against'] = weightage.against;
-              obj['againstPercent'] = weightage.againstPercent;
-              obj['abstain'] = weightage.abstain;
-              obj['abstainPercent'] = weightage.abstainPercent;
-              obj['userVoted'] = weightage.userVoted;
-              
-            }
+            const weightage = await getWeightageMap(obj['id'].toString());
+            console.log('weightage', weightage)
+            obj['for'] = weightage.for;
+            obj['forPercent'] = weightage.forPercent;
+            obj['against'] = weightage.against;
+            obj['againstPercent'] = weightage.againstPercent;
+            obj['abstain'] = weightage.abstain;
+            obj['abstainPercent'] = weightage.abstainPercent;
+            obj['userVoted'] = weightage.userVoted;
             trows.push(obj)
 
           }
@@ -232,7 +229,7 @@ function Governance() {
   const setRemainingTime = () => {
     const activeFind = rows.find(row => row.status === ProposalStatus.active)
     if (activeFind) {
-   interval=   setInterval(() => {
+      interval = setInterval(() => {
         var obj = {}
         for (let tr = 0; tr < rows.length; tr++) {
           if (!isNaN(new Date(rows[tr].activeUntil))) {

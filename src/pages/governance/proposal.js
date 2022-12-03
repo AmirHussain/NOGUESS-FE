@@ -489,7 +489,7 @@ export default function Proposal(params) {
 
                                     </div>
                                     <div className={classes.LinearProgress}>
-                                        <LinearProgress variant="determinate" value={voteCount && voteCount.against ? (voteCount?.against / totalVote) : 0} />
+                                        <LinearProgress variant="determinate" value={(voteCount && voteCount.against) ? ((voteCount?.against / totalVote)*100 ) : 0} />
                                     </div>
 
                                     <AppBar key="rightbar"

@@ -23,6 +23,7 @@ import theme from './../../theme';
 import Asset from '../../Components/asset';
 import Proposal from '../governance/proposal';
 import Admin from '../Admin';
+import ComingSoon from '../commingSoon';
 
 const drawerWidth = theme.drawerWidth;
 const useStyles = makeStyles({
@@ -68,8 +69,8 @@ export default function Home() {
 
                     <Container sx={{paddingRight:{xs:'0px !important',md:'16px !important'},paddingLeft:{xs:'0px !important',md:'16px !important'}}}>
                         <Switch>
-                            <Route path="/bridge" exact component={Bridge}></Route>
-                            <Route path="/staking" exact component={Staking}></Route>
+                            <Route path="/bridge" exact component={ComingSoon}></Route>
+                            <Route path="/staking" exact component={ComingSoon}></Route>
                             <Route path="/market" exact component={Market}></Route>
                             <Route path="/governance" exact component={Governance}></Route>
                             <Route path="/lending" exact component={Lending}></Route>
