@@ -9,6 +9,7 @@ import { bigToDecimal, bigToDecimalUints, decimalToBig, decimalToBigUints } from
 import { formatDate, ProposalStatus, start_and_end } from '../../utils/common';
 import { FluteAlertContext } from '../../Components/Alert';
 import { getUserSuppliedAmount } from '../../utils/userDetails';
+import moment from 'moment';
 
 
 
@@ -102,6 +103,7 @@ export default function Proposal(params) {
     const { setAlert, setAlertToggle } = React.useContext(FluteAlertContext);
 
 
+    const [userVoted, setUserVoted] = React.useState(false);
     const [forVotes, setForVotes] = React.useState([])
     const [voteCount, setVoteCount] = React.useState({})
     const [totalVote, setTotalVote] = React.useState({})
@@ -156,6 +158,7 @@ export default function Proposal(params) {
                 description: proposals[0].description,
                 title: proposals[0].title,
                 address: proposals[0].userAddress,
+                activeUntil: proposals[0].activeUntil,
                 status: proposals[0].status,
                 id: _id,
             })
@@ -173,7 +176,11 @@ export default function Proposal(params) {
         const abstainVotesWeight = []
         let total = 0
         const voteCountPerCat = { for: 0, against: 0, abstain: 0 }
+        let currentUserVoteFound = false;
         weightageMap.forEach(wei => {
+            if (account === wei.userAddress) {
+                currentUserVoteFound = true;
+            }
             if (wei.statusAction === "for") {
                 forVotesWeight.push({
                     userAddress: wei.userAddress,
@@ -196,6 +203,8 @@ export default function Proposal(params) {
 
             total += Number(bigToDecimal(wei.weightage))
         })
+
+        setUserVoted(currentUserVoteFound)
         console.log(voteCountPerCat)
 
         console.log(total)
@@ -252,14 +261,16 @@ export default function Proposal(params) {
         try {
             setAlert({ severity: 'info', title: 'Vote ' + item, description: 'Voting in progress' }
             );
+            let userSuppliedAmount=await getUserSuppliedAmount(signer, 'WETH')
+            userSuppliedAmount=userSuppliedAmount.toString();
             const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
             let result;
             if (item === "For") {
-                result = await governanceContract.voteFor(decimalToBigUints(params?.match?.params?.id, 0), decimalToBig("100"));
+                result = await governanceContract.voteFor(decimalToBigUints(params?.match?.params?.id, 0), decimalToBig(userSuppliedAmount));
             } else if (item === "Against") {
-                result = await governanceContract.voteAgainst(decimalToBigUints(params?.match?.params?.id, 0), decimalToBig("100"));
+                result = await governanceContract.voteAgainst(decimalToBigUints(params?.match?.params?.id, 0), decimalToBig(userSuppliedAmount));
             } else if (item === "Abstain") {
-                result = await governanceContract.voteAgainst(decimalToBigUints(params?.match?.params?.id, 0), decimalToBig("100"));
+                result = await governanceContract.voteAgainst(decimalToBigUints(params?.match?.params?.id, 0), decimalToBig(userSuppliedAmount));
             }
             await result.wait(1);
             window.location.reload();
@@ -267,7 +278,42 @@ export default function Proposal(params) {
             setAlert({ severity: 'error', title: 'Vote', description: err.message });
         }
     }
+   
+    const [rt, setRt] = React.useState('')
+    const setRemainingTime = () => {
+        const activeFind = data.status === ProposalStatus.active
+        if (activeFind) {
+            interval=     setInterval(() => {
+                if (!isNaN(new Date(data.activeUntil))) {
+                    var now = new Date().getTime();
+                    var timeleft = new Date(data.activeUntil) - now;
+                    var days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
+                    var hours = Math.floor((timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    var minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
+                    var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
+                    const reminaingTime = days + "d, " + hours + "h : " + minutes + "m : " + seconds + "s"
+                    setRt(reminaingTime)
+                }
 
+            }, 1000)
+
+        }
+    }
+    React.useEffect(() => {
+
+    }, [userVoted,rt])
+    
+    let interval;
+    React.useEffect(() => {
+      
+      setRemainingTime()
+      return () => {
+        // Anything in here is fired on component unmount.
+        if(interval){
+          clearInterval(interval)
+        }
+      };
+    },[data])
     return (
         <React.Fragment key="RIGHT1">
 
@@ -310,12 +356,21 @@ export default function Proposal(params) {
                                                 # {data?.id}
                                             </span>
                                             <Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
-                                                {data.status !== ProposalStatus.created ? "Not voted" : ''}
+                                                {!userVoted ? "Not voted" : ''}
                                             </Typography>
                                         </Typography>
                                         <Typography sx={{ fontSize: '20px', width: '100%', color: 'white', fontWeight: 600, textAlign: 'left' }} variant="h3" >
                                             {data?.title}
                                         </Typography>
+                                        {data.status === ProposalStatus.active && (<Typography sx={{
+                                            fontSize: '12px', width: '100%', textAlign: 'left', position: "relative",
+                                            bottom: "-150px"
+                                        }} variant="h5" >
+                                            Active Until <strong style={{ textTransform: 'uppercase' }}>: {moment(new Date(data.activeUntil)).format('DD MMM  YYYY, h:mm:ss A')}</strong>
+                                            <strong style={{ float: "right" ,
+                                            marginRight:'10px'}}>{rt}</strong>
+                                        </Typography>
+                                        )}
                                     </Grid>
 
                                     <Grid item xs={12} sm={12} md={4} sx={{}} >
@@ -377,7 +432,7 @@ export default function Proposal(params) {
                                         color="transparent"
 
                                     >
-                                        <Button onClick={() => voteNow("For")} disabled={!enableVote} sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', color: enableVote ? 'white' : theme.lightText + ' ! important', fontWeight: '600' }} variant="contained" >
+                                        <Button onClick={() => voteNow("For")} disabled={!enableVote || userVoted} sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', color: enableVote && !userVoted ? 'white' : theme.lightText + ' ! important', fontWeight: '600' }} variant="contained" >
                                             For</Button>
                                     </AppBar>
 
@@ -445,7 +500,7 @@ export default function Proposal(params) {
                                         color="transparent"
 
                                     >
-                                        <Button onClick={() => voteNow("Against")} disabled={!enableVote} sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', color: enableVote ? 'white' : theme.lightText + ' ! important', fontWeight: '600' }} variant="contained" >
+                                        <Button onClick={() => voteNow("Against")} disabled={!enableVote || userVoted} sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', color: enableVote && !userVoted ? 'white' : theme.lightText + ' ! important', fontWeight: '600' }} variant="contained" >
                                             Against</Button>
                                     </AppBar>
 
@@ -513,7 +568,7 @@ export default function Proposal(params) {
                                         color="transparent"
 
                                     >
-                                        <Button onClick={() => voteNow("Abstain")} disabled={!enableVote} sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', color: enableVote ? 'white' : theme.lightText + ' ! important', fontWeight: '600' }} variant="contained" >
+                                        <Button onClick={() => voteNow("Abstain")} disabled={!enableVote || userVoted} sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', color: enableVote && !userVoted ? 'white' : theme.lightText + ' ! important', fontWeight: '600' }} variant="contained" >
                                             Abstain</Button>
                                     </AppBar>
 

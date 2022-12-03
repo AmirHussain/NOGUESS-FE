@@ -39,7 +39,7 @@ export default function CreateProposal(params) {
                 updatedRow._title,
                 updatedRow._description || '',
                 updatedRow.proposal_Type || '',
-                new Date(updatedRow.active_Until).toDateString() || '',
+                updatedRow.active_until.toISOString() || '',
                 { gasLimit: 1000000 }
             )
             await response.wait(1)

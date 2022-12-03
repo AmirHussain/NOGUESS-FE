@@ -1,5 +1,5 @@
 import { AddCircleOutline, AddTask, CheckCircle, HowToVote, LibraryAddCheck, Queue } from '@mui/icons-material';
-import { AppBar, Avatar, Button, Card, CardContent, CardHeader, Grid, LinearProgress, Typography } from '@mui/material';
+import { AppBar, Avatar, Button, Card, CardContent, CardHeader, Chip, Grid, LinearProgress, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
@@ -13,10 +13,21 @@ import { bigToDecimal, bigToDecimalUints, decimalToBigUints } from "../../utils/
 import { ProposalStatus } from '../../utils/common';
 import { getUserSuppliedAmount } from '../../utils/userDetails';
 import Proposal from './proposal';
+import moment from 'moment';
 
 const useStyles = makeStyles({
   listSection: {
     backgroundColor: 'inherit',
+  },
+  LinearProgress: {
+    "& .MuiLinearProgress-root": {
+      height: '8px !important',
+      borderRadius: '8px  !important',
+      background: theme.headerBackground
+    },
+    "& .MuiLinearProgress-bar": {
+      background: theme.greenColor + " !important"
+    }
   },
   ul: {
     backgroundColor: 'inherit',
@@ -62,7 +73,7 @@ function Governance() {
 
   const [loading, setLoading] = React.useState(false)
   const classes = useStyles();
-  const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
+  const { connectWallet, provider, signer, account } = React.useContext(Web3ProviderContext);
 
   const [supplyAmount, setSupplyAmount] = React.useState(0);
   const [votingWeightage, setVotingWeightage] = React.useState(0);
@@ -78,6 +89,17 @@ function Governance() {
   React.useEffect(() => {
     fetchSupplyAmount();
   }, [signer])
+  let interval;
+  React.useEffect(() => {
+    
+    setRemainingTime()
+    return () => {
+      // Anything in here is fired on component unmount.
+      if(interval){
+        clearInterval(interval)
+      }
+    };
+  }, [rows])
 
 
   React.useEffect(() => {
@@ -87,9 +109,8 @@ function Governance() {
         getGovernanceProposals()
 
       }, 100);
-
     }
-  }, [provider])
+  }, [provider, account])
   function onlyUnique(value, index, self) {
     return self.indexOf(value) === index;
   }
@@ -130,10 +151,14 @@ function Governance() {
     console.log('wieghtageMAp', weightageMap)
     let total = 0
     const voteCountPerCat = {
+      userVoted:false,
       for: 0,
       forPercent: 0, against: 0, againstPercent: 0, abstain: 0, abstainPercent: 0,
     }
     weightageMap.forEach(wei => {
+      if (account === wei.userAddress) {
+        voteCountPerCat.userVoted = true;
+      }
       if (wei.statusAction === "for") {
         voteCountPerCat.for += Number(bigToDecimal(wei.weightage));
       } else if (wei.statusAction === "against") {
@@ -149,7 +174,6 @@ function Governance() {
     return voteCountPerCat
 
   }
-
   const getGovernanceProposals = async () => {
 
     let trows = []
@@ -177,6 +201,7 @@ function Governance() {
             obj['title'] = proposal.title;
             obj['description'] = proposal.description;
             obj['userAddress'] = proposal.userAddress;
+            obj['activeUntil'] = proposal.activeUntil;
             if (obj['status'] === ProposalStatus.active) {
               const weightage = await getWeightageMap(obj['id'].toString());
               console.log('weightage', weightage)
@@ -186,6 +211,8 @@ function Governance() {
               obj['againstPercent'] = weightage.againstPercent;
               obj['abstain'] = weightage.abstain;
               obj['abstainPercent'] = weightage.abstainPercent;
+              obj['userVoted'] = weightage.userVoted;
+              
             }
             trows.push(obj)
 
@@ -200,13 +227,30 @@ function Governance() {
 
 
   }
-  const setDataRows = () => {
-    const r = []
-    for (var i = 0; i < 5; i++) {
-      r.push({ id: 77 })
+
+  const [reminaingTimeObj, setRemainingTimeObject] = React.useState({})
+  const setRemainingTime = () => {
+    const activeFind = rows.find(row => row.status === ProposalStatus.active)
+    if (activeFind) {
+   interval=   setInterval(() => {
+        var obj = {}
+        for (let tr = 0; tr < rows.length; tr++) {
+          if (!isNaN(new Date(rows[tr].activeUntil))) {
+            var now = new Date().getTime();
+            var timeleft = new Date(rows[tr].activeUntil) - now;
+            var days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
+            obj[rows[tr].id] = days + "d, " + hours + "h : " + minutes + "m : " + seconds + "s"
+          }
+        }
+        setRemainingTimeObject(obj)
+      }, 1000)
+
     }
-    setRows(r)
   }
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -216,11 +260,11 @@ function Governance() {
 
   const getVoteDetails = (row) => {
 
-    return <div>
-      <div style={{marginBottom: '20px'}}>
+    return <div style={{ width: "100%" }}>
+      <div style={{ marginBottom: '20px' }}>
 
         <div className='d-flexSpaceBetween'>
-          <Typography sx={{ fontSize: 11, color: theme.lightText, marginBottom: '10px' }} variant="h2" >
+          <Typography sx={{ fontSize: 11, color: theme.lightText, marginBottom: '10px', marginRight: '2px' }} variant="h2" >
             For
           </Typography>
           <Typography sx={{ fontSize: 11, fontWeight: 600, marginBottom: '10px' }} variant="h2" >
@@ -233,12 +277,12 @@ function Governance() {
           <LinearProgress variant="determinate" value={row.forPercent} />
         </div>
       </div>
-      <div style={{marginBottom: '20px'}}>
+      <div style={{ marginBottom: '20px' }}>
         <div className='d-flexSpaceBetween'>
-          <Typography sx={{ fontSize: 11, color: theme.lightText, marginBottom: '10px' }} variant="h2" >
+          <Typography sx={{ fontSize: 11, color: theme.lightText, marginBottom: '10px', marginRight: '2px' }} variant="h2" >
             Against
           </Typography>
-          <Typography sx={{ fontSize: 11, fontWeight: 600, marginBottom: '10px' }} variant="h2" >
+          <Typography sx={{ fontSize: 11, fontWeight: 600, marginBottom: '10px', marginRight: '2px' }} variant="h2" >
 
             {row.against || 0} FF
           </Typography>
@@ -249,7 +293,7 @@ function Governance() {
         </div>
 
       </div>
-      <div style={{marginBottom: '20px'}}>
+      <div style={{ marginBottom: '20px' }}>
         <div className='d-flexSpaceBetween'>
           <Typography sx={{ fontSize: 11, color: theme.lightText, marginBottom: '10px' }} variant="h2" >
             Abstain
@@ -284,6 +328,7 @@ function Governance() {
         return '';
     }
   }
+
   return (
     < >
       {open && (<CreateProposal open={open} setOpen={setOpen} handleClickOpen={handleClickOpen} handleClose={handleClose}></CreateProposal>)}
@@ -316,26 +361,37 @@ function Governance() {
               <Card className={classes.card} >
                 <CardContent className={classes.cardContent} sx={{ paddingTop: '0px !important', paddingBottom: '0px !important', textAlign: 'left' }} >
                   <Grid container direction="row" justifyContent="start" alignItems="flex-left" spacing={1} style={{ width: '100%', textAlign: 'left', margin: 0 }}>
-                    <Grid item xs={10} sm={10} md={10} style={{ borderRight: '0.5px solid ' + theme.borderColor, padding: 20 }} >
+                    <Grid item xs={9} sm={9} md={9} style={{ borderRight: '0.5px solid ' + theme.borderColor, padding: 20 }} >
                       <Typography sx={{ fontSize: 12, fontWeight: 500, paddingBottom: '28px' }} variant="h4" >
                         <span className={classes.chip}>
-                          #{r.id}
+                          # {r.id}
                         </span>
                         <Typography sx={{ fontSize: 11, width: '100%', color: theme.lightText, textAlign: 'left' }} variant="p" >
-                          {r.status === ProposalStatus.created ? 'Not voted' : ''}
+                          {!r.userVoted ? 'Not voted' : ''}
                         </Typography>
+                        {r.status === ProposalStatus.active && (
+                          <Chip sx={{ float: "right" }} label={r.status} color="success" variant="outlined" />
+                        )}
                       </Typography>
                       <Typography sx={{ fontSize: '18px', width: '100%', color: 'white', textAlign: 'left' }} variant="h3" >
                         {r.title}
                       </Typography>
+                      {r.status === ProposalStatus.active && (<Typography sx={{
+                        fontSize: '12px', width: '100%', textAlign: 'left', position: "relative",
+                        bottom: "-40px"
+                      }} variant="h5" >
+                        Active Until <strong style={{ textTransform: 'uppercase' }}>: {moment(new Date(r.activeUntil)).format('DD MMM  YYYY, h:mm:ss A')}</strong>
+                        <strong style={{ float: "right" }}> {reminaingTimeObj[r.id]}</strong>
+                      </Typography>
+                      )}
                     </Grid>
 
-                    <Grid item xs={2} sm={2} md={2} sx={{ margin: 'auto', textAlign: 'center' }} >
+                    <Grid item xs={3} sm={3} md={3} sx={{ margin: 'auto', textAlign: 'center' }} >
                       <div className='d-flexSpaceAround'>
                         {renderStatus(r)}
                       </div>
                       <Typography sx={{ fontSize: '14px', width: '100%', color: 'white' }} variant="h3" >
-                        {r.status === ProposalStatus.active?'':r.status }
+                        {r.status === ProposalStatus.active ? '' : r.status}
                       </Typography>
                     </Grid>
 
