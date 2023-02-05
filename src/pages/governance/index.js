@@ -9,7 +9,7 @@ import { Icons } from '../../icons';
 import { routes } from '../../routes';
 import theme from '../../theme';
 import CreateProposal from './createProposal';
-import { bigToDecimal, bigToDecimalUints, decimalToBigUints } from "../../utils/utils"
+import { bigToDecimal, bigToDecimalUints, decimalToBigUnits } from "../../utils/utils"
 import { ProposalStatus } from '../../utils/common';
 import { getUserSuppliedAmount } from '../../utils/userDetails';
 import Proposal from './proposal';
@@ -147,7 +147,7 @@ function Governance() {
   // }
   const getWeightageMap = async (_id) => {
     const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
-    let weightageMap = await governanceContract.getWeightageMap(decimalToBigUints(_id, 0));
+    let weightageMap = await governanceContract.getWeightageMap(decimalToBigUnits(_id, 0));
     console.log('wieghtageMAp', weightageMap)
     let total = 0
     const voteCountPerCat = {

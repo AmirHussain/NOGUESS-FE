@@ -5,7 +5,7 @@ import theme from '../../theme';
 import { CheckCircle } from '@mui/icons-material';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
-import { bigToDecimal, bigToDecimalUints, decimalToBig, decimalToBigUints } from '../../utils/utils';
+import { bigToDecimal, bigToDecimalUints, decimalToBig, decimalToBigUnits } from '../../utils/utils';
 import { formatDate, ProposalStatus, start_and_end } from '../../utils/common';
 import { FluteAlertContext } from '../../Components/Alert';
 import { getUserSuppliedAmount } from '../../utils/userDetails';
@@ -143,8 +143,8 @@ export default function Proposal(params) {
             setProposalAddress(params?.match?.params.address)
             // setData({...data, id:params?.match?.params?.id})
         }
-        getProposalHistory(decimalToBigUints(params?.match?.params?.id, 0))
-        getWeightageMap(decimalToBigUints(params?.match?.params?.id, 0))
+        getProposalHistory(decimalToBigUnits(params?.match?.params?.id, 0))
+        getWeightageMap(decimalToBigUnits(params?.match?.params?.id, 0))
     }, [params?.match?.params.address]);
 
     const getData = async (_address, _id) => {
@@ -169,7 +169,7 @@ export default function Proposal(params) {
 
     const getWeightageMap = async (_id) => {
         const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
-        let weightageMap = await governanceContract.getWeightageMap(decimalToBigUints(params?.match?.params?.id, 0));
+        let weightageMap = await governanceContract.getWeightageMap(decimalToBigUnits(params?.match?.params?.id, 0));
         console.log('wieghtageMAp', weightageMap)
         const forVotesWeight = []
         const againstVotesWeight = []
@@ -218,7 +218,7 @@ export default function Proposal(params) {
     const getProposalHistory = async (_id) => {
         const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
 
-        let proposalHistory = await governanceContract.getProposalHistory(decimalToBigUints(params?.match?.params?.id, 0));
+        let proposalHistory = await governanceContract.getProposalHistory(decimalToBigUnits(params?.match?.params?.id, 0));
         const phistory = [
 
             {
@@ -266,11 +266,11 @@ export default function Proposal(params) {
             const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
             let result;
             if (item === "For") {
-                result = await governanceContract.voteFor(decimalToBigUints(params?.match?.params?.id, 0), decimalToBig(userSuppliedAmount));
+                result = await governanceContract.voteFor(decimalToBigUnits(params?.match?.params?.id, 0), decimalToBig(userSuppliedAmount));
             } else if (item === "Against") {
-                result = await governanceContract.voteAgainst(decimalToBigUints(params?.match?.params?.id, 0), decimalToBig(userSuppliedAmount));
+                result = await governanceContract.voteAgainst(decimalToBigUnits(params?.match?.params?.id, 0), decimalToBig(userSuppliedAmount));
             } else if (item === "Abstain") {
-                result = await governanceContract.voteAgainst(decimalToBigUints(params?.match?.params?.id, 0), decimalToBig(userSuppliedAmount));
+                result = await governanceContract.voteAgainst(decimalToBigUnits(params?.match?.params?.id, 0), decimalToBig(userSuppliedAmount));
             }
             await result.wait(1);
             window.location.reload();

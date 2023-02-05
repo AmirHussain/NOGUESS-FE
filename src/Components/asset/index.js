@@ -9,9 +9,10 @@ import HighchartsReact from 'highcharts-react-official'
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { Web3ProviderContext } from '../walletConnect/walletConnect';
 import { TokenContext } from '../../tokenFactory';
-import { bigToDecimal, bigToDecimalUints, decimalToBigUints } from '../../utils/utils';
+import { bigToDecimal, bigToDecimalUints, decimalToBigUnits } from '../../utils/utils';
 import { getAPY } from '../../utils/common';
 import { routeHeaders } from '../../routes';
+import { TransformIntrestRateModel } from '../../utils/userDetails';
 let currentUtilization = 0
 let currentSupplyAPR = 0
 
@@ -267,20 +268,13 @@ export default function Asset(params) {
             console.log(
                 currentToken.address,
                 tokenIntrestRateModal,
-                decimalToBigUints((Number(bigToDecimalUints(tokenBorrowLimitations.MAX_UTILIZATION_RATE, 2)) + 0.01).toString(), 2))
+                decimalToBigUnits((Number(bigToDecimalUints(tokenBorrowLimitations.MAX_UTILIZATION_RATE, 2)) + 0.01).toString(), 2))
             console.log(lendingContract)
             const chartData = await lendingContract.getChartData(
                 currentToken.address,
-                {
-                    OPTIMAL_UTILIZATION_RATE: tokenIntrestRateModal.OPTIMAL_UTILIZATION_RATE,
-                    stableRateSlope1: tokenIntrestRateModal.StableRateSlope1,
-                    stableRateSlope2: tokenIntrestRateModal.StableRateSlope2,
-                    variableRateSlope1: tokenIntrestRateModal.VariableRateSlope1,
-                    variableRateSlope2: tokenIntrestRateModal.VariableRateSlope2,
-                    baseRate: tokenIntrestRateModal.BaseRate
-                },
+                TransformIntrestRateModel(IntrestRateModal),
 
-                decimalToBigUints((Number(bigToDecimalUints(tokenBorrowLimitations.MAX_UTILIZATION_RATE, 2)) + 0.01).toString(), 2)
+                decimalToBigUnits((Number(bigToDecimalUints(tokenBorrowLimitations.MAX_UTILIZATION_RATE, 2)) + 0.01).toString(), 2)
             );
             console.log(chartData)
             options.series[0].data = chartData[0].map(item => Number(parseFloat(Number(bigToDecimal(item)) * 100).toFixed(2)))
@@ -328,25 +322,11 @@ export default function Asset(params) {
 
         const supplyAPR = await lendingContract.calculateCurrentLendingProfitRate(
             tokendetails?.token.address,
-            {
-                OPTIMAL_UTILIZATION_RATE: tokenIntrestRateModal.OPTIMAL_UTILIZATION_RATE,
-                stableRateSlope1: tokenIntrestRateModal.StableRateSlope1,
-                stableRateSlope2: tokenIntrestRateModal.StableRateSlope2,
-                variableRateSlope1: tokenIntrestRateModal.VariableRateSlope1,
-                variableRateSlope2: tokenIntrestRateModal.VariableRateSlope2,
-                baseRate: tokenIntrestRateModal.BaseRate
-            },
+            TransformIntrestRateModel(tokenIntrestRateModal)
         );
         const uratio = await lendingContract._utilizationRatio(tokendetails?.token.address);
         const borrowRatesResult = await lendingContract.getCurrentStableAndVariableBorrowRate(uratio,
-            {
-                OPTIMAL_UTILIZATION_RATE: tokenIntrestRateModal.OPTIMAL_UTILIZATION_RATE,
-                stableRateSlope1: tokenIntrestRateModal.StableRateSlope1,
-                stableRateSlope2: tokenIntrestRateModal.StableRateSlope2,
-                variableRateSlope1: tokenIntrestRateModal.VariableRateSlope1,
-                variableRateSlope2: tokenIntrestRateModal.VariableRateSlope2,
-                baseRate: tokenIntrestRateModal.BaseRate
-            },);
+             TransformIntrestRateModel(tokenIntrestRateModal),);
         const borrowAPR = await lendingContract.getOverallBorrowRate(
             tokendetails?.token.address, borrowRatesResult[0], borrowRatesResult[1]
         );

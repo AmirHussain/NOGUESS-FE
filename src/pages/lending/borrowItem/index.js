@@ -16,6 +16,7 @@ import { bigToDecimal, bigToDecimalUints, decimalToBig } from '../../../utils/ut
 import { FluteAlertContext } from '../../../Components/Alert';
 import moment from 'moment';
 import { getAPY } from '../../../utils/common';
+import { TransformIntrestRateModel } from '../../../utils/userDetails';
 require('dotenv').config();
 const MenuProps = {
     PaperProps: {
@@ -222,7 +223,8 @@ export default function BorrowItem(params) {
             setAlert({ severity: 'info', title: 'Repay', description: 'Repay in progress' });
             const result = await lendingContract.repay(
                 row['loanToken'], decimalToBig(repayAmountValue.toString()), currentToken.address,
-                currentCollateralToken.address, row.id, IntrestRateModal, { gasLimit: 1000000 });
+                currentCollateralToken.address, row.id,
+                TransformIntrestRateModel(IntrestRateModal), { gasLimit: 1000000 });
             await result.wait(1)
             setAlert({ severity: 'success', title: 'Repay', description: 'Repay completed successfully' });
 
@@ -297,8 +299,8 @@ export default function BorrowItem(params) {
                     flexGrow: 1,
                     p: 3,
                     height: { xs: theme.modalXsMidContainerHeight, md: 'auto' },
-                    maxHeight:{ xs: theme.modalXsMidContainerMaxHeight, md: theme.modalMdMidContainerMaxHeight },
-                    minWidth:{ xs: '100%', md: '30vw' },
+                    maxHeight: { xs: theme.modalXsMidContainerMaxHeight, md: theme.modalMdMidContainerMaxHeight },
+                    minWidth: { xs: '100%', md: '30vw' },
                     display: 'block',
                     right: '0px',
                     overflow: 'auto',
@@ -400,7 +402,7 @@ export default function BorrowItem(params) {
 
                                     <Grid item xs={12} sm={12} md={12}>
 
-                                        <Typography sx={{ fontSize: 12,  color: theme.lightText }} variant="h4" gutterBottom>
+                                        <Typography sx={{ fontSize: 12, color: theme.lightText }} variant="h4" gutterBottom>
 
                                             <FormControl sx={{ width: '100%', color: theme.lightText + ' !important' }}>
                                                 <InputLabel sx={{ color: theme.lightText + ' !important' }} id="demo-multiple-checkbox-label">Select Collateral</InputLabel>
@@ -459,7 +461,7 @@ export default function BorrowItem(params) {
 
 
                             <div variant="dense" className="d-flexCenter" sx={{ height: theme.headerHeight }}>
-                            <Button sx={{ width: "100%", borderRadius: theme.cardBorderRadius, minHeight: '45px', fontWeight: '600' }} variant="contained" onClick={startBorrow} >Borrow</Button>
+                                <Button sx={{ width: "100%", borderRadius: theme.cardBorderRadius, minHeight: '45px', fontWeight: '600' }} variant="contained" onClick={startBorrow} >Borrow</Button>
                             </div>
                         </TabPanel>
                         <TabPanel value="2">

@@ -17,7 +17,7 @@ import { abis, contractAddresses, makeContract } from '../../contracts/useContra
 import { Button } from '@mui/material';
 import { FluteAlertContext } from '../../Components/Alert';
 import { ProposalStatus } from '../../utils/common';
-import { bigToDecimal, decimalToBig, decimalToBigUints } from '../../utils/utils';
+import { bigToDecimal, decimalToBig, decimalToBigUnits } from '../../utils/utils';
 const useStyles = makeStyles({
     tabs: {
         "& .MuiButtonBase-root": {
@@ -76,7 +76,7 @@ export default function AdminGovernance() {
 
     const getVoteStatus = async (_id) => {
         const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
-        let weightageMap = await governanceContract.getWeightageMap(decimalToBigUints(_id, 0));
+        let weightageMap = await governanceContract.getWeightageMap(decimalToBigUnits(_id, 0));
 
         const voteCountPerCat = { for: 0, against: 0 }
         weightageMap.forEach(wei => {
@@ -108,7 +108,7 @@ export default function AdminGovernance() {
             const response = await governanceContract.updateProposalStatus(
                 newStatus,
                 row.userAddress,
-                decimalToBigUints(row.id.toString(), 0),
+                decimalToBigUnits(row.id.toString(), 0),
                 { gasLimit: 1000000 }
             )
             await response.wait(1)

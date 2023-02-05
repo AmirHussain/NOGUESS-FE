@@ -67,8 +67,12 @@ export default function AdminAggregators() {
     }
 
     const editToken = (row) => {
-        setNewRow(false)
-        setCurrentRow(row)
+        if(row.aggregator){
+            setNewRow(false)
+
+        }else{
+            setNewRow(true)
+        }    setCurrentRow(row)
         setOpen(true);
     }
 

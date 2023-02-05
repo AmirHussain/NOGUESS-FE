@@ -8,10 +8,11 @@ import { Web3Provider, Web3ProviderContext } from '../../../Components/walletCon
 import { ethers } from 'ethers';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { TokenContext } from '../../../tokenFactory';
-import { bigToDecimal, decimalToBig } from '../../../utils/utils';
+import { bigToDecimal, decimalToBig, decimalToBigUnits } from '../../../utils/utils';
 import moment from 'moment/moment';
 import { FluteAlertContext } from '../../../Components/Alert';
 import { formatDate } from '../../../utils/common';
+import { TransformIntrestRateModel } from '../../../utils/userDetails';
 require('dotenv').config();
 
 const useStyles = makeStyles({
@@ -53,7 +54,7 @@ export default function SupplyItem(params) {
     console.log(params)
     const currentRow = params.input.currentRow
     const classes = useStyles();
-    const { IntrestRateModal, TokenAggregators, TokenBorrowLimitations, Tokens } = React.useContext(TokenContext);
+    const { IntrestRateModal, TokenAggregators, TokenBorrowLimitations, Tokens, getToken } = React.useContext(TokenContext);
 
     const { connectWallet, signer, account } = useContext(Web3ProviderContext);
     const { setAlert, setAlertToggle } = useContext(FluteAlertContext);
@@ -97,7 +98,7 @@ export default function SupplyItem(params) {
         var b = moment(startDay);
         return a.diff(b) / 3600
     }
-  
+
     React.useEffect(() => {
         getSupplyDetailsFromContract()
     }, [])
@@ -114,7 +115,8 @@ export default function SupplyItem(params) {
             const wethResult = await fweth.approve(lendingContract.address, decimalToBig(row.tokenAmount));
             setAlert({ severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' });
             setAlert({ severity: 'info', title: 'Redeem', description: 'Redeem in progress' });
-            const result = await lendingContract.redeem(currentRow.token.symbol, decimalToBig(row.tokenAmount), currentRow.token.address, row.id, IntrestRateModal, { gasLimit: 1000000 });
+            const result = await lendingContract.redeem(currentRow.token.symbol, decimalToBig(row.tokenAmount), currentRow.token.address, row.id,
+                TransformIntrestRateModel(IntrestRateModal), { gasLimit: 1000000 });
             await result.wait(1)
             setAlert({ severity: 'success', title: 'Redeem', description: 'Redeem completed successfully' });
             setInProgress(false)
@@ -136,11 +138,18 @@ export default function SupplyItem(params) {
             const weth = makeContract(currentRow.token.address, currentRow.token.abi, signer);
             setAlert({ severity: 'info', title: 'Approval', description: 'Approval of transaction in progress' });
             const wethResult = await weth.approve(lendingContract.address, decimalToBig(amount));
-
             setAlert({ severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully' });
 
             setAlert({ severity: 'info', title: 'Supply', description: 'Supply in progress' });
-            const result = await lendingContract.lend(currentRow.token.symbol, decimalToBig(amount), lockDuration, currentRow.token.address, currentRow.token.pedgeToken, { gasLimit: 1000000 });
+            const supplyToken= await getToken(currentRow.token.address);
+            const pedgeToken=await getToken(currentRow.token.pedgeToken);
+            console.log( decimalToBig(amount),
+            decimalToBigUnits(lockDuration.toString(),0))
+            const result = await lendingContract.lend(
+                supplyToken,pedgeToken ,
+                decimalToBig(amount),
+                decimalToBigUnits(lockDuration.toString(),0),
+                { gasLimit: 1000000 });
 
             settranxHash(result.hash);
             await result.wait(1)
@@ -173,8 +182,8 @@ export default function SupplyItem(params) {
                     flexGrow: 1,
                     p: 3,
                     height: { xs: theme.modalXsMidContainerHeight, md: 'auto' },
-                    maxHeight:{ xs: theme.modalXsMidContainerMaxHeight, md: theme.modalMdMidContainerMaxHeight },
-                    minWidth:{ xs: '100%', md: '30vw' },
+                    maxHeight: { xs: theme.modalXsMidContainerMaxHeight, md: theme.modalMdMidContainerMaxHeight },
+                    minWidth: { xs: '100%', md: '30vw' },
                     display: 'block',
                     right: '0px',
                     overflow: 'auto'
@@ -200,7 +209,7 @@ export default function SupplyItem(params) {
                     fontSize: '12px',
                     fontWeight: '600',
                     background: 'transparent !important',
-                    boxShadow:'none !important',
+                    boxShadow: 'none !important',
                     fontStretch: 'semi-expanded',
                     color: theme.lightText + ' !important',
                     marginTop: '10px',
@@ -224,18 +233,18 @@ export default function SupplyItem(params) {
                                 sx={{
 
                                     background: theme.TabsBackground,
-                                    color:theme.lightText,
+                                    color: theme.lightText,
                                     display: 'block !important',
-                                     padding: '10px', 
-                                     paddingTop: '15px', marginBottom: '10px'
+                                    padding: '10px',
+                                    paddingTop: '15px', marginBottom: '10px'
                                 }}>
                                 <Grid container direction="row" justifyContent="start" alignItems="flex-start" spacing={2} style={{ width: '100%' }}>
 
                                     {/* Boxes */}
                                     <Grid item xs={12} sm={12} md={12}>
 
-                                        <FormControl variant="standard" sx={{color:theme.lightText,width:'100%'}}>
-                                            <InputLabel htmlFor="input-with-icon-adornment" sx={{color:theme.lightText,borderColor:theme.lightText+' !important'}}>
+                                        <FormControl variant="standard" sx={{ color: theme.lightText, width: '100%' }}>
+                                            <InputLabel htmlFor="input-with-icon-adornment" sx={{ color: theme.lightText, borderColor: theme.lightText + ' !important' }}>
                                                 Supply Requested
                                             </InputLabel>
                                             <Input
@@ -245,7 +254,7 @@ export default function SupplyItem(params) {
                                                 sx={{
                                                     color: theme.lightText + ' !important',
                                                     padding: '6px',
-                                                    width:'100%'
+                                                    width: '100%'
                                                 }}
                                                 onChange={(e) => setAmount(e.target.value)}
                                                 startAdornment={
@@ -265,7 +274,7 @@ export default function SupplyItem(params) {
                                         </FormControl>
                                     </Grid>
 
-                                    <Grid item xs={12} sm={12} md={12}>
+                                    {/* <Grid item xs={12} sm={12} md={12}>
                                         <FormControl>
                                             <div style={{ padding: '4px', fontSize: '13px',  paddingTop: '24px' }}>
 
@@ -291,7 +300,7 @@ export default function SupplyItem(params) {
                                                 </div>
                                             </ButtonGroup>
                                         </FormControl>
-                                    </Grid>
+                                    </Grid> */}
                                 </Grid>
                                 <Grid item xs={12} sm={12} md={12}>
                                     <div><p sx={{ fontSize: '11px' }}>Minimum: <b>10 BNB</b> Maximum: <b>500BNB</b></p></div>
@@ -299,7 +308,7 @@ export default function SupplyItem(params) {
                             </Card>
 
                             <div variant="dense" className="d-flexCenter" sx={{ height: theme.headerHeight }}>
-                            <Button sx={{ width: "100%", borderRadius: theme.cardBorderRadius, minHeight: '45px', fontWeight: '600' }} variant="contained" onClick={startSupply}>Supply</Button>
+                                <Button sx={{ width: "100%", borderRadius: theme.cardBorderRadius, minHeight: '45px', fontWeight: '600' }} variant="contained" onClick={startSupply}>Supply</Button>
 
                             </div>
                         </TabPanel>

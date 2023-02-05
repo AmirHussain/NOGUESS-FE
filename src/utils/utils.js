@@ -1,9 +1,9 @@
 const { ethers } = require("ethers");
 
-const bigToDecimal = (num) => num?ethers.utils.formatEther(num):'0';
-const decimalToBig = (num) => num?ethers.utils.parseEther(num):ethers.utils.parseEther('0');
+const bigToDecimal = (num) => num ? ethers.utils.formatEther(num) : '0';
+const decimalToBig = (num) => num ? ethers.utils.parseEther(num) : ethers.utils.parseEther('0');
 const bigToDecimalUints = (num, units) => num ? ethers.utils.formatEther(num, units) : '0';
-const decimalToBigUints = (num, units) => num?ethers.utils.parseUnits(num, units):ethers.utils.parseUnits('0', units);
+const decimalToBigUnits = (num, units) => num ? ethers.utils.parseUnits(num, units) : ethers.utils.parseUnits('0', units);
 
 const decimalToBigObject = (obj) => {
     Object.keys(obj).forEach(key => {
@@ -21,6 +21,7 @@ const bigToDecimalObject = (obj) => {
     })
     return obj
 }
+
 export {
-    bigToDecimal, decimalToBig, bigToDecimalUints, decimalToBigUints, bigToDecimalObject, decimalToBigObject
+    bigToDecimal, decimalToBig, bigToDecimalUints, decimalToBigUnits, bigToDecimalObject, decimalToBigObject
 }

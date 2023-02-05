@@ -10,7 +10,7 @@ import { Autocomplete, Avatar, Checkbox, FilledInput, FormControl, FormControlLa
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { FluteAlertContext } from '../../Components/Alert';
-import { decimalToBigUints } from '../../utils/utils';
+import { decimalToBigUnits } from '../../utils/utils';
 import theme from '../../theme';
 import { makeStyles } from '@mui/styles';
 const useStyles = makeStyles({
@@ -87,7 +87,7 @@ export default function AddUpdateAdaptiveLimitation(params) {
       } else {
         response = await governanceContract.UpdateTokenAdaptiveLimitations(
           params.currentToken.address,
-        decimalToBigUints(params.rowIndex.toString(),0),
+        decimalToBigUnits(params.rowIndex.toString(),0),
           updatedRow.Utilization,
           updatedRow.Withdraw,
           updatedRow.Borrow,

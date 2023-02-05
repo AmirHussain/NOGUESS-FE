@@ -6,7 +6,7 @@ import RightDrawer from '../../Components/rightDrawer';
 import MarketItem from './marketItem';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
-import { bigToDecimal, decimalToBigUints } from '../../utils/utils';
+import { bigToDecimal, decimalToBigUnits } from '../../utils/utils';
 import { TokenContext } from '../../tokenFactory';
 import Asset from '../../Components/asset';
 import { AttachMoney } from '@mui/icons-material';
@@ -75,7 +75,7 @@ export default function Market() {
                 const currentToken = Tokens.find(token => aggtoken.tokenAddress === token.address)
                 if (currentToken) {
                     return {
-                        aggregator: aggtoken.aggregator, tokenAddress: currentToken.address, decimal: decimalToBigUints(aggtoken.decimals.toString(), aggtoken.decimals > 9 ? 0 : 0)
+                        aggregator: aggtoken.aggregator, tokenAddress: currentToken.address, decimal: decimalToBigUnits(aggtoken.decimals.toString(), aggtoken.decimals > 9 ? 0 : 0)
                     }
                 }
             });

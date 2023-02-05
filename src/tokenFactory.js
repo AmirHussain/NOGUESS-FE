@@ -1,6 +1,6 @@
 
 import { abis, contractAddresses, makeContract } from './contracts/useContracts';
-import { bigToDecimal, bigToDecimalUints, decimalToBig, decimalToBigUints } from './utils/utils';
+import { bigToDecimal, bigToDecimalUints, decimalToBig, decimalToBigUnits } from './utils/utils';
 import React, { createContext } from 'react';
 import { Web3ProviderContext } from './Components/walletConnect/walletConnect';
 
@@ -219,6 +219,43 @@ export function TokenFactory({ children }) {
 
     }
 
+    const getToken= async (address)=>{
+        const currentToken = Tokens.find(t => t.address === address)
+        if(!TokenAggregators.length){
+            const governanceContract = makeContract(contractAddresses.governance, abis.governance, signer);
+            const aggregators = await getAllAggregators(governanceContract);
+           // [
+            //     // { tokenSymbol: Tokens.ETH.symbol, aggregator: '0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e', decimals: 8 },
+            //     // { tokenSymbol: Tokens.dai.symbol, aggregator: '0x0d79df66BE487753B02D015Fb622DED7f0E9798d', decimals: 8 }
+            // ]
+            setTokenAggregators(
+                aggregators
+            )
+        }
+        let aggregator = TokenAggregators.find(aggregator => aggregator.tokenAddress === address)
+
+        const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
+        if (currentToken) {
+            currentToken.aggregator=aggregator;
+            return {
+                symbol:currentToken.symbol,
+                tokenAddress:currentToken.address, // address of the user that lended
+                unitPriceInUSD: await getPrice(currentToken,lendingContract)
+            }
+
+        }
+        return;
+    }
+
+    const getPrice = async (tokendetails, lendingContract) => {
+        if (tokendetails.aggregator) {
+            const result = await lendingContract.getAggregatorPrice(tokendetails?.aggregator?.aggregator);
+            const priceInUSD = Number(result) / Math.pow(10, tokendetails?.aggregator?.decimals);
+            return decimalToBigUnits(priceInUSD.toString(),18)
+        }
+
+    }
+
     return (
         <TokenContext.Provider
             value={{
@@ -229,7 +266,8 @@ export function TokenFactory({ children }) {
                 TokensIntrestRateModal,
                 TokenAggregators,
                 TokenBorrowLimitations,
-                headerText, setHeaderText
+                headerText, setHeaderText,
+                getToken
             }}
         >
             {

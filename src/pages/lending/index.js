@@ -9,7 +9,7 @@ import SupplyTable from './tables';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { TokenContext } from '../../tokenFactory';
-import { decimalToBigUints } from '../../utils/utils';
+import { decimalToBigUnits } from '../../utils/utils';
 import { AttachMoney } from '@mui/icons-material';
 
 const useStyles = makeStyles({
@@ -78,7 +78,7 @@ function Lending() {
         const currentToken = Tokens.find(token => aggtoken.tokenAddress === token.address)
         if (currentToken) {
           return {
-            aggregator: aggtoken.aggregator, tokenAddress: currentToken.address, decimal: decimalToBigUints(aggtoken.decimals.toString(), aggtoken.decimals > 9 ? 0 : 0)
+            aggregator: aggtoken.aggregator, tokenAddress: currentToken.address, decimal: decimalToBigUnits(aggtoken.decimals.toString(), aggtoken.decimals > 9 ? 0 : 0)
           }
         }
       });
@@ -94,6 +94,9 @@ function Lending() {
     }
   }
 
+  React.useEffect(()=>{
+
+  },[currentMarket])
   React.useEffect(() => {
     if (!drawerOpen) {
       getAllMarketDetails();
@@ -104,7 +107,7 @@ function Lending() {
   return (
     <Grid container direction="row" justifyContent="center" alignItems="flex-center" spacing={2} >
 
-      <Grid item xs={12} sm={12} md={6} >
+      <Grid item xs={12} sm={12} md={12} >
         <Card className={classes.card}>
           <CardHeader
             sx={{ color: 'white', fontWeight: 600, textAlign: 'left' }}
@@ -151,7 +154,7 @@ function Lending() {
                 <div style={{ display: 'flex', alignItems: 'center' }}>
 
                   <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
-                    ${currentRow?.b || 0.0}
+                    ${currentMarket?.totalSupply || 0.0}
                   </span>
                 </div>
 
@@ -164,7 +167,7 @@ function Lending() {
                 <div style={{ display: 'flex', alignItems: 'center' }}>
 
                   <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
-                    {currentRow?.totalSupply || 0.0}
+                  ${currentMarket?.totalDebt || 0.0} 
                   </span>
                 </div>
 
@@ -176,7 +179,7 @@ function Lending() {
 
 
 
-      <Grid item xs={12} sm={12} md={6} >
+      {/* <Grid item xs={12} sm={12} md={6} >
         <Card className={classes.card} sx={{ height: '100%' }}>
           <CardHeader
             sx={{ color: 'white', fontWeight: 600, textAlign: 'left' }}
@@ -206,12 +209,10 @@ function Lending() {
 
                 <div >
                   <Typography sx={{ color: theme.lightText }} variant="p" >
-                    {/* Daily earnings */}
                   </Typography>
                 </div>
                 <div>
                   <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
-                    {/* ${currentRow?.apy||0.0}  */}
                   </span>
                 </div>
 
@@ -219,12 +220,10 @@ function Lending() {
 
               <Grid item xs={4} sm={4} md={4} style={{}} >
                 <Typography sx={{ color: theme.lightText }} variant="p" >
-                  {/* Supply balance */}
                 </Typography>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
 
                   <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
-                    {/* ${currentRow?.b || 0.0} */}
                   </span>
                 </div>
 
@@ -232,12 +231,10 @@ function Lending() {
 
               <Grid item xs={4} sm={4} md={4} >
                 <Typography sx={{ color: theme.lightText }} variant="p" >
-                  {/* Borrow balance */}
                 </Typography>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
 
                   <span style={{ paddingLeft: '4px', fontSize: '20px', fontWeight: '600' }}>
-                    {/* {currentRow?.totalSupply || 0.0} */}
                   </span>
                 </div>
 
@@ -246,7 +243,7 @@ function Lending() {
 
           </CardContent>
         </Card>
-      </Grid>
+      </Grid> */}
       <Grid item xs={12} sm={12} md={12}>
 
         <SupplyTable action={OpenDrawer} reload={reload} component="SupplyItem" />

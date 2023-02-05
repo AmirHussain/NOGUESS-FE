@@ -10,20 +10,24 @@ import { Avatar, Grid } from '@mui/material';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { FluteAlertContext } from '../../Components/Alert';
-import { decimalToBigUints } from '../../utils/utils';
+import { decimalToBigUnits } from '../../utils/utils';
 
 export default function AddUpdateAggregator(params) {
 
   const { setAlert, setAlertToggle } = React.useContext(FluteAlertContext);
 
   const [row, setRow] = React.useState({})
-
+const [newRow,setNewRow]=React.useState({})
   const [updatedRow, setUpdatedRow] = React.useState({})
 
   React.useEffect(() => {
     if (params.currentRow && Object.keys(params.currentRow).length)
       setRow(params.currentRow)
     const uprow = { ...params?.currentRow }
+    if(params.newRow || !uprow.aggregator){
+      uprow.aggregator={};
+      setNewRow(true);
+    }
     setUpdatedRow(uprow)
 
   }, [params.currentRow])
@@ -38,12 +42,25 @@ export default function AddUpdateAggregator(params) {
     setAlert({ severity: 'info', title: 'Aggregator Update', description: 'Token aggregate update in progress' }
     );
     try {
-      const response = await governanceContract.UpdateAggregators(
-        params.currentRow.address,
-        updatedRow.aggregator.aggregator,
-        decimalToBigUints(updatedRow.aggregator.decimals || 18, 0),
-        true, { gasLimit: 1000000 }
-      )
+     let response
+      if(newRow){
+         response = await governanceContract.AddAggregators(
+          params.currentRow.address,
+          updatedRow.aggregator.aggregator,
+          decimalToBigUnits(updatedRow.aggregator.decimals || 18, 0),
+          params.currentRow.address,
+          true, { gasLimit: 1000000 }
+        )
+  
+      }else{
+         response = await governanceContract.UpdateAggregators(
+          params.currentRow.address,
+          updatedRow.aggregator.aggregator,
+          decimalToBigUnits(updatedRow.aggregator.decimals || 18, 0),
+          true, { gasLimit: 1000000 }
+        )
+  
+      }
       await response.wait(1)
       if (response) {
         localStorage.clear();
@@ -73,7 +90,7 @@ export default function AddUpdateAggregator(params) {
       <Dialog open={params.open} onClose={params.handleClose} sx={{ zIndex: 1100, maxWidth: '100vw', minWidth: '60vw' }}>
         <DialogTitle sx={{ display: 'flex', alignItems: 'center' }}>
           <Avatar alt="" src={params?.currentRow?.icon} />
-          Update  Aggregator
+          {newRow?'New':'Update'}  Aggregator
         </DialogTitle>
         <DialogContent>
           <Grid container direction="row" spacing={2} >
@@ -83,7 +100,7 @@ export default function AddUpdateAggregator(params) {
                 InputLabelProps={{
                   shrink: true,
                 }}
-                value={updatedRow?.tokenAddress}
+                value={row?.address}
                 margin="dense"
                 id="tokenAddress"
                 label="Address"

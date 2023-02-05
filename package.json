@@ -1,5 +1,5 @@
 {
-  "name": "fFinance",
+  "name": "flutefinanceapp",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -22,7 +22,7 @@
     "chart.js": "^3.9.1",
     "dayjs": "^1.11.6",
     "dotenv": "^16.0.1",
-    "ethers": "5.7.0",
+    "ethers": "5.7.2",
     "ethers-utils": "^2.1.11",
     "firebase-tools": "^11.6.0",
     "highcharts": "^10.2.0",

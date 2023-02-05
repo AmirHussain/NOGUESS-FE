@@ -15,10 +15,11 @@ import { abis, contractAddresses, makeContract } from '../../../contracts/useCon
 import { TokenContext } from '../../../tokenFactory';
 import Asset from '../../../Components/asset';
 import { getAPY } from '../../../utils/common';
-import { bigToDecimal, decimalToBig, decimalToBigUints } from '../../../utils/utils';
+import { bigToDecimal, decimalToBig, decimalToBigUnits } from '../../../utils/utils';
 import { MenuOpen } from '@mui/icons-material';
 import LendingTable from './table';
 import { Box } from '@mui/system';
+import { TransformIntrestRateModel } from '../../../utils/userDetails';
 
 
 const useStyles = makeStyles({
@@ -118,10 +119,11 @@ export default function SupplyTable(props) {
       const borrowResult = signer ? await lendingContract.getBorrowerShare(currency.symbol) : decimalToBig('0');
       const supplyAPR = await lendingContract.calculateCurrentLendingProfitRate(
         currency.address,
-        IntrestRateModal
+        TransformIntrestRateModel(IntrestRateModal)
+
       );
       const uratio = signer ? await lendingContract._utilizationRatio(currency.address) : decimalToBig('0');
-      const result = signer ? await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal)
+      const result = signer ? await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, TransformIntrestRateModel(IntrestRateModal))
         : null;
       const borrowAPR = signer ? await lendingContract.getOverallBorrowRate(
         currency.address, result[0], result[1]
@@ -212,11 +214,11 @@ export default function SupplyTable(props) {
       <Grid container direction="row" justifyContent="center" alignItems="flex-center" spacing={2}>
 
         <Grid item xs={12} sm={12} md={6} style={{ marginBottom: '10px' }}>
-        <Box  className={classes.boxRoot} >
-          <Typography varient="h2" p={2}  sx={{ textAlign: 'start',fontSize:'18px', marginBottom: '5px !important', fontWeight: 500 }}>
+          <Box className={classes.boxRoot} >
+            <Typography varient="h2" p={2} sx={{ textAlign: 'start', fontSize: '18px', marginBottom: '5px !important', fontWeight: 500 }}>
               Supply Market
             </Typography>
-         
+
             <LendingTable
               SupplyRows={SupplyRows}
               action={props.action}
@@ -227,11 +229,11 @@ export default function SupplyTable(props) {
           </Box>
         </Grid>
         <Grid item xs={12} sm={12} md={6} style={{ marginBottom: '10px' }}>
-        <Box  className={classes.boxRoot} >
-          <Typography varient="h2" p={2} sx={{ textAlign: 'start',fontSize:'18px', marginBottom: '5px !important', fontWeight: 500 }}>
+          <Box className={classes.boxRoot} >
+            <Typography varient="h2" p={2} sx={{ textAlign: 'start', fontSize: '18px', marginBottom: '5px !important', fontWeight: 500 }}>
               Borrow Market
             </Typography>
-        
+
             <LendingTable
               SupplyRows={SupplyRows}
               action={props.action}
