@@ -100,7 +100,7 @@ export default function Proposal(params) {
     const classes = useStyles();
     const [activeStep, setActiveStep] = React.useState(0);
     const { provider, signer, account } = React.useContext(Web3ProviderContext);
-    const { setAlert, setAlertToggle } = React.useContext(FluteAlertContext);
+    const { setAlert } = React.useContext(FluteAlertContext);
 
 
     const [userVoted, setUserVoted] = React.useState(false);
@@ -258,11 +258,12 @@ export default function Proposal(params) {
     }
 
     const voteNow = async (item) => {
+        let index = -1;
         try {
-            setAlert({ severity: 'info', title: 'Vote ' + item, description: 'Voting in progress' }
+            index = setAlert({ severity: 'info', title: 'Vote ' + item, description: 'Voting in progress' }
             );
-            let userSuppliedAmount=await getUserSuppliedAmount(signer, 'WETH')
-            userSuppliedAmount=userSuppliedAmount.toString();
+            let userSuppliedAmount = await getUserSuppliedAmount(signer, 'WETH')
+            userSuppliedAmount = userSuppliedAmount.toString();
             const governanceContract = makeContract(contractAddresses.governanceVoting, abis.governanceVoting, signer);
             let result;
             if (item === "For") {
@@ -272,18 +273,21 @@ export default function Proposal(params) {
             } else if (item === "Abstain") {
                 result = await governanceContract.voteAgainst(decimalToBigUnits(params?.match?.params?.id, 0), decimalToBig(userSuppliedAmount));
             }
+            setAlert({ severity: 'info', title: 'Vote ' + item, description: 'Voting in progress', txhash: result.hash }
+                , index);
+
             await result.wait(1);
             window.location.reload();
         } catch (err) {
-            setAlert({ severity: 'error', title: 'Vote', description: err.message });
+            setAlert({ severity: 'error', title: 'Vote', error: err }, index);
         }
     }
-   
+
     const [rt, setRt] = React.useState('')
     const setRemainingTime = () => {
         const activeFind = data.status === ProposalStatus.active
         if (activeFind) {
-            interval=     setInterval(() => {
+            interval = setInterval(() => {
                 if (!isNaN(new Date(data.activeUntil))) {
                     var now = new Date().getTime();
                     var timeleft = new Date(data.activeUntil) - now;
@@ -301,19 +305,19 @@ export default function Proposal(params) {
     }
     React.useEffect(() => {
 
-    }, [userVoted,rt])
-    
+    }, [userVoted, rt])
+
     let interval;
     React.useEffect(() => {
-      
-      setRemainingTime()
-      return () => {
-        // Anything in here is fired on component unmount.
-        if(interval){
-          clearInterval(interval)
-        }
-      };
-    },[data])
+
+        setRemainingTime()
+        return () => {
+            // Anything in here is fired on component unmount.
+            if (interval) {
+                clearInterval(interval)
+            }
+        };
+    }, [data])
     return (
         <React.Fragment key="RIGHT1">
 
@@ -367,8 +371,10 @@ export default function Proposal(params) {
                                             bottom: "-150px"
                                         }} variant="h5" >
                                             Active Until <strong style={{ textTransform: 'uppercase' }}>: {moment(new Date(data.activeUntil)).format('DD MMM  YYYY, h:mm:ss A')}</strong>
-                                            <strong style={{ float: "right" ,
-                                            marginRight:'10px'}}>{rt}</strong>
+                                            <strong style={{
+                                                float: "right",
+                                                marginRight: '10px'
+                                            }}>{rt}</strong>
                                         </Typography>
                                         )}
                                     </Grid>
@@ -489,7 +495,7 @@ export default function Proposal(params) {
 
                                     </div>
                                     <div className={classes.LinearProgress}>
-                                        <LinearProgress variant="determinate" value={(voteCount && voteCount.against) ? ((voteCount?.against / totalVote)*100 ) : 0} />
+                                        <LinearProgress variant="determinate" value={(voteCount && voteCount.against) ? ((voteCount?.against / totalVote) * 100) : 0} />
                                     </div>
 
                                     <AppBar key="rightbar"

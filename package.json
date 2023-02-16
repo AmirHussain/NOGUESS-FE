@@ -22,6 +22,7 @@
     "chart.js": "^3.9.1",
     "dayjs": "^1.11.6",
     "dotenv": "^16.0.1",
+    "env-cmd": "^10.1.0",
     "ethers": "5.7.2",
     "ethers-utils": "^2.1.11",
     "firebase-tools": "^11.6.0",
@@ -44,7 +45,7 @@
     "webpack": "4.44.2"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "env-cmd react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -68,6 +69,7 @@
     ]
   },
   "devDependencies": {
+    "dotenv-webpack": "^8.0.1",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.24.2",

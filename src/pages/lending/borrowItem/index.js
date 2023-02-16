@@ -88,15 +88,15 @@ export default function BorrowItem(params) {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
-    const { IntrestRateModal, TokenAggregators, TokenBorrowLimitations, Tokens } = React.useContext(TokenContext);
+    const { IntrestRateModal, TokenAggregators, TokenBorrowLimitations, Tokens, getToken } = React.useContext(TokenContext);
 
     const { signer, account } = useContext(Web3ProviderContext);
-    const [tranxHash, settranxHash] = useState('');
+    const [txHash, settxHash] = useState('');
     const [collateral, setCollateral] = useState('');
 
     const [collateralToken, setCollateralToken] = useState({});
     const [decimals, setDecimals] = useState(0);
-    const { setAlert, setAlertToggle } = useContext(FluteAlertContext);
+    const { setAlert } = useContext(FluteAlertContext);
     const [inProgress, setInProgress] = useState(false);
 
     const [colleteralAmount, setCollateralAmount] = useState();
@@ -155,6 +155,7 @@ export default function BorrowItem(params) {
     }, [])
 
     const startBorrow = async () => {
+        let index = -1;
         try {
 
             setInProgress(true)
@@ -163,29 +164,33 @@ export default function BorrowItem(params) {
             const collateralContract = makeContract(collateralToken.address, collateralToken.abi, signer);
             await setCollateralAmountOfToken()
 
-            setAlert({ severity: 'info', title: 'Approval', description: 'Approval of transaction in progress' });
+            index = setAlert({ severity: 'info', title: 'Approval', description: 'Approval of transaction in progress' });
+            const loanTokenTuple = await getToken(loanToken.address);
+            const collateralTokenTuple = await getToken(collateralToken.address);
+            const approvalResponse = await collateralContract.approve(lendingContract.address, decimalToBig(colleteralAmount.toString()))
+            setAlert({ severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully', txhash: approvalResponse.hash }, index);
 
-            await collateralContract.approve(lendingContract.address, decimalToBig(colleteralAmount.toString()))
-            setAlert({ severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully' });
-
-            setAlert({ severity: 'info', title: 'Borrow', description: 'Borrow in progress' });
+            index = setAlert({ severity: 'info', title: 'Borrow', description: 'Borrow in progress' });
             console.log('Borrow Params', loanToken.symbol, decimalToBig(amount.toString()), loanToken.address,
                 collateralToken.symbol, collateralToken.address, decimalToBig(colleteralAmount.toString()), { gasLimit: 1000000 }
             )
             console.log(currentRow.borrowAPY || '0')
             const result = await lendingContract.borrow(
-                loanToken.symbol, decimalToBig(amount.toString()), loanToken.address,
-                collateralToken.symbol, collateralToken.address, decimalToBig(colleteralAmount.toString()), decimalToBig(currentRow.borrowAPY.toString() || '0'), stableRate, { gasLimit: 1000000 }
+                loanTokenTuple,
+                collateralTokenTuple,
+                decimalToBig(amount.toString()),
+                decimalToBig(colleteralAmount.toString()),
+                decimalToBig(currentRow.borrowAPY.toString() || '0'), stableRate, { gasLimit: 1000000 }
             );
+            setAlert({ severity: 'info', title: 'Borrow', description: 'Borrow in progress', txhash: result.hash }, index);
 
-            settranxHash(result.hash);
             await result.wait(1)
-            setAlert({ severity: 'success', title: 'Borrow', description: 'Borrow completed successfully' });
+            setAlert({ severity: 'success', title: 'Borrow', description: 'Borrow completed successfully', txhash: result.hash }, index);
 
             setInProgress(false)
             params?.input?.toggleDrawer(true)
         } catch (err) {
-            setAlert({ severity: 'error', title: 'Borrow', description: err.message });
+            setAlert({ severity: 'error', title: 'Borrow', error: err }, index);
             setInProgress(false)
             params?.input?.toggleDrawer(false)
         }
@@ -205,6 +210,7 @@ export default function BorrowItem(params) {
     };
 
     const repayAmount = async (row) => {
+        let index = -1;
         try {
             handleClose()
             setInProgress(true)
@@ -215,25 +221,25 @@ export default function BorrowItem(params) {
                     currentCollateralToken = token;
                 }
             });
-            setAlert({ severity: 'info', title: 'Aprroval', description: 'Approval of transaction in progress' });
+            index = setAlert({ severity: 'info', title: 'Aprroval', description: 'Approval of transaction in progress' });
 
             const loanTokenContract = makeContract(currentToken.address, currentCollateralToken.abi, signer);
-            await loanTokenContract.approve(lendingContract.address, decimalToBig(repayAmountValue.toString()));
-            setAlert({ severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' });
-            setAlert({ severity: 'info', title: 'Repay', description: 'Repay in progress' });
+            const approvalResponse = await loanTokenContract.approve(lendingContract.address, decimalToBig(repayAmountValue.toString()));
+            setAlert({ severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully', txhash: approvalResponse.hash }, index);
+            index = setAlert({ severity: 'info', title: 'Repay', description: 'Repay in progress' });
             const result = await lendingContract.repay(
                 row['loanToken'], decimalToBig(repayAmountValue.toString()), currentToken.address,
-                currentCollateralToken.address, row.id,
-                TransformIntrestRateModel(IntrestRateModal), { gasLimit: 1000000 });
+                currentCollateralToken.address, row.id, IntrestRateModal, { gasLimit: 1000000 });
+            setAlert({ severity: 'info', title: 'Repay', description: 'Repay in progress', txhash: result.hash }, index);
             await result.wait(1)
-            setAlert({ severity: 'success', title: 'Repay', description: 'Repay completed successfully' });
+            setAlert({ severity: 'success', title: 'Repay', description: 'Repay completed successfully', txhash: result.hash }, index);
 
             setInProgress(false)
             params?.input?.toggleDrawer(true)
 
         } catch (err) {
             setInProgress(false)
-            setAlert({ severity: 'error', title: 'Repay', description: err.message });
+            setAlert({ severity: 'error', title: 'Repay', error: err }, index);
             params?.input?.toggleDrawer(true)
         }
 

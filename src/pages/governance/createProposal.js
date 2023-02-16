@@ -21,7 +21,7 @@ import 'react-quill/dist/quill.snow.css';
 
 export default function CreateProposal(params) {
 
-    const { setAlert, setAlertToggle } = React.useContext(FluteAlertContext);
+    const { setAlert} = React.useContext(FluteAlertContext);
     const [updatedRow, setUpdatedRow] = React.useState({})
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
@@ -32,7 +32,7 @@ export default function CreateProposal(params) {
         if (!provider || !signer) {
             return
         }
-        setAlert({ severity: 'info', title: 'Create Proposal', description: 'Proposal addition in progress' }
+      const index=  setAlert({ severity: 'info', title: 'Create Proposal', description: 'Proposal addition in progress' }
         );
         try {
             const response = await governanceContract.createProposal(
@@ -42,13 +42,15 @@ export default function CreateProposal(params) {
                 updatedRow.active_until.toISOString() || '',
                 { gasLimit: 1000000 }
             )
+             setAlert({ severity: 'info', title: 'Create Proposal', description: 'Proposal addition in progress',txhash:response.hash },index)
+
             await response.wait(1)
             if (response) {
                 window.location.reload();
                 params.setOpen(false)
             }
         } catch (err) {
-            setAlert({ severity: 'error', title: 'Proposal', description: err.message });
+            setAlert({ severity: 'error', title: 'Proposal', error: err },index);
 
         } finally { }
     }

@@ -54,10 +54,10 @@ const useStyles = makeStyles({
 });
 export default function AdminGovernance() {
     const { Tokens, TokenAggregators } = React.useContext(TokenContext);
-    const { setAlert, setAlertToggle } = React.useContext(FluteAlertContext);
+    const { setAlert } = React.useContext(FluteAlertContext);
     const [rows, setRows] = React.useState([]);
     const [newRow, setNewRow] = React.useState(true);
-    
+
     const [currentRow, setCurrentRow] = React.useState([]);
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
@@ -98,12 +98,12 @@ export default function AdminGovernance() {
         if (!provider || !signer) {
             return
         }
-        setAlert({ severity: 'info', title: 'Create Proposal', description: 'Proposal addition in progress' }
+        const index = setAlert({ severity: 'info', title: 'Create Proposal', description: 'Proposal addition in progress' }
         );
         try {
-            let newStatus= getRowNextStatus(row.status)
-            if (row.status === ProposalStatus.active||row.status === '') {
-                newStatus= await getVoteStatus(row.id)
+            let newStatus = getRowNextStatus(row.status)
+            if (row.status === ProposalStatus.active || row.status === '') {
+                newStatus = await getVoteStatus(row.id)
             }
             const response = await governanceContract.updateProposalStatus(
                 newStatus,
@@ -111,13 +111,13 @@ export default function AdminGovernance() {
                 decimalToBigUnits(row.id.toString(), 0),
                 { gasLimit: 1000000 }
             )
+            setAlert({ severity: 'info', title: 'Create Proposal', description: 'Proposal addition in progress', txhash: response.hash }, index);
             await response.wait(1)
             if (response) {
                 window.location.reload();
             }
         } catch (err) {
-            setAlert({ severity: 'error', title: 'Proposal', description: err.message });
-
+            setAlert({ severity: 'error', title: 'Proposal', error: err }, index);
         } finally { }
 
     }

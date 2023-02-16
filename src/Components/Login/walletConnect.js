@@ -34,7 +34,7 @@ const metamaskProvider = async (providerName) => {
       }
 
     if (providerName === 'jsonrpc') {
-      const chainId = process.env.REACT_APP_CHAIN_ID;
+      const chainId = process.REACT_APP_CHAIN_ID;
       const rpcUrls = chainId === '80001' ? 'https://rpc-mumbai.maticvigil.com' : 'https://rpc-mainnet.maticvigil.com';
       provider = new ethers.providers.JsonRpcProvider(rpcUrls);
     }

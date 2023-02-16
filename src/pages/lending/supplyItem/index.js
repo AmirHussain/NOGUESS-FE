@@ -12,7 +12,6 @@ import { bigToDecimal, decimalToBig, decimalToBigUnits } from '../../../utils/ut
 import moment from 'moment/moment';
 import { FluteAlertContext } from '../../../Components/Alert';
 import { formatDate } from '../../../utils/common';
-import { TransformIntrestRateModel } from '../../../utils/userDetails';
 require('dotenv').config();
 
 const useStyles = makeStyles({
@@ -57,9 +56,8 @@ export default function SupplyItem(params) {
     const { IntrestRateModal, TokenAggregators, TokenBorrowLimitations, Tokens, getToken } = React.useContext(TokenContext);
 
     const { connectWallet, signer, account } = useContext(Web3ProviderContext);
-    const { setAlert, setAlertToggle } = useContext(FluteAlertContext);
+    const { setAlert } = useContext(FluteAlertContext);
 
-    const [tranxHash, settranxHash] = useState('');
 
     const [inProgress, setInProgress] = useState(false);
 
@@ -104,26 +102,28 @@ export default function SupplyItem(params) {
     }, [])
 
     const redeemAmount = async (row) => {
+        let index = -1;
         try {
             setInProgress(true)
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
             const fweth = makeContract(currentRow.token.pedgeToken, currentRow.token.abi, signer);
 
-            setAlert({ severity: 'info', title: 'Aprroval', description: 'Approval of transaction in progress' }
+            index = setAlert({ severity: 'info', title: 'Aprroval', description: 'Approval of transaction in progress', txHash: '' }
             );
 
             const wethResult = await fweth.approve(lendingContract.address, decimalToBig(row.tokenAmount));
-            setAlert({ severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully' });
-            setAlert({ severity: 'info', title: 'Redeem', description: 'Redeem in progress' });
-            const result = await lendingContract.redeem(currentRow.token.symbol, decimalToBig(row.tokenAmount), currentRow.token.address, row.id,
-                TransformIntrestRateModel(IntrestRateModal), { gasLimit: 1000000 });
+            setAlert({ severity: 'success', title: 'Aprroval', description: 'Approval of transaction performed successfully', txHash: wethResult.hash }, index);
+            index = setAlert({ severity: 'info', title: 'Redeem', description: 'Redeem in progress', txHash: '' });
+            const result = await lendingContract.redeem(currentRow.token.symbol, decimalToBig(row.tokenAmount), currentRow.token.address, row.id, IntrestRateModal, { gasLimit: 1000000 });
+            setAlert({ severity: 'info', title: 'Redeem', description: 'Redeem in progress', txHash: result.hash }, index);
+
             await result.wait(1)
-            setAlert({ severity: 'success', title: 'Redeem', description: 'Redeem completed successfully' });
+            setAlert({ severity: 'success', title: 'Redeem', description: 'Redeem completed successfully', txHash: result.hash }, index);
             setInProgress(false)
             params?.input?.toggleDrawer(true)
 
         } catch (err) {
-            setAlert({ severity: 'error', title: 'Redeem', description: err.message });
+            setAlert({ severity: 'error', title: 'Redeem', error: err }, index);
             setInProgress(false)
             params?.input?.toggleDrawer(false)
         }
@@ -131,34 +131,38 @@ export default function SupplyItem(params) {
     }
 
     const startSupply = async () => {
+        let index = -1;
         try {
 
             setInProgress(true)
+            params?.input?.toggleDrawer(false);
             const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
             const weth = makeContract(currentRow.token.address, currentRow.token.abi, signer);
-            setAlert({ severity: 'info', title: 'Approval', description: 'Approval of transaction in progress' });
-            const wethResult = await weth.approve(lendingContract.address, decimalToBig(amount));
-            setAlert({ severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully' });
-
-            setAlert({ severity: 'info', title: 'Supply', description: 'Supply in progress' });
-            const supplyToken= await getToken(currentRow.token.address);
-            const pedgeToken=await getToken(currentRow.token.pedgeToken);
-            console.log( decimalToBig(amount),
-            decimalToBigUnits(lockDuration.toString(),0))
-            const result = await lendingContract.lend(
-                supplyToken,pedgeToken ,
-                decimalToBig(amount),
-                decimalToBigUnits(lockDuration.toString(),0),
+            index = setAlert({ severity: 'info', title: 'Approval', description: 'Approval of transaction in progress' });
+            const supplyToken = await getToken(currentRow.token.address);
+            const pedgeToken = await getToken(currentRow.token.pedgeToken);
+            const wethResult = await weth.approve(lendingContract.address, decimalToBig(amount),
                 { gasLimit: 1000000 });
+            setAlert({ severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully', txHash: wethResult.hash }, index);
 
-            settranxHash(result.hash);
+
+            index = setAlert({ severity: 'info', title: 'Supply', description: 'Supply in progress', txHash: '' });
+            console.log(decimalToBig(amount),
+                decimalToBigUnits(lockDuration.toString(), 0))
+            const result = await lendingContract.lend(
+                supplyToken, pedgeToken,
+                decimalToBig(amount),
+                decimalToBigUnits(lockDuration.toString(), 0),
+                { gasLimit: 1000000 });
+            setAlert({ severity: 'info', title: 'Supply', description: 'Supply in progress', txHash: result.hash }, index);
+
             await result.wait(1)
-            setAlert({ severity: 'success', title: 'Supply', description: 'Supply completed successfully' });
+            setAlert({ severity: 'success', title: 'Supply', description: 'Supply completed successfully', txHash: result.hash }, index);
             setInProgress(false)
             params?.input?.toggleDrawer(true)
 
         } catch (err) {
-            setAlert({ severity: 'error', title: 'Supply', description: err.message });
+            setAlert({ severity: 'error', title: 'Supply', error: err }, index);
             setInProgress(false);
             params?.input?.toggleDrawer(false);
         }

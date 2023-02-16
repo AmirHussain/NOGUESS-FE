@@ -47,7 +47,7 @@ export default function StakeItem(params) {
     const classes = useStyles();
 
     const { connectWallet, signer, account } = useContext(Web3ProviderContext);
-    const { setAlert, setAlertToggle } = useContext(FluteAlertContext);
+    const { setAlert} = useContext(FluteAlertContext);
 
     const [inProgress, setInProgress] = useState(false);
     const [amount, setAmount] = useState("0.00");
@@ -68,7 +68,7 @@ export default function StakeItem(params) {
             params?.input?.toggleDrawer(true)
 
         } catch (err) {
-            setAlert({ severity: 'error', title: 'Staking', description: err.message });
+            setAlert({ severity: 'error', title: 'Staking', error: err });
             setInProgress(false);
             params?.input?.toggleDrawer(false);
         }

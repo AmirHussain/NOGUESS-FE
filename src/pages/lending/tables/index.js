@@ -19,7 +19,6 @@ import { bigToDecimal, decimalToBig, decimalToBigUnits } from '../../../utils/ut
 import { MenuOpen } from '@mui/icons-material';
 import LendingTable from './table';
 import { Box } from '@mui/system';
-import { TransformIntrestRateModel } from '../../../utils/userDetails';
 
 
 const useStyles = makeStyles({
@@ -96,19 +95,16 @@ export default function SupplyTable(props) {
   }, [SupplyRows, Tokens]);
 
   React.useEffect(() => {
-
-    console.log('Mounted');
-    clearDetailsEmptyTable()
-    setSupplyTable().then(resp => {
-      console.log(resp);
-
-      setSupplyRows(resp)
-    });
+    if (Tokens && Tokens.length) {
+      console.log('Mounted');
+      clearDetailsEmptyTable()
+      setSupplyTable()
+    }
     return () => {
       console.log('Will unmount');
     };
 
-  }, [signer, provider, Tokens]); // Empty array means to only run once on mount.
+  }, [signer, Tokens]); // Empty array means to only run once on mount.
 
 
   const getSupplyDetailsFromContract = async (currency, rowindex) => {
@@ -119,11 +115,10 @@ export default function SupplyTable(props) {
       const borrowResult = signer ? await lendingContract.getBorrowerShare(currency.symbol) : decimalToBig('0');
       const supplyAPR = await lendingContract.calculateCurrentLendingProfitRate(
         currency.address,
-        TransformIntrestRateModel(IntrestRateModal)
-
+        IntrestRateModal
       );
       const uratio = signer ? await lendingContract._utilizationRatio(currency.address) : decimalToBig('0');
-      const result = signer ? await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, TransformIntrestRateModel(IntrestRateModal))
+      const result = signer ? await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal)
         : null;
       const borrowAPR = signer ? await lendingContract.getOverallBorrowRate(
         currency.address, result[0], result[1]
@@ -157,44 +152,43 @@ export default function SupplyTable(props) {
   function createSupplyData(token, supplyAmount, supplyRate, borrowRate, collateral) {
     return { token, supplyAmount, supplyRate, borrowRate, collateral };
   }
+
   function clearDetailsEmptyTable() {
-    const rows = []
+    const rows = [];
     Tokens.forEach(element => {
-      const row = createSupplyData(element, 0, 0, 6.0, 'Button')
-      rows.push(row)
+      const row = createSupplyData(element, 0, 0, 6.0, 'Button');
+      rows.push(row);
     })
     setSupplyRows(rows);
   }
-  const setSupplyTable = () => {
-    return new Promise((resolve, reject) => {
 
-      const rows = []
-      if (Tokens && Tokens.length) {
-        let rowadded = 0
-        Tokens.forEach(element => {
-          if (!element.isPedgeToken) {
-            getSupplyDetailsFromContract(element).then((resp) => {
-              const row = createSupplyData(element, 0, 0, 6.0, 'Button')
-              row.supplyAmount = resp.amount
-              row.borrowAmount = resp.borrowAmount
-              row.supplyAPY = resp.supplyAPY
-              row.borrowAPY = resp.borrowAPY
-              rows.push(row);
-              rowadded++;
-              console.log(SupplyRows)
-            })
-          }
-        });
-        let interval = setInterval(() => {
-          if (rowadded === Tokens.length) {
-            resolve(rows);
-            clearInterval(interval);
-          }
-        })
+  async function setSupplyTable() {
+    if (Tokens && Tokens.length) {
+      const rows = Tokens.filter(token => !token.isPedgeToken).map(fToken => createSupplyData(fToken, 0, 0, 6.0, 'Button'))
+      let rowAdded = 0;
+      for (var i = 0; i < rows.length; i++) {
+        const resp = await getSupplyDetailsFromContract(Tokens[i], i)
+        console.log(i, resp, rows)
+        rows[i].supplyAmount = resp.amount
+        rows[i].borrowAmount = resp.borrowAmount
+        rows[i].supplyAPY = resp.supplyAPY
+        rows[i].borrowAPY = resp.borrowAPY
+        rowAdded++;
       }
+      setSupplyRows(rows);
+      // const interval = setInterval(() => {
+      //   if (rowAdded === rows.length) {
+      //     setSupplyRows(rows);
+      //     clearInterval(interval)
+      //   }
 
-    })
-  };
+      // })
+    }
+
+
+
+  }
+
   const handleCloseAsset = () => {
     setOpenAsset(false);
   };
@@ -202,10 +196,6 @@ export default function SupplyTable(props) {
     console.log(props?.reload)
     if (props?.reload) {
       clearDetailsEmptyTable()
-      setSupplyTable().then(resp => {
-        console.log(resp);
-        setSupplyRows(resp);
-      })
     }
   }, [props?.reload])
 

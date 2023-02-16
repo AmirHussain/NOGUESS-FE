@@ -10,7 +10,6 @@ import { TokenContext } from '../../../tokenFactory';
 import { getAPY } from '../../../utils/common';
 import { NavLink } from 'react-router-dom';
 import { routes } from '../../../routes';
-import { TransformIntrestRateModel } from '../../../utils/userDetails';
 
 
 const useStyles = makeStyles({
@@ -148,7 +147,7 @@ export default function Marketitem(props) {
         if (tokendetails.aggregator) {
             const supplyAPR = await lendingContract.calculateCurrentLendingProfitRate(
                 tokendetails.token.address,
-                TransformIntrestRateModel(IntrestRateModal)
+                    IntrestRateModal
             );
 
             details['supplyAPR'] = bigToDecimalUints(supplyAPR, 2) * 100
@@ -160,7 +159,7 @@ export default function Marketitem(props) {
     }
     const setBorrowRates = async (tokendetails, lendingContract, uratioInBig) => {
         if (tokendetails?.token) {
-            const borrowRatesResult = await lendingContract.getCurrentStableAndVariableBorrowRate(uratioInBig, TransformIntrestRateModel(IntrestRateModal));
+            const borrowRatesResult = await lendingContract.getCurrentStableAndVariableBorrowRate(uratioInBig, IntrestRateModal);
             const borrowAPR = await lendingContract.getOverallBorrowRate(
                 tokendetails.token.address, borrowRatesResult[0], borrowRatesResult[1]
             );

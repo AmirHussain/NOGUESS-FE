@@ -14,7 +14,7 @@ import { decimalToBigUnits } from '../../utils/utils';
 
 export default function AddUpdateAggregator(params) {
 
-  const { setAlert, setAlertToggle } = React.useContext(FluteAlertContext);
+  const { setAlert} = React.useContext(FluteAlertContext);
 
   const [row, setRow] = React.useState({})
 const [newRow,setNewRow]=React.useState({})
@@ -39,7 +39,7 @@ const [newRow,setNewRow]=React.useState({})
     if (!provider || !signer) {
       return
     }
-    setAlert({ severity: 'info', title: 'Aggregator Update', description: 'Token aggregate update in progress' }
+  const index=  setAlert({ severity: 'info', title: 'Aggregator Update', description: 'Token aggregate update in progress' }
     );
     try {
      let response
@@ -61,6 +61,8 @@ const [newRow,setNewRow]=React.useState({})
         )
   
       }
+      setAlert({ severity: 'info', title: 'Aggregator Update', description: 'Token aggregate update in progress',txhash:response.hash },index)
+
       await response.wait(1)
       if (response) {
         localStorage.clear();
@@ -68,7 +70,7 @@ const [newRow,setNewRow]=React.useState({})
         params.setOpen(false)
       }
     } catch (err) {
-      setAlert({ severity: 'error', title: 'Token', description: err.message });
+      setAlert({ severity: 'error', title: 'Token', error: err },index);
 
     } finally { }
   }

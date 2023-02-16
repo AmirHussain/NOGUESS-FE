@@ -40,7 +40,7 @@ export default function StakingItem(props) {
     const classes = useStyles();
     const { provider, signer } = React.useContext(Web3ProviderContext);
 
-    const { setAlert, setAlertToggle } = useContext(FluteAlertContext);
+    const { setAlert} = useContext(FluteAlertContext);
     const [row, setRow] = useState({});
     const openDrawer = (row) => {
         row.token = { icon: row.staking_token?.token_image, address: row.staking_token?.token_address, symbol: row.staking_token?.token_symbol }
@@ -62,7 +62,7 @@ export default function StakingItem(props) {
             setInProgress(false);
 
         } catch (err) {
-            setAlert({ severity: 'error', title: 'Claim', description: err.message });
+            setAlert({ severity: 'error', title: 'Claim', error: err });
             setInProgress(false);
         }
 
@@ -83,7 +83,7 @@ export default function StakingItem(props) {
             setInProgress(false);
 
         } catch (err) {
-            setAlert({ severity: 'error', title: 'Withdraw', description: err.message });
+            setAlert({ severity: 'error', title: 'Withdraw', error: err });
             setInProgress(false);
         }
 

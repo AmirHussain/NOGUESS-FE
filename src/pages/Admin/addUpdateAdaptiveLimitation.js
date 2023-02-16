@@ -50,7 +50,7 @@ const useStyles = makeStyles({
 export default function AddUpdateAdaptiveLimitation(params) {
 
   const classes = useStyles();
-  const { setAlert, setAlertToggle } = React.useContext(FluteAlertContext);
+  const { setAlert } = React.useContext(FluteAlertContext);
 
 
 
@@ -71,7 +71,7 @@ export default function AddUpdateAdaptiveLimitation(params) {
     if (!provider || !signer) {
       return
     }
-    setAlert({ severity: 'info', title: 'Adative limit', description: 'Token adaptive limit update in progress' }
+   const index= setAlert({ severity: 'info', title: 'Adative limit', description: 'Token adaptive limit update in progress' }
     );
     try {
       let response;
@@ -95,6 +95,7 @@ export default function AddUpdateAdaptiveLimitation(params) {
           updatedRow.Redeem, { gasLimit: 1000000 }
         )
       }
+      setAlert({ severity: 'info', title: 'Adative limit', description: 'Token adaptive limit update in progress',txhash:response.hash },index)
 
       await response.wait(1)
       if (response) {
@@ -103,7 +104,7 @@ export default function AddUpdateAdaptiveLimitation(params) {
         params.setOpen(false)
       }
     } catch (err) {
-      setAlert({ severity: 'error', title: 'Token', description: err.message });
+      setAlert({ severity: 'error', title: 'Token', error: err },index);
 
     } finally { }
   }
@@ -114,7 +115,7 @@ export default function AddUpdateAdaptiveLimitation(params) {
     if (!provider || !signer) {
       return
     }
-    setAlert({ severity: 'info', title: 'Token Adaptive Limitation', description: 'Token Adaptive Limitation deletion in progress' }
+   const index= setAlert({ severity: 'info', title: 'Token Adaptive Limitation', description: 'Token Adaptive Limitation deletion in progress' }
     );
     try {
       const response = await governanceContract.RemoveTokenAdaptiveLimitations(
@@ -122,6 +123,9 @@ export default function AddUpdateAdaptiveLimitation(params) {
         params.rowIndex,
         { gasLimit: 100000 }
       )
+      
+      setAlert({ severity: 'info', title: 'Token Adaptive Limitation', description: 'Token Adaptive Limitation deletion in progress',txhash:response.hash },index)
+
       await response.wait(1)
       if (response) {
         localStorage.clear();
@@ -129,7 +133,7 @@ export default function AddUpdateAdaptiveLimitation(params) {
         params.setOpen(false)
       }
     } catch (err) {
-      setAlert({ severity: 'error', title: 'Token Adaptive Limitation', description: err.message });
+      setAlert({ severity: 'error', title: 'Token Adaptive Limitation', error: err },index);
 
     } finally { }
   }

@@ -14,7 +14,7 @@ import { decimalToBig } from '../../utils/utils';
 
 export default function AddUpdateBorrowLimitations(params) {
 
-  const { setAlert, setAlertToggle } = React.useContext(FluteAlertContext);
+  const { setAlert} = React.useContext(FluteAlertContext);
 
   const [row, setRow] = React.useState({})
 
@@ -36,7 +36,7 @@ export default function AddUpdateBorrowLimitations(params) {
     if (!provider || !signer) {
       return
     }
-    setAlert({ severity: 'info', title: 'Borrow Limitation', description: 'Borrow Limitation update in progress' }
+    const index= setAlert({ severity: 'info', title: 'Borrow Limitation', description: 'Borrow Limitation update in progress' }
     );
     try {
 
@@ -51,6 +51,8 @@ export default function AddUpdateBorrowLimitations(params) {
         updatedRow.borrowLimitations.AllowStableJob
         , { gasLimit: 1000000 }
       )
+        setAlert({ severity: 'info', title: 'Borrow Limitation', description: 'Borrow Limitation update in progress',txhash:response1.hash },index)
+
       const response = await governanceContract.AddOrUpdateTokenIntrestRateModel(
         updatedRow.tokenAddress,
         decimalToBig(updatedRow.intrestRateModal.OPTIMAL_UTILIZATION_RATE),
@@ -61,6 +63,8 @@ export default function AddUpdateBorrowLimitations(params) {
         decimalToBig(updatedRow.intrestRateModal.BaseRate)
         , { gasLimit: 1000000 }
       )
+      setAlert({ severity: 'info', title: 'Borrow Limitation', description: 'Borrow Limitation update in progress',txhash:response.hash },index)
+
       await response.wait(1)
       if (response) {
         localStorage.clear();
@@ -69,7 +73,7 @@ export default function AddUpdateBorrowLimitations(params) {
       }
 
     } catch (err) {
-      setAlert({ severity: 'error', title: 'Borrow Limitation', description: err.message });
+      setAlert({ severity: 'error', title: 'Borrow Limitation', error: err },index);
 
     } finally { }
   }

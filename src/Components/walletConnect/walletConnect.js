@@ -240,7 +240,8 @@ export function Web3Provider({ children }) {
                 connectWallet,
                 handleNetwork,
                 switchNetwork,
-                connect
+                connect,
+                network
             }}
         >
             {

@@ -22,14 +22,17 @@ export function TokenFactory({ children }) {
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
     const getAllTokens = async (governanceContract) => {
-        if (localStorage.tokenStorage) {
-            return JSON.parse(localStorage.tokenStorage || '[]')
+      let tokens=[] ;
+       if (localStorage.tokenStorage) {
+            tokens= JSON.parse(localStorage.tokenStorage || '[]')
         }
         if (!provider) {
-            return JSON.parse(localStorage.tokenStorage || '[]') || []
+            tokens= JSON.parse(localStorage.tokenStorage || '[]') || []
         }
+        // if(!tokens||!tokens.length){
+            tokens = await governanceContract.getAllToken();
 
-        const tokens = await governanceContract.getAllToken();
+        // }
         const UpdatedTokens = []
         tokens.forEach((token) => {
             if (!token.isDeleted) {
@@ -46,7 +49,7 @@ export function TokenFactory({ children }) {
             }
         });
 
-        setStorage('tokenStorage', JSON.stringify(UpdatedTokens))
+        // setStorage('tokenStorage', JSON.stringify(UpdatedTokens))
         return UpdatedTokens || []
     }
     const getAllAggregators = async (governanceContract) => {
@@ -219,12 +222,12 @@ export function TokenFactory({ children }) {
 
     }
 
-    const getToken= async (address)=>{
+    const getToken = async (address) => {
         const currentToken = Tokens.find(t => t.address === address)
-        if(!TokenAggregators.length){
+        if (!TokenAggregators.length) {
             const governanceContract = makeContract(contractAddresses.governance, abis.governance, signer);
             const aggregators = await getAllAggregators(governanceContract);
-           // [
+            // [
             //     // { tokenSymbol: Tokens.ETH.symbol, aggregator: '0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e', decimals: 8 },
             //     // { tokenSymbol: Tokens.dai.symbol, aggregator: '0x0d79df66BE487753B02D015Fb622DED7f0E9798d', decimals: 8 }
             // ]
@@ -236,11 +239,11 @@ export function TokenFactory({ children }) {
 
         const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
         if (currentToken) {
-            currentToken.aggregator=aggregator;
+            currentToken.aggregator = aggregator;
             return {
-                symbol:currentToken.symbol,
-                tokenAddress:currentToken.address, // address of the user that lended
-                unitPriceInUSD: await getPrice(currentToken,lendingContract)
+                symbol: currentToken.symbol,
+                tokenAddress: currentToken.address, // address of the user that lended
+                unitPriceInUSD: await getPrice(currentToken, lendingContract)
             }
 
         }
@@ -251,7 +254,7 @@ export function TokenFactory({ children }) {
         if (tokendetails.aggregator) {
             const result = await lendingContract.getAggregatorPrice(tokendetails?.aggregator?.aggregator);
             const priceInUSD = Number(result) / Math.pow(10, tokendetails?.aggregator?.decimals);
-            return decimalToBigUnits(priceInUSD.toString(),18)
+            return decimalToBigUnits(priceInUSD.toString(), 18)
         }
 
     }

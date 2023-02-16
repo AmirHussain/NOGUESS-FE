@@ -12,7 +12,6 @@ import { TokenContext } from '../../tokenFactory';
 import { bigToDecimal, bigToDecimalUints, decimalToBigUnits } from '../../utils/utils';
 import { getAPY } from '../../utils/common';
 import { routeHeaders } from '../../routes';
-import { TransformIntrestRateModel } from '../../utils/userDetails';
 let currentUtilization = 0
 let currentSupplyAPR = 0
 
@@ -271,8 +270,7 @@ export default function Asset(params) {
                 decimalToBigUnits((Number(bigToDecimalUints(tokenBorrowLimitations.MAX_UTILIZATION_RATE, 2)) + 0.01).toString(), 2))
             console.log(lendingContract)
             const chartData = await lendingContract.getChartData(
-                currentToken.address,
-                TransformIntrestRateModel(IntrestRateModal),
+                currentToken.address,IntrestRateModal,
 
                 decimalToBigUnits((Number(bigToDecimalUints(tokenBorrowLimitations.MAX_UTILIZATION_RATE, 2)) + 0.01).toString(), 2)
             );
@@ -322,11 +320,10 @@ export default function Asset(params) {
 
         const supplyAPR = await lendingContract.calculateCurrentLendingProfitRate(
             tokendetails?.token.address,
-            TransformIntrestRateModel(tokenIntrestRateModal)
+                tokenIntrestRateModal
         );
         const uratio = await lendingContract._utilizationRatio(tokendetails?.token.address);
-        const borrowRatesResult = await lendingContract.getCurrentStableAndVariableBorrowRate(uratio,
-             TransformIntrestRateModel(tokenIntrestRateModal),);
+        const borrowRatesResult = await lendingContract.getCurrentStableAndVariableBorrowRate(uratio,tokenIntrestRateModal);
         const borrowAPR = await lendingContract.getOverallBorrowRate(
             tokendetails?.token.address, borrowRatesResult[0], borrowRatesResult[1]
         );

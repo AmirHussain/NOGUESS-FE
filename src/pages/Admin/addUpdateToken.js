@@ -13,7 +13,7 @@ import { FluteAlertContext } from '../../Components/Alert';
 
 export default function AddUpdateToken(params) {
 
-  const { setAlert, setAlertToggle } = React.useContext(FluteAlertContext);
+  const { setAlert} = React.useContext(FluteAlertContext);
 
   const [row, setRow] = React.useState({})
 
@@ -36,7 +36,7 @@ export default function AddUpdateToken(params) {
     if (!provider || !signer) {
       return
     }
-    setAlert({ severity: 'info', title: 'Token ' + (params.newRow ? 'Addition' : 'Update'), description: 'Token addition in progress' }
+   const index= setAlert({ severity: 'info', title: 'Token ' + (params.newRow ? 'Addition' : 'Update'), description: 'Token addition in progress' }
     );
     try {
       const response = await governanceContract.AddOrUpdateToken(
@@ -50,6 +50,9 @@ export default function AddUpdateToken(params) {
         false,
         params.newRow, { gasLimit: 1000000 }
       )
+       setAlert({ severity: 'info', title: 'Token ' + (params.newRow ? 'Addition' : 'Update'), description: 'Token addition in progress', txhash:response.hash},index
+      );
+  
       await response.wait(1)
       if (response) {
         localStorage.clear();
@@ -57,7 +60,7 @@ export default function AddUpdateToken(params) {
         params.setOpen(false)
       }
     } catch (err) {
-      setAlert({ severity: 'error', title: 'Token', description: err.message });
+      setAlert({ severity: 'error', title: 'Token', error: err },index);
 
     } finally { }
   }
@@ -89,7 +92,7 @@ export default function AddUpdateToken(params) {
         params.setOpen(false)
       }
     } catch (err) {
-      setAlert({ severity: 'error', title: 'Token', description: err.message });
+      setAlert({ severity: 'error', title: 'Token', error: err });
 
     } finally { }
   }
