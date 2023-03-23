@@ -66,14 +66,14 @@ export default function Home() {
           <Container sx={{ paddingRight: { xs: '0px !important', md: '16px !important' }, paddingLeft: { xs: '0px !important', md: '16px !important' } }}>
             <Switch>
               <Route path="/bridge" exact component={ComingSoon}></Route>
-              <Route path="/staking" exact component={ComingSoon}></Route>
-              <Route path="/market" exact component={Market}></Route>
-              <Route path="/governance" exact component={Governance}></Route>
-              <Route path="/lending" exact component={Lending}></Route>
+              <Route path="/staking" exact component={Staking}></Route>
+              <Route path="/market" exact component={ComingSoon}></Route>
+              <Route path="/governance" exact component={ComingSoon}></Route>
+              <Route path="/lending" exact component={ComingSoon}></Route>
               <Route path="/admin" exact component={Admin}></Route>
               <Route path="/asset/:address" component={Asset} />
-              <Route path="/proposal/:id/:address" component={Proposal} />
-              <Route path="**" exact component={Lending}></Route>
+              <Route path="/proposal/:id/:address" component={ComingSoon} />
+              <Route path="**" exact component={Staking}></Route>
             </Switch>
           </Container>
         </Box>
