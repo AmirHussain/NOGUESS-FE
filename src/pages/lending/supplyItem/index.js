@@ -10,7 +10,7 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { TokenContext } from '../../../tokenFactory';
 import { bigToDecimal, decimalToBig, decimalToBigUnits } from '../../../utils/utils';
 import moment from 'moment/moment';
-import { FluteAlertContext } from '../../../Components/Alert';
+import { vernofxAlertContext } from '../../../Components/Alert';
 import { formatDate } from '../../../utils/common';
 require('dotenv').config();
 
@@ -56,7 +56,7 @@ export default function SupplyItem(params) {
     const { IntrestRateModal, TokenAggregators, TokenBorrowLimitations, Tokens, getToken } = React.useContext(TokenContext);
 
     const { connectWallet, signer, account } = useContext(Web3ProviderContext);
-    const { setAlert } = useContext(FluteAlertContext);
+    const { setAlert } = useContext(vernofxAlertContext);
 
 
     const [inProgress, setInProgress] = useState(false);

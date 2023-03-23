@@ -435,7 +435,7 @@ function Governance() {
                 {
                   supplyAmount < votingWeightage && (
                     <Button sx={{ width: "100%", borderRadius: '10px', minHeight: '45px', fontWeight: '600' }} variant="contained" >
-                      Supply FluteToken</Button>
+                      Supply vernofxToken</Button>
 
                   )
                 }

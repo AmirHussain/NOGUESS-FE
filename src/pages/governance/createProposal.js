@@ -15,13 +15,13 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
-import { FluteAlertContext } from '../../Components/Alert';
+import { vernofxAlertContext } from '../../Components/Alert';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 export default function CreateProposal(params) {
 
-    const { setAlert} = React.useContext(FluteAlertContext);
+    const { setAlert} = React.useContext(vernofxAlertContext);
     const [updatedRow, setUpdatedRow] = React.useState({})
     const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 

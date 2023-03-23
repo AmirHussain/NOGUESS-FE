@@ -4,7 +4,7 @@ import { makeStyles } from '@mui/styles'
 import { ArrowBack, Inbox, Mail } from '@mui/icons-material';
 import theme from '../../../theme'
 import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
-import { FluteAlertContext } from '../../../Components/Alert';
+import { vernofxAlertContext } from '../../../Components/Alert';
 import { abis, makeContract } from '../../../contracts/useContracts';
 import { decimalToBig } from '../../../utils/utils';
 const useStyles = makeStyles({
@@ -47,7 +47,7 @@ export default function StakeItem(params) {
     const classes = useStyles();
 
     const { connectWallet, signer, account } = useContext(Web3ProviderContext);
-    const { setAlert} = useContext(FluteAlertContext);
+    const { setAlert} = useContext(vernofxAlertContext);
 
     const [inProgress, setInProgress] = useState(false);
     const [amount, setAmount] = useState("0.00");

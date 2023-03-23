@@ -20,49 +20,43 @@ import { MenuOpen } from '@mui/icons-material';
 import LendingTable from './table';
 import { Box } from '@mui/system';
 
-
 const useStyles = makeStyles({
   root: {},
   boxRoot: theme.boxRoot,
   tableRow: {
-    background: theme.DrawerBackground,
     borderRadius: theme.cardBorderRadius,
     color: 'white',
     cursor: 'pointer !important',
     border: '0px solid transparent',
-    "&:hover": {
-      background: '#393A41 !important'
-    }
+    '&:hover': {
+      background: '#393A41 !important',
+    },
   },
   theadRow: {
-    "& .MuiTableCell-root": {
+    '& .MuiTableCell-root': {
       color: theme.DrawerText,
-      border: '0px solid transparent'
-    }
+      border: '0px solid transparent',
+    },
   },
   tableCell: {
     color: 'white !important',
     padding: '2px !important',
     minHeight: '10px !important',
     lineHeight: '0.5 !important',
-    border: '0px solid transparent !important'
+    border: '0px solid transparent !important',
   },
   tableHead: {
-    background: theme.DrawerBackground,
     color: theme.DrawerText,
     width: '100%',
     fontSize: '10px !important',
     justifyItems: 'center',
     // borderRadius: '8px 8px 0px 0px',
     padding: '16px 24px',
-    border: '0px solid transparent'
+    border: '0px solid transparent',
   },
 
-  actionButton: theme.actionButton2
+  actionButton: theme.actionButton2,
 });
-
-
-
 
 export default function SupplyTable(props) {
   const classes = useStyles();
@@ -76,7 +70,7 @@ export default function SupplyTable(props) {
   };
   const openDrawer = (row, component) => {
     props.action(row, component);
-  }
+  };
   const [openAsset, setOpenAsset] = React.useState(false);
   const [updateTable, setUpdateTable] = React.useState(false);
 
@@ -88,65 +82,48 @@ export default function SupplyTable(props) {
 
   const { connectWallet, provider, signer } = React.useContext(Web3ProviderContext);
 
-
-  React.useEffect(() => {
-
-
-  }, [SupplyRows, Tokens]);
+  React.useEffect(() => {}, [SupplyRows, Tokens]);
 
   React.useEffect(() => {
     if (Tokens && Tokens.length) {
       console.log('Mounted');
-      clearDetailsEmptyTable()
-      setSupplyTable()
+      clearDetailsEmptyTable();
+      setSupplyTable();
     }
     return () => {
       console.log('Will unmount');
     };
-
   }, [signer, Tokens]); // Empty array means to only run once on mount.
-
 
   const getSupplyDetailsFromContract = async (currency, rowindex) => {
     try {
-
       const lendingContract = makeContract(contractAddresses.lending, abis.lending, signer);
       const supplyResult = signer ? await lendingContract.getLenderShare(currency.symbol) : decimalToBig('0');
       const borrowResult = signer ? await lendingContract.getBorrowerShare(currency.symbol) : decimalToBig('0');
-      const supplyAPR = await lendingContract.calculateCurrentLendingProfitRate(
-        currency.address,
-        IntrestRateModal
-      );
+      const supplyAPR = await lendingContract.calculateCurrentLendingProfitRate(currency.address, IntrestRateModal);
       const uratio = signer ? await lendingContract._utilizationRatio(currency.address) : decimalToBig('0');
-      const result = signer ? await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal)
-        : null;
-      const borrowAPR = signer ? await lendingContract.getOverallBorrowRate(
-        currency.address, result[0], result[1]
-      ) : decimalToBig('0');
-
+      const result = signer ? await lendingContract.getCurrentStableAndVariableBorrowRate(uratio, IntrestRateModal) : null;
+      const borrowAPR = signer ? await lendingContract.getOverallBorrowRate(currency.address, result[0], result[1]) : decimalToBig('0');
 
       let supplyAPY = Number(ethers.utils.formatEther(supplyAPR));
-      let borrowAPY = Number(ethers.utils.formatEther(borrowAPR));;
+      let borrowAPY = Number(ethers.utils.formatEther(borrowAPR));
       let supplyAmount = 0;
       let borrowAmount = 0;
       if (supplyResult) {
-        supplyAmount = ethers.utils.formatEther(supplyResult)
+        supplyAmount = ethers.utils.formatEther(supplyResult);
       }
 
       if (borrowResult) {
-        borrowAmount = ethers.utils.formatEther(borrowResult)
+        borrowAmount = ethers.utils.formatEther(borrowResult);
       }
-      return { amount: supplyAmount, borrowAmount, rowindex, supplyAPY, borrowAPY }
-
+      return { amount: supplyAmount, borrowAmount, rowindex, supplyAPY, borrowAPY };
     } catch (err) {
-      console.log(err)
-      return { amount: 0, borrowAmount: 0, rowindex, supplyAPY: 0, borrowAPY: 0 }
-
+      console.log(err);
+      return { amount: 0, borrowAmount: 0, rowindex, supplyAPY: 0, borrowAPY: 0 };
     }
-
-  }
+  };
   const SetAndOpenAsset = (row) => {
-    setCurrentRow(row)
+    setCurrentRow(row);
     setOpenAsset(true);
   };
   function createSupplyData(token, supplyAmount, supplyRate, borrowRate, collateral) {
@@ -155,24 +132,24 @@ export default function SupplyTable(props) {
 
   function clearDetailsEmptyTable() {
     const rows = [];
-    Tokens.forEach(element => {
+    Tokens.forEach((element) => {
       const row = createSupplyData(element, 0, 0, 6.0, 'Button');
       rows.push(row);
-    })
+    });
     setSupplyRows(rows);
   }
 
   async function setSupplyTable() {
     if (Tokens && Tokens.length) {
-      const rows = Tokens.filter(token => !token.isPedgeToken).map(fToken => createSupplyData(fToken, 0, 0, 6.0, 'Button'))
+      const rows = Tokens.filter((token) => !token.isPedgeToken).map((fToken) => createSupplyData(fToken, 0, 0, 6.0, 'Button'));
       let rowAdded = 0;
       for (var i = 0; i < rows.length; i++) {
-        const resp = await getSupplyDetailsFromContract(Tokens[i], i)
-        console.log(i, resp, rows)
-        rows[i].supplyAmount = resp.amount
-        rows[i].borrowAmount = resp.borrowAmount
-        rows[i].supplyAPY = resp.supplyAPY
-        rows[i].borrowAPY = resp.borrowAPY
+        const resp = await getSupplyDetailsFromContract(Tokens[i], i);
+        console.log(i, resp, rows);
+        rows[i].supplyAmount = resp.amount;
+        rows[i].borrowAmount = resp.borrowAmount;
+        rows[i].supplyAPY = resp.supplyAPY;
+        rows[i].borrowAPY = resp.borrowAPY;
         rowAdded++;
       }
       setSupplyRows(rows);
@@ -184,62 +161,41 @@ export default function SupplyTable(props) {
 
       // })
     }
-
-
-
   }
 
   const handleCloseAsset = () => {
     setOpenAsset(false);
   };
   React.useEffect(() => {
-    console.log(props?.reload)
+    console.log(props?.reload);
     if (props?.reload) {
-      clearDetailsEmptyTable()
+      clearDetailsEmptyTable();
     }
-  }, [props?.reload])
+  }, [props?.reload]);
 
   return (
     <div>
       <Grid container direction="row" justifyContent="center" alignItems="flex-center" spacing={2}>
-
         <Grid item xs={12} sm={12} md={6} style={{ marginBottom: '10px' }}>
-          <Box className={classes.boxRoot} >
+          <Box className={classes.boxRoot}>
             <Typography varient="h2" p={2} sx={{ textAlign: 'start', fontSize: '18px', marginBottom: '5px !important', fontWeight: 500 }}>
               Supply Market
             </Typography>
 
-            <LendingTable
-              SupplyRows={SupplyRows}
-              action={props.action}
-              setCurrentRow={setCurrentRow}
-              setOpenAsset={setOpenAsset}
-              market="supply"
-            ></LendingTable>
+            <LendingTable SupplyRows={SupplyRows} action={props.action} setCurrentRow={setCurrentRow} setOpenAsset={setOpenAsset} market="supply"></LendingTable>
           </Box>
         </Grid>
         <Grid item xs={12} sm={12} md={6} style={{ marginBottom: '10px' }}>
-          <Box className={classes.boxRoot} >
+          <Box className={classes.boxRoot}>
             <Typography varient="h2" p={2} sx={{ textAlign: 'start', fontSize: '18px', marginBottom: '5px !important', fontWeight: 500 }}>
               Borrow Market
             </Typography>
 
-            <LendingTable
-              SupplyRows={SupplyRows}
-              action={props.action}
-              setCurrentRow={setCurrentRow}
-              setOpenAsset={setOpenAsset}
-              market="borrow"
-            ></LendingTable>
+            <LendingTable SupplyRows={SupplyRows} action={props.action} setCurrentRow={setCurrentRow} setOpenAsset={setOpenAsset} market="borrow"></LendingTable>
           </Box>
         </Grid>
       </Grid>
-      {currentRow && openAsset && (
-        <Asset currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} open={openAsset} handleClose={handleCloseAsset}></Asset>
-      )}
-
-
+      {currentRow && openAsset && <Asset currentRow={currentRow} icon={currentRow.icon} title={currentRow.name} open={openAsset} handleClose={handleCloseAsset}></Asset>}
     </div>
-
   );
 }

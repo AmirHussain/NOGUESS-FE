@@ -7,7 +7,7 @@ import { Web3ProviderContext } from '../../../Components/walletConnect/walletCon
 import { bigToDecimal, bigToDecimalUints, decimalToBig } from '../../../utils/utils';
 import moment from 'moment';
 import { getAPY } from '../../../utils/common';
-import { FluteAlertContext } from '../../../Components/Alert';
+import { vernofxAlertContext } from '../../../Components/Alert';
 
 
 const useStyles = makeStyles({
@@ -40,7 +40,7 @@ export default function StakingItem(props) {
     const classes = useStyles();
     const { provider, signer } = React.useContext(Web3ProviderContext);
 
-    const { setAlert} = useContext(FluteAlertContext);
+    const { setAlert} = useContext(vernofxAlertContext);
     const [row, setRow] = useState({});
     const openDrawer = (row) => {
         row.token = { icon: row.staking_token?.token_image, address: row.staking_token?.token_address, symbol: row.staking_token?.token_symbol }

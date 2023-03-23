@@ -7,7 +7,7 @@ import { abis, contractAddresses, makeContract } from '../../contracts/useContra
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { bigToDecimal, bigToDecimalUints, decimalToBig, decimalToBigUnits } from '../../utils/utils';
 import { formatDate, ProposalStatus, start_and_end } from '../../utils/common';
-import { FluteAlertContext } from '../../Components/Alert';
+import { vernofxAlertContext } from '../../Components/Alert';
 import { getUserSuppliedAmount } from '../../utils/userDetails';
 import moment from 'moment';
 
@@ -100,7 +100,7 @@ export default function Proposal(params) {
     const classes = useStyles();
     const [activeStep, setActiveStep] = React.useState(0);
     const { provider, signer, account } = React.useContext(Web3ProviderContext);
-    const { setAlert } = React.useContext(FluteAlertContext);
+    const { setAlert } = React.useContext(vernofxAlertContext);
 
 
     const [userVoted, setUserVoted] = React.useState(false);

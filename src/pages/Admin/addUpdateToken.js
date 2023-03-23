@@ -9,11 +9,11 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { Grid } from '@mui/material';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
-import { FluteAlertContext } from '../../Components/Alert';
+import { vernofxAlertContext } from '../../Components/Alert';
 
 export default function AddUpdateToken(params) {
 
-  const { setAlert} = React.useContext(FluteAlertContext);
+  const { setAlert} = React.useContext(vernofxAlertContext);
 
   const [row, setRow] = React.useState({})
 

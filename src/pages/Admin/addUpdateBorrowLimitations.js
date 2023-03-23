@@ -9,12 +9,12 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { Avatar, Grid, InputLabel, Switch } from '@mui/material';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
-import { FluteAlertContext } from '../../Components/Alert';
+import { vernofxAlertContext } from '../../Components/Alert';
 import { decimalToBig } from '../../utils/utils';
 
 export default function AddUpdateBorrowLimitations(params) {
 
-  const { setAlert} = React.useContext(FluteAlertContext);
+  const { setAlert} = React.useContext(vernofxAlertContext);
 
   const [row, setRow] = React.useState({})
 

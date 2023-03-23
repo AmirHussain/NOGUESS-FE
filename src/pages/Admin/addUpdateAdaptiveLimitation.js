@@ -9,7 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { Autocomplete, Avatar, Checkbox, FilledInput, FormControl, FormControlLabel, Grid, IconButton, InputAdornment, InputLabel, MenuItem, Select } from '@mui/material';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
-import { FluteAlertContext } from '../../Components/Alert';
+import { vernofxAlertContext } from '../../Components/Alert';
 import { decimalToBigUnits } from '../../utils/utils';
 import theme from '../../theme';
 import { makeStyles } from '@mui/styles';
@@ -50,7 +50,7 @@ const useStyles = makeStyles({
 export default function AddUpdateAdaptiveLimitation(params) {
 
   const classes = useStyles();
-  const { setAlert } = React.useContext(FluteAlertContext);
+  const { setAlert } = React.useContext(vernofxAlertContext);
 
 
 
