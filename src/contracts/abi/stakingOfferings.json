@@ -1,1 +1,175 @@
-[{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"staking_contract_address","type":"address"},{"components":[{"internalType":"address","name":"token_address","type":"address"},{"internalType":"string","name":"token_image","type":"string"},{"internalType":"string","name":"token_symbol","type":"string"},{"internalType":"string","name":"token_name","type":"string"}],"internalType":"struct StakingOfferings.sToken","name":"staking_token","type":"tuple"},{"components":[{"internalType":"address","name":"token_address","type":"address"},{"internalType":"string","name":"token_image","type":"string"},{"internalType":"string","name":"token_symbol","type":"string"},{"internalType":"string","name":"token_name","type":"string"}],"internalType":"struct StakingOfferings.sToken","name":"reward_token","type":"tuple"},{"internalType":"uint256","name":"staking_start_time","type":"uint256"},{"internalType":"uint256","name":"staking_duration","type":"uint256"},{"internalType":"bool","name":"isActive","type":"bool"},{"internalType":"bool","name":"isExpired","type":"bool"},{"internalType":"uint256","name":"apy","type":"uint256"}],"name":"AddStakingOption","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_rowIndex","type":"uint256"}],"name":"ExprireStakingOption","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"GetAllStakingOptions","outputs":[{"components":[{"internalType":"address","name":"staking_contract_address","type":"address"},{"components":[{"internalType":"address","name":"token_address","type":"address"},{"internalType":"string","name":"token_image","type":"string"},{"internalType":"string","name":"token_symbol","type":"string"},{"internalType":"string","name":"token_name","type":"string"}],"internalType":"struct StakingOfferings.sToken","name":"staking_token","type":"tuple"},{"components":[{"internalType":"address","name":"token_address","type":"address"},{"internalType":"string","name":"token_image","type":"string"},{"internalType":"string","name":"token_symbol","type":"string"},{"internalType":"string","name":"token_name","type":"string"}],"internalType":"struct StakingOfferings.sToken","name":"reward_token","type":"tuple"},{"internalType":"uint256","name":"staking_start_time","type":"uint256"},{"internalType":"uint256","name":"staking_duration","type":"uint256"},{"internalType":"bool","name":"isActive","type":"bool"},{"internalType":"bool","name":"isExpired","type":"bool"},{"internalType":"uint256","name":"apy","type":"uint256"}],"internalType":"struct StakingOfferings.StakingOption[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_rowIndex","type":"uint256"}],"name":"GetStakingOption","outputs":[{"components":[{"internalType":"address","name":"staking_contract_address","type":"address"},{"components":[{"internalType":"address","name":"token_address","type":"address"},{"internalType":"string","name":"token_image","type":"string"},{"internalType":"string","name":"token_symbol","type":"string"},{"internalType":"string","name":"token_name","type":"string"}],"internalType":"struct StakingOfferings.sToken","name":"staking_token","type":"tuple"},{"components":[{"internalType":"address","name":"token_address","type":"address"},{"internalType":"string","name":"token_image","type":"string"},{"internalType":"string","name":"token_symbol","type":"string"},{"internalType":"string","name":"token_name","type":"string"}],"internalType":"struct StakingOfferings.sToken","name":"reward_token","type":"tuple"},{"internalType":"uint256","name":"staking_start_time","type":"uint256"},{"internalType":"uint256","name":"staking_duration","type":"uint256"},{"internalType":"bool","name":"isActive","type":"bool"},{"internalType":"bool","name":"isExpired","type":"bool"},{"internalType":"uint256","name":"apy","type":"uint256"}],"internalType":"struct StakingOfferings.StakingOption","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_rowIndex","type":"uint256"}],"name":"InactiveStakingOption","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"stakingOptions","outputs":[{"internalType":"address","name":"staking_contract_address","type":"address"},{"components":[{"internalType":"address","name":"token_address","type":"address"},{"internalType":"string","name":"token_image","type":"string"},{"internalType":"string","name":"token_symbol","type":"string"},{"internalType":"string","name":"token_name","type":"string"}],"internalType":"struct StakingOfferings.sToken","name":"staking_token","type":"tuple"},{"components":[{"internalType":"address","name":"token_address","type":"address"},{"internalType":"string","name":"token_image","type":"string"},{"internalType":"string","name":"token_symbol","type":"string"},{"internalType":"string","name":"token_name","type":"string"}],"internalType":"struct StakingOfferings.sToken","name":"reward_token","type":"tuple"},{"internalType":"uint256","name":"staking_start_time","type":"uint256"},{"internalType":"uint256","name":"staking_duration","type":"uint256"},{"internalType":"bool","name":"isActive","type":"bool"},{"internalType":"bool","name":"isExpired","type":"bool"},{"internalType":"uint256","name":"apy","type":"uint256"}],"stateMutability":"view","type":"function"}]
+[
+  { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "staking_contract_address", "type": "address" },
+      {
+        "components": [
+          { "internalType": "address", "name": "token_address", "type": "address" },
+          { "internalType": "string", "name": "token_image", "type": "string" },
+          { "internalType": "string", "name": "token_symbol", "type": "string" },
+          { "internalType": "string", "name": "token_name", "type": "string" }
+        ],
+        "internalType": "struct VarStakingOfferings.sToken",
+        "name": "staking_token",
+        "type": "tuple"
+      },
+      { "internalType": "string", "name": "plane_name", "type": "string" },
+      { "internalType": "string", "name": "min_deposit", "type": "string" },
+      { "internalType": "string", "name": "max_deposit", "type": "string" },
+      { "internalType": "uint256", "name": "life_days", "type": "uint256" },
+      { "internalType": "uint256", "name": "percent", "type": "uint256" },
+      { "internalType": "uint256", "name": "num_of_days", "type": "uint256" },
+      { "internalType": "uint256", "name": "ref_bonus", "type": "uint256" }
+    ],
+    "name": "AddStakingOption",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "GetAllStakingOptions",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "address", "name": "staking_contract_address", "type": "address" },
+          {
+            "components": [
+              { "internalType": "address", "name": "token_address", "type": "address" },
+              { "internalType": "string", "name": "token_image", "type": "string" },
+              { "internalType": "string", "name": "token_symbol", "type": "string" },
+              { "internalType": "string", "name": "token_name", "type": "string" }
+            ],
+            "internalType": "struct VarStakingOfferings.sToken",
+            "name": "staking_token",
+            "type": "tuple"
+          },
+          { "internalType": "string", "name": "plane_name", "type": "string" },
+          { "internalType": "string", "name": "min_deposit", "type": "string" },
+          { "internalType": "string", "name": "max_deposit", "type": "string" },
+          { "internalType": "uint256", "name": "life_days", "type": "uint256" },
+          { "internalType": "uint256", "name": "percent", "type": "uint256" },
+          { "internalType": "uint256", "name": "num_of_days", "type": "uint256" },
+          { "internalType": "uint256", "name": "ref_bonus", "type": "uint256" },
+          { "internalType": "bool", "name": "isActive", "type": "bool" }
+        ],
+        "internalType": "struct VarStakingOfferings.StakingOption[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "_rowIndex", "type": "uint256" }],
+    "name": "GetStakingOption",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "address", "name": "staking_contract_address", "type": "address" },
+          {
+            "components": [
+              { "internalType": "address", "name": "token_address", "type": "address" },
+              { "internalType": "string", "name": "token_image", "type": "string" },
+              { "internalType": "string", "name": "token_symbol", "type": "string" },
+              { "internalType": "string", "name": "token_name", "type": "string" }
+            ],
+            "internalType": "struct VarStakingOfferings.sToken",
+            "name": "staking_token",
+            "type": "tuple"
+          },
+          { "internalType": "string", "name": "plane_name", "type": "string" },
+          { "internalType": "string", "name": "min_deposit", "type": "string" },
+          { "internalType": "string", "name": "max_deposit", "type": "string" },
+          { "internalType": "uint256", "name": "life_days", "type": "uint256" },
+          { "internalType": "uint256", "name": "percent", "type": "uint256" },
+          { "internalType": "uint256", "name": "num_of_days", "type": "uint256" },
+          { "internalType": "uint256", "name": "ref_bonus", "type": "uint256" },
+          { "internalType": "bool", "name": "isActive", "type": "bool" }
+        ],
+        "internalType": "struct VarStakingOfferings.StakingOption",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "_rowIndex", "type": "uint256" }],
+    "name": "InactiveStakingOption",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  { "inputs": [], "name": "_owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" },
+  { "inputs": [], "name": "getOwner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" },
+  { "inputs": [], "name": "lastUpdated", "outputs": [{ "internalType": "uint40", "name": "", "type": "uint40" }], "stateMutability": "view", "type": "function" },
+  { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "stakingOptions",
+    "outputs": [
+      { "internalType": "address", "name": "staking_contract_address", "type": "address" },
+      {
+        "components": [
+          { "internalType": "address", "name": "token_address", "type": "address" },
+          { "internalType": "string", "name": "token_image", "type": "string" },
+          { "internalType": "string", "name": "token_symbol", "type": "string" },
+          { "internalType": "string", "name": "token_name", "type": "string" }
+        ],
+        "internalType": "struct VarStakingOfferings.sToken",
+        "name": "staking_token",
+        "type": "tuple"
+      },
+      { "internalType": "string", "name": "plane_name", "type": "string" },
+      { "internalType": "string", "name": "min_deposit", "type": "string" },
+      { "internalType": "string", "name": "max_deposit", "type": "string" },
+      { "internalType": "uint256", "name": "life_days", "type": "uint256" },
+      { "internalType": "uint256", "name": "percent", "type": "uint256" },
+      { "internalType": "uint256", "name": "num_of_days", "type": "uint256" },
+      { "internalType": "uint256", "name": "ref_bonus", "type": "uint256" },
+      { "internalType": "bool", "name": "isActive", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "newOwner", "type": "address" }],
+    "name": "transferOwner",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "staking_contract_address", "type": "address" },
+      {
+        "components": [
+          { "internalType": "address", "name": "token_address", "type": "address" },
+          { "internalType": "string", "name": "token_image", "type": "string" },
+          { "internalType": "string", "name": "token_symbol", "type": "string" },
+          { "internalType": "string", "name": "token_name", "type": "string" }
+        ],
+        "internalType": "struct VarStakingOfferings.sToken",
+        "name": "staking_token",
+        "type": "tuple"
+      },
+      { "internalType": "string", "name": "plane_name", "type": "string" },
+      { "internalType": "string", "name": "min_deposit", "type": "string" },
+      { "internalType": "string", "name": "max_deposit", "type": "string" },
+      { "internalType": "uint256", "name": "life_days", "type": "uint256" },
+      { "internalType": "uint256", "name": "percent", "type": "uint256" },
+      { "internalType": "uint256", "name": "num_of_days", "type": "uint256" },
+      { "internalType": "uint256", "name": "ref_bonus", "type": "uint256" },
+      { "internalType": "bool", "name": "isActive", "type": "bool" },
+      { "internalType": "uint256", "name": "stakingId", "type": "uint256" }
+    ],
+    "name": "updateStakingOption",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

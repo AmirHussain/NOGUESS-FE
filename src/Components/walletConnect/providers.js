@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 export const Networks = [
   // { name: 'Polygon', internalName: 'goerli', icon: Icons.polygon, chainId: 5 },
-  { name: '', icon: 'https://i.imgflip.com/6dky3c.png', chainId: 5 },
+  { name: 'Sepolia', icon: 'https://i.imgflip.com/6dky3c.png', chainId: 11155111 },
   // { name: 'Ethereum', icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/480px-Ethereum-icon-purple.svg.png', chainId: 1 },
 ];
 

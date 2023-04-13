@@ -1,6 +1,6 @@
 import { useContractCall } from '@usedapp/core';
 import { ethers } from 'ethers';
-import { governance, lendingAbi,stakingOfferings,wethAbi,staking, governanceVoting } from './abi/abi';
+import { governance, lendingAbi, stakingOfferings, wethAbi, staking, governanceVoting } from './abi/abi';
 import * as dotenv from 'dotenv';
 import { Interface } from 'ethers/lib/utils';
 dotenv.config();
@@ -10,7 +10,7 @@ const abis = {
   governance: new ethers.utils.Interface(governance),
   governanceVoting: new ethers.utils.Interface(governanceVoting),
   stakingOfferings: new ethers.utils.Interface(stakingOfferings),
-  staking:new ethers.utils.Interface(staking),
+  staking: new ethers.utils.Interface(staking),
   WETH: new ethers.utils.Interface(wethAbi),
   fWETH: new ethers.utils.Interface(wethAbi),
   DAI: new ethers.utils.Interface(wethAbi),
@@ -20,9 +20,9 @@ const abis = {
 const contractAddresses = {
   lending: '0xfb90B43c2381383Cc9720d8A78DaC278F2Bb1e12',
   governance: '0xb1E094AceA8A1dbAf6d5C1b204d200a05f82362e',
-  stakingOfferings:'0xB87a10A083C0e30FCCEdafB83c66fBd7fdc4E2e1',
-  staking:'0xeAd6E170D5f6508F575a9e9D9396C300609430Bb',
-  governanceVoting:'0x9d0D655CfD6f873b900D50de82e309415242DD9c',
+  stakingOfferings: '0x7dbafa04E693F523C962da4E3680282e2Ee1d0e3',
+  staking: '0xea8128e8a6F3e523bB44257A5A94B6187289E4AD',
+  governanceVoting: '0x9d0D655CfD6f873b900D50de82e309415242DD9c',
 };
 
 const useCustomContractCall = (abi, contractAddress, method, args, transformFunc) => {
@@ -68,10 +68,10 @@ const getWalletProvider = (walletName) => {
 };
 
 const makeContract = (address, abi, signerOrProvider) => {
-  if(!signerOrProvider){
-     signerOrProvider = ethers.getDefaultProvider('goerli');
+  if (!signerOrProvider) {
+    signerOrProvider = ethers.getDefaultProvider('sepolia');
   }
-  if (!address || !abi ) {
+  if (!address || !abi) {
     throw new Error('Insuficient arguments');
   }
   return new ethers.Contract(address, abi, signerOrProvider);

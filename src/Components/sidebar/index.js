@@ -1,5 +1,5 @@
 // lib imports
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { makeStyles } from '@mui/styles';
 import { Drawer, Box, Toolbar, List, Typography, Divider, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 
@@ -14,15 +14,15 @@ import marketIcon from '../../assets/svg/5.svg';
 
 import adminIcon from '../../assets/svg/7.svg';
 
-
 //constants
 import { routes } from '../../routes';
 import theme from './../../theme';
-import {Icons} from './../../icons';
+import { Icons } from './../../icons';
+import { TokenContext } from '../../tokenFactory';
+import { Web3ProviderContext } from '../walletConnect/walletConnect';
 
-const drawerWidth = theme.drawerWidth+'px';
+const drawerWidth = theme.drawerWidth + 'px';
 const useStyles = makeStyles({
-
   drawer: {
     width: drawerWidth,
     zIndex: theme.drawerIndex,
@@ -34,7 +34,7 @@ const useStyles = makeStyles({
     color: theme.DrawerText,
   },
   content: {
-    overflowX: 'hidden'
+    overflowX: 'hidden',
     // height:'calc(100% - '+theme.headerHeight+') !important'
   },
   linkClass: {
@@ -50,12 +50,12 @@ const useStyles = makeStyles({
   },
   linkClassActive: {
     background: '#383944 !important',
-    borderLeft:'4px solid blue !important',
+    borderLeft: '4px solid blue !important',
     color: 'white  !important',
     fontWeight: '500 !important',
   },
   linkItem: {
-    padding: '0px !important'
+    padding: '0px !important',
   },
   linkText: {
     fontWeight: '500 !important',
@@ -66,13 +66,13 @@ const useStyles = makeStyles({
     fontWeight: '500 !important',
   },
   listItemIcon: {
-    minWidth: '35px !important'
+    minWidth: '35px !important',
   },
   sideBarIcons: theme.sideBarIcons,
-  headerIcon:theme.headerIcon,
+  headerIcon: theme.headerIcon,
   divider: {
-    borderColor: theme.palette.divider + ' !important'
-  }
+    borderColor: theme.palette.divider + ' !important',
+  },
 });
 
 export default function Home(props) {
@@ -80,8 +80,10 @@ export default function Home(props) {
   const [anchorEl, setAnchorEl] = useState(null);
   //  props.mobileOpen=!mobileOpen
   const handleDrawerToggle = () => {
-    props.setMobileOpen(!props.mobileOpen)
+    props.setMobileOpen(!props.mobileOpen);
   };
+  const { owner } = useContext(TokenContext);
+  const { account } = useContext(Web3ProviderContext);
 
   // useEffect(() => {
   //   props.setMobileOpen(!props.mobileOpen)
@@ -95,50 +97,52 @@ export default function Home(props) {
         {/* <Pix color="primary"  ></Pix> */}
       </Toolbar>
       <div className={classes.content}>
-        <List  onClick={()=>{handleDrawerToggle()}}>
-          <NavLink className={classes.linkClass}  to={routes.lending} activeClassName={classes.linkClassActive}>
+        <List
+          onClick={() => {
+            handleDrawerToggle();
+          }}
+        >
+          <NavLink className={classes.linkClass} to={routes.staking || routes.home} activeClassName={classes.linkClassActive}>
             <ListItem button key={routes.lending} className={classes.linkItem}>
-              <img className={classes.sideBarIcons} src={landingIcon} alt=''></img>
+              <img className={classes.sideBarIcons} src={landingIcon} alt=""></img>
               <ListItemText primary="Dashboard" className={classes.linkText} />
             </ListItem>
           </NavLink>
-          <NavLink className={classes.linkClass}  to={routes.market} activeClassName={classes.linkClassActive}>
+          <NavLink className={classes.linkClass} to={routes.market} activeClassName={classes.linkClassActive}>
             <ListItem button key={routes.market} className={classes.linkItem}>
-              <img className={classes.sideBarIcons} src={marketIcon} alt=''></img>
+              <img className={classes.sideBarIcons} src={marketIcon} alt=""></img>
               <ListItemText primary="Market" className={classes.linkText} />
             </ListItem>
           </NavLink>
           <NavLink className={classes.linkClass} to={routes.staking} activeClassName={classes.linkClassActive}>
             <ListItem button key={routes.staking} className={classes.linkItem}>
-              <img className={classes.sideBarIcons} src={stakingIcon} alt=''></img>
+              <img className={classes.sideBarIcons} src={stakingIcon} alt=""></img>
 
               <ListItemText primary="Staking" />
             </ListItem>
           </NavLink>
           <NavLink className={classes.linkClass} to="/bridge" activeClassName={classes.linkClassActive}>
             <ListItem button key="BlockchainBridge" className={classes.linkItem}>
-
-              <img className={classes.sideBarIcons} src={bridgeIcon} alt=''></img>
+              <img className={classes.sideBarIcons} src={bridgeIcon} alt=""></img>
               <ListItemText primary="Bridge" className={classes.linkText} />
             </ListItem>
           </NavLink>
           <NavLink className={classes.linkClass} to="/governance" activeClassName={classes.linkClassActive}>
-            <ListItem button key="Governance" className={classes.linkItem} >
-
-              <img className={classes.sideBarIcons} src={governanceIcon} alt=''></img>
+            <ListItem button key="Governance" className={classes.linkItem}>
+              <img className={classes.sideBarIcons} src={governanceIcon} alt=""></img>
               <ListItemText primary="Governance" className={classes.linkText} />
             </ListItem>
           </NavLink>
-          <NavLink className={classes.linkClass} to="/admin" activeClassName={classes.linkClassActive}>
-            <ListItem button key="Governance" className={classes.linkItem} >
-
-              <img className={classes.sideBarIcons} src={adminIcon} alt=''></img>
-              <ListItemText primary="Admin" className={classes.linkText} />
-            </ListItem>
-          </NavLink>
+          {account === owner && (
+            <NavLink className={classes.linkClass} to="/admin" activeClassName={classes.linkClassActive}>
+              <ListItem button key="Governance" className={classes.linkItem}>
+                <img className={classes.sideBarIcons} src={adminIcon} alt=""></img>
+                <ListItemText primary="Admin" className={classes.linkText} />
+              </ListItem>
+            </NavLink>
+          )}
         </List>
       </div>
-
     </div>
   );
   return (
@@ -180,6 +184,5 @@ export default function Home(props) {
         </Drawer>
       </Box>
     </>
-
   );
 }

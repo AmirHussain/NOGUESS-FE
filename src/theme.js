@@ -17,7 +17,7 @@ const contentBackGround = '#1F2028 !important';
 const cardContentBackGround = '#28293194 !important';
 const headerHeight = '66px';
 const sideHeaderHeight = '120px';
-const cardBorderRadius = '28px !important';
+const cardBorderRadius = '12px !important';
 const footerHeight = '66px';
 const chipBackground = '#383944';
 const midContainerHeight = `calc(100% - ${66 * 2 + 'px'})`;
@@ -28,9 +28,9 @@ const modalMdMidContainerMaxHeight = `calc(100vh - 100px)`;
 const modalXsMidContainerMaxHeight = `calc(100vh - 48px)`;
 
 const darkText = '#d6d6d6';
-const lightText = 'rgb(149, 151, 161)';
-const lightBlueText = '#999999';
-const darkBlueText = '#c1dfff';
+const lightText = 'white';
+const lightGoldText = '#BC9021';
+const darkGoldText = '#F3952D';
 const borderColor = 'rgb(149 151 161 / 19%)';
 const theme = createTheme({
   spacing: (factor) => `${0.25 * factor}rem`,
@@ -57,8 +57,8 @@ const theme = createTheme({
   footerHeight,
   darkText,
   lightText,
-  lightBlueText,
-  darkBlueText,
+  lightGoldText,
+  darkGoldText,
   TabsBackground,
   borderColor,
   cardBorderRadius,
@@ -103,7 +103,7 @@ const theme = createTheme({
     padding: '8px 0px 18px 0px',
     textAlign: 'left',
   },
-  textMutedBold: {
+  textBoldWhite: {
     color: lightText,
     fontSize: '12px',
     fontWeight: 600,
@@ -119,7 +119,7 @@ const theme = createTheme({
     fontSize: '14px',
   },
   card: {
-    color: darkBlueText,
+    color: darkGoldText,
     background: cardContentBackGround,
     borderRadius: cardBorderRadius,
     padding: '10px',
@@ -134,7 +134,7 @@ const theme = createTheme({
     /* margin: 4px 16px; */
     padding: '5px',
     paddingBottom: 'inherit !important',
-    borderRadius: '0px 0px 28px 28px !important',
+    borderRadius: '0px 0px 12px 12px !important',
   },
   avatar: {},
   // actionButton: {
@@ -283,17 +283,23 @@ const theme = createTheme({
   },
   drawerContainer: {},
   actionButton: {
-    backgroundColor: '#4158D0',
-    backgroundImage: 'linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)',
-    color: 'white !important',
-    fontWeight: '600 !important',
-    padding: '10px 24px !important',
+    background: 'linear-gradient(to bottom, #fdc901 0%, #f8b017 50%, #f29430 100%) !important',
+    borderRadius: '30px !important',
+    color: 'black !important',
+    // backgroundColor: '#4158D0',
+    // backgroundImage: 'linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)',
+    // color: 'white !important',
+    // fontWeight: '600 !important',
+    // padding: '10px 24px !important',
   },
   actionButton2: {
-    backgroundColor: '#4158D0',
-    backgroundImage: 'linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)',
+    // backgroundColor: '#4158D0',
+    // backgroundImage: 'linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)',
+    // color: 'white !important',
+    // fontWeight: '600 !important',
+    border: '2px solid #f7ab1b !important',
+    borderRadius: '30px !important',
     color: 'white !important',
-    fontWeight: '600 !important',
   },
   cardBackground: {
     background: contentBackGround,

@@ -97,7 +97,7 @@ export function VernofxAlert({ children }) {
             margin: '77px 29px',
           }}
         >
-          {alertArray.map((ala, index) => (
+          {alertArray?.map((ala, index) => (
             <>
               {ala && !ala.hidden && (
                 <div className={classes.alertStyle}>

@@ -11,7 +11,7 @@ import { TokenContext } from '../../tokenFactory';
 
 import theme from './../../theme';
 import { makeStyles } from '@mui/styles';
-import AddUpdateAggregator from './addUpdateAggregator';
+import AddUpdateStakingOption from './addUpdateStakingOption';
 const useStyles = makeStyles({
   tabs: {
     '& .MuiButtonBase-root': {
@@ -44,10 +44,11 @@ const useStyles = makeStyles({
   },
   card: theme.card,
 });
-export default function AdminAggregators() {
-  const { Tokens, TokenAggregators } = React.useContext(TokenContext);
-  const [rows, setRows] = React.useState([]);
+export default function AdminStakingOfferings() {
+  const { StakingOptions } = React.useContext(TokenContext);
   const [newRow, setNewRow] = React.useState(true);
+  const [rowId, setRowId] = React.useState(0);
+
   const [currentRow, setCurrentRow] = React.useState([]);
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
@@ -64,56 +65,59 @@ export default function AdminAggregators() {
     setOpen(true);
   };
 
-  const editToken = (row) => {
-    if (row.aggregator) {
-      setNewRow(false);
-    } else {
-      setNewRow(true);
-    }
+  const editToken = (row, index) => {
+    setNewRow(false);
     setCurrentRow(row);
+    setRowId(index);
     setOpen(true);
   };
 
-  const setAggregatorsAddress = (row) => {
-    if (TokenAggregators && TokenAggregators.length) {
-      const currentAggregator = TokenAggregators.find((agg) => agg.tokenAddress === row.address);
-      row.aggregator = currentAggregator;
-    }
-  };
-  React.useEffect(() => {
-    if (Tokens && Tokens.length) {
-      const updatedTokens = Object.assign([], Tokens);
-      updatedTokens.forEach((row) => setAggregatorsAddress(row));
-      setRows(Tokens);
-    }
-  }, [Tokens, TokenAggregators]);
+  React.useEffect(() => {}, [StakingOptions]);
 
+  // {
+  //   0x6763d0619CB1D4d7e1F7E67B41ACA9CfbA1Ab772,
+  //     0x0455A1cC4E88A146A98f83D35e94e1D6a3BE2759,
+  //     Pedge USDT
+  //   VST
+  //   https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/ZJZZK5B2ZNF25LYQHMUTBTOMLU.png
+  //   36135
+  //   72270
+  //   7
+  //   5
+  // }
   return (
-    <>
+    <div style={{ width: '100%' }}>
+      <div className="d-flexSpaceBetween">
+        <Typography sx={{ fontSize: '18px', fontWeight: 600, color: 'white', textAlign: 'left' }} variant="p"></Typography>
+        <Typography sx={{ fontSize: 14, fontWeight: 600, color: theme.lightText, paddingBottom: '10px', cursor: 'pointer' }} variant="p" onClick={() => newToken()}>
+          + Add Plans
+        </Typography>
+      </div>
       {open && (
-        <AddUpdateAggregator
+        <AddUpdateStakingOption
           open={open}
           newRow={newRow}
           currentRow={currentRow}
           setOpen={setOpen}
+          rowId={rowId}
           handleClickOpen={handleClickOpen}
           handleClose={handleClose}
-        ></AddUpdateAggregator>
+        ></AddUpdateStakingOption>
       )}
       <List sx={{ width: '100%' }}>
-        {rows?.map((row) => {
+        {StakingOptions?.map((row, index) => {
           return (
             <>
-              <ListItem alignItems="flex-start" className={classes.card} secondaryAction={<Edit onClick={() => editToken(row)} sx={{ cursor: 'pointer' }}></Edit>}>
+              <ListItem alignItems="flex-start" className={classes.card} secondaryAction={<Edit onClick={() => editToken(row, index)} sx={{ cursor: 'pointer' }}></Edit>}>
                 <ListItemAvatar>
-                  <Avatar alt="" src={row.icon} />
+                  <Avatar alt="" src={row?.staking_token?.token_image} />
                 </ListItemAvatar>
                 <ListItemText
-                  primary={row.name}
+                  primary={row?.staking_token?.token_symbol}
                   secondary={
                     <React.Fragment>
                       <Typography sx={{ display: 'inline', color: theme.lightText, fontSize: '14px' }} component="span">
-                        {row?.aggregator?.decimals || 18} decimals {' — '} {row?.aggregator?.aggregator}
+                        {row?.num_of_days} days {' — '} {row?.staking_contract_address}
                       </Typography>
                     </React.Fragment>
                   }
@@ -123,6 +127,6 @@ export default function AdminAggregators() {
           );
         })}
       </List>
-    </>
+    </div>
   );
 }

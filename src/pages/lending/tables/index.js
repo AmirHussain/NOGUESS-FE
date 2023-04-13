@@ -141,7 +141,7 @@ export default function SupplyTable(props) {
 
   async function setSupplyTable() {
     if (Tokens && Tokens.length) {
-      const rows = Tokens.filter((token) => !token.isPedgeToken).map((fToken) => createSupplyData(fToken, 0, 0, 6.0, 'Button'));
+      const rows = Tokens.filter((token) => !token.isPedgeToken)?.map((fToken) => createSupplyData(fToken, 0, 0, 6.0, 'Button'));
       let rowAdded = 0;
       for (var i = 0; i < rows.length; i++) {
         const resp = await getSupplyDetailsFromContract(Tokens[i], i);
