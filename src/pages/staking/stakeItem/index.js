@@ -113,7 +113,7 @@ export default function StakeItem(params) {
       const wethResult = await weth.approve(stakingContract.address, decimalToBig(amount));
       setAlert({ severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully', txHash: wethResult.hash }, index);
       setAlert({ severity: 'info', title: 'Staking', description: 'Staking in progress' }, index);
-      const result = await stakingContract.Deposit(signerAddress, decimalToBig(amount), currentStake.stakeFromPool, { gasLimit: 1048748 });
+      const result = await stakingContract.Deposit(signerAddress, decimalToBig(amount), currentStake.stakeFromPool, false, decimalToBig('0'), { gasLimit: 1048748 });
       setAlert({ severity: 'info', title: 'Staking', description: 'Staking in progress', txHash: result.hash }, index);
 
       await result.wait(1);

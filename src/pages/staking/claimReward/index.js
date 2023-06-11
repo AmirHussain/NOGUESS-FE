@@ -1,42 +1,6 @@
 import React, { useContext, useState } from 'react';
-import {
-  Grid,
-  Box,
-  Card,
-  Typography,
-  Switch,
-  TableContainer,
-  Table,
-  TableRow,
-  TableCell,
-  TableBody,
-  Paper,
-  Button,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-  IconButton,
-  Toolbar,
-  Modal,
-  Fade,
-  DialogActions,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  TextField,
-  SwipeableDrawer,
-  Skeleton,
-  AppBar,
-  Avatar,
-  Input,
-} from '@mui/material';
+import { Grid, Box, Card, Button } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { ArrowBack, Inbox, Mail } from '@mui/icons-material';
 import theme from '../../../theme';
 import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
 import { vernofxAlertContext } from '../../../Components/Alert';
@@ -97,7 +61,7 @@ export default function ClaimItem(params) {
       // const wethResult = await weth.approve(stakingContract.address, decimalToBig(amount));
       // setAlert({ severity: 'success', title: 'Approval', description: 'Approval of transaction completed successfully' });
       index = setAlert({ severity: 'info', title: 'Payout', description: 'Payout in progress' });
-      const result = await stakingContract.Payout(addToPool, { gasLimit: 1000000 });
+      const result = await stakingContract.Payout(addToPool, false, decimalToBig('0'), { gasLimit: 1000000 });
       setAlert({ severity: 'info', title: 'Payout', description: 'Payout in progress', txHash: result.hash }, index);
 
       await result.wait(1);
