@@ -137,7 +137,7 @@ export default function StakingItem(props) {
         let deposit = 0;
         for (var i = 0; i < noOdDeposit; i++) {
           const depositResult = await stakingOfferingContract.memberDeposit(signerAddress, decimalToBigUnits(i.toString(), 0));
-          if(!depositResult.isBreakEven){
+          if ((!depositResult.isBreakEven) && userDetails?.lastWithdrawn < depositResult.time) {
             deposit += Number(bigToDecimal(depositResult.amount) | 0);
           }
           console.log(deposit, i);
@@ -146,7 +146,7 @@ export default function StakingItem(props) {
         console.log('invested', Number(bigToDecimal(userDetails.total_invested)))
 
         console.log('total_withdrawn', Number(bigToDecimal(userDetails.total_withdrawn)))
-        
+
         console.log('referel Bonus', Number(bigToDecimal(userDetails.total_ref_bonus)))
         updatedRow.balanceOf = deposit;
 
