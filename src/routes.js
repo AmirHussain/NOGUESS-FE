@@ -12,6 +12,7 @@ export const routes = {
   asset: '/asset',
   staking: '/staking',
   proposal: '/proposal',
+  game: '/game',
 };
 
 export const routeHeaders = {

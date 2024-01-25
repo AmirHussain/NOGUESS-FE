@@ -1,6 +1,6 @@
 import { useContractCall } from '@usedapp/core';
 import { ethers } from 'ethers';
-import { governance, lendingAbi, stakingOfferings, wethAbi, staking, governanceVoting } from './abi/abi';
+import { governance, lendingAbi, stakingOfferings, wethAbi, staking, governanceVoting, game } from './abi/abi';
 import * as dotenv from 'dotenv';
 import { Interface } from 'ethers/lib/utils';
 dotenv.config();
@@ -15,6 +15,8 @@ const abis = {
   fWETH: new ethers.utils.Interface(wethAbi),
   DAI: new ethers.utils.Interface(wethAbi),
   fDAI: new ethers.utils.Interface(wethAbi),
+  NGT: new ethers.utils.Interface(wethAbi),
+  GAME: new ethers.utils.Interface(game),
 };
 
 const contractAddresses = {
@@ -23,6 +25,8 @@ const contractAddresses = {
   stakingOfferings: '0x7dbafa04E693F523C962da4E3680282e2Ee1d0e3',
   staking: '0xea8128e8a6F3e523bB44257A5A94B6187289E4AD',
   governanceVoting: '0x9d0D655CfD6f873b900D50de82e309415242DD9c',
+  game:'0xeeaf23fc349155d3b1255de889578c9438a6bc1d',
+  token:'0xEC0e668bB99E65f348983Cd847f42265753bd306'
 };
 
 const useCustomContractCall = (abi, contractAddress, method, args, transformFunc) => {
@@ -47,7 +51,7 @@ const useCustomContractCall = (abi, contractAddress, method, args, transformFunc
 };
 
 const getInfuraProvider = () => {
-  const rpcUrls = process.env.REACT_APP_INFURA_ENDPOINT;
+  const rpcUrls = 'https://base-sepolia.infura.io/v3/01228a1a14684cad8ba90a89c7d08d96';
   const ethProvider = new ethers.providers.JsonRpcProvider(rpcUrls);
   return ethProvider;
 };
@@ -63,8 +67,6 @@ const getWalletProvider = (walletName) => {
     return provider;
   }
 
-  if (walletName === 'walletConnect') {
-  }
 };
 
 const makeContract = (address, abi, signerOrProvider) => {

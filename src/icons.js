@@ -1,15 +1,15 @@
-import vernofx1 from './assets/svg/vernofx Logo-01.svg';
-import vernofx2 from './assets/svg/vernofx Logo-02.svg';
-import vernofxwhite1 from './assets/svg/logo192.png';
-import vernofxwhite2 from './assets/svg/logo192.png';
+import NUOGUESS1 from './assets/svg/Logo-01.svg';
+import NUOGUESS2 from './assets/svg/Logo-02.svg';
+import NUOGUESSwhite1 from './assets/svg/logobg.png';
+import NUOGUESSwhite2 from './assets/svg/logobg.png';
 import polygon from './assets/svg/polygon.svg';
 import ethereum from './assets/svg/ethereum.svg';
 
 export const Icons = {
-  vernofx1,
-  vernofxwhite1,
-  vernofxwhite2,
-  vernofx2,
+  NUOGUESS1,
+  NUOGUESSwhite1,
+  NUOGUESSwhite2,
+  NUOGUESS2,
   polygon,
   ethereum,
 };

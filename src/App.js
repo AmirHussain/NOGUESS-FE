@@ -9,7 +9,7 @@ import { CssBaseline } from '@mui/material';
 import custome_theme from './theme';
 import React from 'react';
 import { Web3Provider } from './Components/walletConnect/walletConnect';
-import { VernofxAlert } from './Components/Alert';
+import { NUOGUESSAlert } from './Components/Alert';
 import { TokenFactory } from './tokenFactory';
 
 function App() {
@@ -18,7 +18,7 @@ function App() {
       <ThemeProvider theme={custome_theme}>
         <Web3Provider>
           <TokenFactory>
-            <VernofxAlert>
+            <NUOGUESSAlert>
               <div className="App">
                 <CssBaseline />
                 <Router>
@@ -28,7 +28,7 @@ function App() {
                   </Switch>
                 </Router>
               </div>
-            </VernofxAlert>
+            </NUOGUESSAlert>
           </TokenFactory>
         </Web3Provider>
       </ThemeProvider>

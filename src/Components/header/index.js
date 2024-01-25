@@ -11,6 +11,8 @@ import { routeHeaders } from '../../routes';
 import theme from './../../theme';
 import ConnectWallet from '../walletConnect/login';
 import { TokenContext } from '../../tokenFactory';
+import { Icons } from '../../icons';
+import { NavLink } from 'react-router-dom/cjs/react-router-dom.min';
 
 
 const drawerWidth = theme.drawerWidth;
@@ -85,7 +87,9 @@ const useStyles = makeStyles({
   divider: {
     borderColor: theme.palette.divider + ' !important'
   },
-  sideBarIcons: theme.sideBarIcons
+  sideBarIcons: theme.sideBarIcons,
+  headerIcon: theme.headerIcon
+
 });
 
 function Header(props) {
@@ -95,7 +99,7 @@ function Header(props) {
   let location = useLocation();
   const { headerText, setHeaderText } = React.useContext(TokenContext);
 
-  const [ back, setBack ] = React.useState(false);
+  const [back, setBack] = React.useState(false);
   React.useEffect(() => { }, [headerText])
   React.useEffect(() => {
     const Locations = location.pathname.split('/');
@@ -117,9 +121,9 @@ function Header(props) {
     // props.mobileOpen1=!mobileOpen
   };
 
-const moveBack=()=>{
-  history.goBack();
-}
+  const moveBack = () => {
+    history.goBack();
+  }
 
   return (
     <>
@@ -127,15 +131,19 @@ const moveBack=()=>{
         position="fixed"
         className={classes.appBar}
         color="primary"
-        sx={{ width: { md: `calc(100% - ${drawerWidth}px)` }, ml: { sm: `${drawerWidth}px` } }}
+        sx={{ width: '100%', ml: { sm: `${drawerWidth}px` } }}
       >
         <Toolbar variant="dense" sx={{ height: theme.headerHeight }}>
-          <IconButton aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2, display: { md: 'none' } }}>
+          {/* <IconButton aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2, display: { md: 'none' } }}>
             <MenuRoundedIcon color="primary" />
           </IconButton>
           {back && (<ArrowBack sx={{ mr: 2 ,cursor:'pointer'}} onClick={moveBack}></ArrowBack>
-          )}
-          <Typography variant="div" sx={{}} className={classes.title}> {headerText}</Typography>
+          )} */}
+          <Typography variant="div" sx={{}} className={classes.title}>
+            <NavLink to=''>
+              <img className={classes.headerIcon} src={Icons.NUOGUESSwhite1} alt=""></img>
+            </NavLink>
+          </Typography>
           <div><ConnectWallet /></div>
         </Toolbar>
         {/* <Divider className={classes.divider}></Divider> */}

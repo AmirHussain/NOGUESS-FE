@@ -406,7 +406,7 @@ function Governance() {
               <AppBar key="rightbar" position="relative" className={classes.rightDrawerHeader} sx={{ height: 'auto', boxShadow: 'none !important' }} color="transparent">
                 {supplyAmount < votingWeightage && (
                   <Button sx={{ width: '100%', borderRadius: '10px', minHeight: '45px', fontWeight: '600' }} variant="contained">
-                    Supply vernofxToken
+                    Supply NUOGUESSToken
                   </Button>
                 )}
               </AppBar>

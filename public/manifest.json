@@ -1,19 +1,19 @@
 {
-  "short_name": "vernofx Finanace",
-  "name": "vernofx Finanace By (Digital Uprisers)",
+  "short_name": "NUOGUESS Finanace",
+  "name": "NUOGUESS Finanace By (Digital Uprisers)",
   "icons": [
     {
-      "src": "favicon.svg",
+      "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "favicon.svg",
+      "src": "logo192.svg",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "favicon.svg",
+      "src": "logo512.svg",
       "type": "image/png",
       "sizes": "512x512"
     }

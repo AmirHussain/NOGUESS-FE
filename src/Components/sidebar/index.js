@@ -93,7 +93,7 @@ export default function Home(props) {
   const drawer = (
     <div>
       <Toolbar variant="dense" sx={{ height: theme.sideHeaderHeight }} className={classes.sideToolbar}>
-        <img className={classes.headerIcon} src={Icons.vernofxwhite1} alt=""></img>
+        <img className={classes.headerIcon} src={Icons.NUOGUESSwhite1} alt=""></img>
         {/* <Pix color="primary"  ></Pix> */}
       </Toolbar>
       <div className={classes.content}>

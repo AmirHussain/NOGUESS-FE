@@ -183,9 +183,9 @@ const theme = createTheme({
     },
   },
   headerIcon: {
-    width: '8em',
     fill: 'white',
     paddingRight: '4px',
+    height:'68px',
   },
   sideBarIcons: {
     width: '2em',
@@ -285,11 +285,11 @@ const theme = createTheme({
   actionButton: {
     background: 'linear-gradient(to bottom, #fdc901 0%, #f8b017 50%, #f29430 100%) !important',
     borderRadius: '30px !important',
-    color: 'black !important',
+    color: '#1976d2 !important',
     // backgroundColor: '#4158D0',
     // backgroundImage: 'linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)',
     // color: 'white !important',
-    // fontWeight: '600 !important',
+    fontWeight: '600 !important',
     // padding: '10px 24px !important',
   },
   actionButton2: {

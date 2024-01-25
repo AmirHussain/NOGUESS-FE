@@ -6,7 +6,7 @@ import { abis, makeContract } from '../../../contracts/useContracts';
 import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
 import { bigToDecimal, decimalToBig, decimalToBigUnits } from '../../../utils/utils';
 import moment from 'moment';
-import { vernofxAlertContext } from '../../../Components/Alert';
+import { NUOGUESSAlertContext } from '../../../Components/Alert';
 import { ArrowDropDown } from '@mui/icons-material';
 import { TokenContext } from '../../../tokenFactory';
 
@@ -40,7 +40,7 @@ export default function StakingItem(props) {
   const classes = useStyles();
   const { provider, signer } = React.useContext(Web3ProviderContext);
 
-  const { setAlert } = useContext(vernofxAlertContext);
+  const { setAlert } = useContext(NUOGUESSAlertContext);
   const { refreshData } = useContext(TokenContext);
   const [row, setRow] = useState({});
   const openDrawer = (row, stakeFromPool) => {

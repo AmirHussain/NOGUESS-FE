@@ -61,7 +61,7 @@ import { ethers } from 'ethers';
 import { Web3ProviderContext } from '../../../Components/walletConnect/walletConnect';
 import { TokenContext } from '../../../tokenFactory';
 import { bigToDecimal, bigToDecimalUnits, decimalToBig } from '../../../utils/utils';
-import { vernofxAlertContext } from '../../../Components/Alert';
+import { NUOGUESSAlertContext } from '../../../Components/Alert';
 import moment from 'moment';
 import { getAPY } from '../../../utils/common';
 import { TransformIntrestRateModel } from '../../../utils/userDetails';
@@ -144,7 +144,7 @@ export default function BorrowItem(params) {
 
   const [collateralToken, setCollateralToken] = useState({});
   const [decimals, setDecimals] = useState(0);
-  const { setAlert } = useContext(vernofxAlertContext);
+  const { setAlert } = useContext(NUOGUESSAlertContext);
   const [inProgress, setInProgress] = useState(false);
 
   const [colleteralAmount, setCollateralAmount] = useState();

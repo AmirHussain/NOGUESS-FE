@@ -15,7 +15,7 @@ import AddUpdateAggregator from './addUpdateAggregator';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
 import { Button } from '@mui/material';
-import { vernofxAlertContext } from '../../Components/Alert';
+import { NUOGUESSAlertContext } from '../../Components/Alert';
 import { ProposalStatus } from '../../utils/common';
 import { bigToDecimal, decimalToBig, decimalToBigUnits } from '../../utils/utils';
 const useStyles = makeStyles({
@@ -52,7 +52,7 @@ const useStyles = makeStyles({
 });
 export default function AdminGovernance() {
   const { Tokens, TokenAggregators } = React.useContext(TokenContext);
-  const { setAlert } = React.useContext(vernofxAlertContext);
+  const { setAlert } = React.useContext(NUOGUESSAlertContext);
   const [rows, setRows] = React.useState([]);
   const [newRow, setNewRow] = React.useState(true);
 

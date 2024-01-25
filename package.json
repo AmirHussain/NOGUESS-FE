@@ -1,5 +1,5 @@
 {
-  "name": "vernofxfinanceapp",
+  "name": "NUOGUESSfinanceapp",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -19,6 +19,7 @@
     "@toruslabs/torus-embed": "^1.27.3",
     "@types/react-redux": "^7.1.18",
     "@usedapp/core": "^1.1.5",
+    "antd": "^5.13.2",
     "chart.js": "^3.9.1",
     "dayjs": "^1.11.6",
     "dotenv": "^16.0.1",
@@ -32,6 +33,7 @@
     "moment": "^2.29.4",
     "react": "^17.0.2",
     "react-apexcharts": "^1.4.0",
+    "react-awesome-slider": "^4.1.0",
     "react-chartjs-2": "^4.3.1",
     "react-dom": "^17.0.2",
     "react-quill": "^2.0.0",
@@ -51,7 +53,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy-dev": "git add . && git commit -m 'deployment' && git push --all && react-scripts build && firebase deploy",
-    "build:prod":"build && firebase deploy"
+    "build:prod": "build && firebase deploy"
   },
   "eslintConfig": {
     "extends": [

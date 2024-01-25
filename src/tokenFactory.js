@@ -214,14 +214,14 @@ export function TokenFactory({ children }) {
     }, 30000);
   }
   async function setTokenFactory() {
-    const stakingOfferingsContract = makeContract(contractAddresses.stakingOfferings, abis.stakingOfferings, signer);
-    setOwner(await stakingOfferingsContract.getOwner());
+    const gameContract = makeContract(contractAddresses.game, abis.GAME, signer);
+    setOwner(await gameContract.owner());
 
-    const offerings = await getAllStakingOptions(stakingOfferingsContract);
-    if (!offerings || !offerings.length) {
-      return;
-    }
-    setStakingOptions(offerings);
+    // const offerings = await getAllStakingOptions(gameContract);
+    // if (!offerings || !offerings.length) {
+    //   return;
+    // }
+    // setStakingOptions(offerings);
 
     // setTokens({
     //     WETH: { name: 'Wrapped Ether', symbol: 'WETH', address: '0xFb156f075E7F00c80abEBFD4BaB3b9258F5D8B13', icon: polygon, abi: abis.WETH, pedgeToken: 'fWETH', isPedgeToken: false },
@@ -253,9 +253,9 @@ export function TokenFactory({ children }) {
   }
   React.useEffect(() => {
     if (provider) {
-      setTokenFactory();
+      // setTokenFactory();
     }
-  }, [provider, setTokenFactory]);
+  }, [provider]);
 
   React.useEffect(() => {
     if (StakingOptions && StakingOptions.length && !readingContracts) {

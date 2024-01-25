@@ -6,6 +6,7 @@ import stakingOfferings from './stakingOfferings.json';
 import staking from './staking.json';
 
 import governanceVoting from './governanceVoting.json'
+import game from './game.json'
 
 
-export { lendingAbi,wethAbi ,governance,stakingOfferings,staking,governanceVoting};
+export { lendingAbi,wethAbi ,governance,stakingOfferings,staking,governanceVoting,game};

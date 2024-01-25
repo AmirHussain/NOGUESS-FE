@@ -49,9 +49,9 @@ function ConnectWallet() {
 
   return (
     <div className="d-flex-evenly">
-      <ButtonGroup variant="text" aria-label="text button group" onClick={switchNetwork} sx={{ marginRight: '5px' }}>
+      {/* <ButtonGroup variant="text" aria-label="text button group" onClick={switchNetwork} sx={{ marginRight: '5px' }}>
         {networkList}
-      </ButtonGroup>
+      </ButtonGroup> */}
       {!account ? (
         <Button variant="text" className={classes.walletConnect} variant="contained" onClick={connectWallet}>
           Connect

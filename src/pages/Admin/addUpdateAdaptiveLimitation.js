@@ -9,7 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { Autocomplete, Avatar, Checkbox, FilledInput, FormControl, FormControlLabel, Grid, IconButton, InputAdornment, InputLabel, MenuItem, Select } from '@mui/material';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
-import { vernofxAlertContext } from '../../Components/Alert';
+import { NUOGUESSAlertContext } from '../../Components/Alert';
 import { decimalToBigUnits } from '../../utils/utils';
 import theme from '../../theme';
 import { makeStyles } from '@mui/styles';
@@ -47,7 +47,7 @@ const useStyles = makeStyles({
 });
 export default function AddUpdateAdaptiveLimitation(params) {
   const classes = useStyles();
-  const { setAlert } = React.useContext(vernofxAlertContext);
+  const { setAlert } = React.useContext(NUOGUESSAlertContext);
 
   const [updatedRow, setUpdatedRow] = React.useState({});
 

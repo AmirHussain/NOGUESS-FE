@@ -9,7 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { Avatar, FormControl, FormControlLabel, Grid, InputLabel, ListItemText, MenuItem, OutlinedInput, Select, Switch } from '@mui/material';
 import { Web3ProviderContext } from '../../Components/walletConnect/walletConnect';
 import { abis, contractAddresses, makeContract } from '../../contracts/useContracts';
-import { vernofxAlertContext } from '../../Components/Alert';
+import { NUOGUESSAlertContext } from '../../Components/Alert';
 import { bigToDecimalUnits, decimalToBigUnits } from '../../utils/utils';
 import { TokenContext } from '../../tokenFactory';
 import theme from '../../theme';
@@ -60,7 +60,7 @@ const MenuProps = {
 };
 
 export default function AddUpdateStakingOption(params) {
-  const { setAlert } = React.useContext(vernofxAlertContext);
+  const { setAlert } = React.useContext(NUOGUESSAlertContext);
 
   const [row, setRow] = React.useState({});
   const [newRow, setNewRow] = React.useState(false);

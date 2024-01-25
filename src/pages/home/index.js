@@ -22,6 +22,7 @@ import Asset from '../../Components/asset';
 import Proposal from '../governance/proposal';
 import Admin from '../Admin';
 import ComingSoon from '../commingSoon';
+import GamePage from '../Game';
 
 const drawerWidth = theme.drawerWidth;
 const useStyles = makeStyles({
@@ -48,14 +49,14 @@ export default function Home() {
     <Router>
       <Box sx={{ display: 'flex' }}>
         <Header mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} handleDrawerToggle={handleDrawerToggle} />
-        <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} handleDrawerToggle={handleDrawerToggle} />
+        {/* <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} handleDrawerToggle={handleDrawerToggle} /> */}
 
         <Box
           component="main"
           sx={{
             flexGrow: 1,
             p: 3,
-            width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
+            width:'100%',
             height: `calc(100% - ${theme.headerHeight})`,
             display: 'block',
             position: 'absolute',
@@ -65,7 +66,7 @@ export default function Home() {
         >
           <Container sx={{ paddingRight: { xs: '0px !important', md: '16px !important' }, paddingLeft: { xs: '0px !important', md: '16px !important' } }}>
             <Switch>
-              <Route path="/bridge" exact component={ComingSoon}></Route>
+              <Route path="/game" exact component={GamePage}></Route>
               <Route path="/staking" exact component={Staking}></Route>
               <Route path="/market" exact component={ComingSoon}></Route>
               <Route path="/governance" exact component={ComingSoon}></Route>
@@ -73,7 +74,7 @@ export default function Home() {
               <Route path="/admin" exact component={Admin}></Route>
               <Route path="/asset/:address" component={Asset} />
               <Route path="/proposal/:id/:address" component={ComingSoon} />
-              <Route path="**" exact component={Staking}></Route>
+              <Route path="**" exact component={ComingSoon}></Route>
             </Switch>
           </Container>
         </Box>

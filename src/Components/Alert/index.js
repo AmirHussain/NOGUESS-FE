@@ -9,7 +9,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { loginUser, logoutUser } from '../../redux/store/actions/user';
 
 import providerOptions, { Networks } from '../walletConnect/providers';
-import { Web3ProviderContext } from '../walletConnect/walletConnect';
 
 const useStyles = makeStyles({
   walletConnect: theme.actionButton,
@@ -24,15 +23,14 @@ const useStyles = makeStyles({
   },
 });
 
-export const vernofxAlertContext = createContext();
+export const NUOGUESSAlertContext = createContext();
 
-export function VernofxAlert({ children }) {
+export function NUOGUESSAlert({ children }) {
   const [alertArray, setAlertArray] = useState([]);
 
   const [showAlert, setShowAlert] = useState(true);
   const classes = useStyles();
   console.log(process, process.env);
-  const { chainId } = React.useContext(Web3ProviderContext);
 
   useEffect(() => {}, [alertArray]);
   function setAlert(alertObject, index) {
@@ -76,12 +74,11 @@ export function VernofxAlert({ children }) {
   }
 
   function setUrl(txhash) {
-    const network = Networks.find((net) => net.chainId === chainId);
-    return process.env[`REACT_APP_NETWORK_${network?.name}_URL`] + txhash;
+    return process.env[`REACT_APP_INFURA_ENDPOINT`] + txhash;
   }
 
   return (
-    <vernofxAlertContext.Provider
+    <NUOGUESSAlertContext.Provider
       value={{
         setAlert,
       }}
@@ -128,6 +125,6 @@ export function VernofxAlert({ children }) {
         </Stack>
       )}
       {children}
-    </vernofxAlertContext.Provider>
+    </NUOGUESSAlertContext.Provider>
   );
 }

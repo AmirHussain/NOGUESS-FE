@@ -52,14 +52,59 @@ export function Web3Provider({ children }) {
   const handleWalleltDrawerToggle = () => {
     connectWallet();
   };
+  function utf8ToHex(str) {
+    return '0x' + Array.from(str).map(c =>
+      c.charCodeAt(0) < 128 ? c.charCodeAt(0).toString(16) :
+        encodeURIComponent(c).replace(/\%/g, '').toLowerCase()
+    ).join('');
+
+  }
   function setDefaultProviderAndChainID() {
     setProvider(ethers.getDefaultProvider(Networks[0].internalName, { etherscan: process.env.REACT_APP_INFURA_ENDPOINT }));
     setChainId(Networks[0].chainId);
   }
+
+  const switchNetwork = async () => {
+    try {
+      await library.provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: '0x14A34' }],
+      });
+      connectWallet()
+    } catch (switchError) {
+      // This error code indicates that the chain has not been added to MetaMask.
+      if (switchError.code === 4902) {
+        try {
+          await library.provider.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: '0x14A34',
+                chainName: Networks[0].name,
+                nativeCurrency: {symbol: Networks[0].Currency,
+                  decimals:18},
+                rpcUrls: [process.env.REACT_APP_INFURA_ENDPOINT],
+                blockExplorerUrls: [process.env.REACT_APP_BASESCAN],
+              },
+            ],
+          });
+        } catch (addError) {
+          disconnect();
+          throw addError;
+        }
+      }
+      disconnect()
+    }
+  };
+
+
   async function connectWallet() {
     try {
       const provider = await web3Modal.connect();
       const library = new ethers.providers.Web3Provider(provider);
+      if (library) {
+
+      }
       const accounts = await library.listAccounts();
       const network = await library.getNetwork();
       setProvider(provider || ethers.getDefaultProvider(Networks[0].internalName, { etherscan: process.env.REACT_APP_INFURA_ENDPOINT }));
@@ -71,12 +116,21 @@ export function Web3Provider({ children }) {
       setChainId(network?.chainId || Networks[0].chainId);
       const ss = await library.getSigner();
       setSigner(ss);
-    } catch (error) {
+
+      if (!network || network.chainId != Networks[0].chainId) {
+        {
+          switchNetwork()
+
+        }
+
+      }
+    }
+    catch (error) {
       setError(error);
     }
-
     return { provider: library, signer };
   }
+
 
   const connect = async () => {
     const provider = await web3Modal.connect();
@@ -114,34 +168,6 @@ export function Web3Provider({ children }) {
   //         }
   //     }
   // };
-  const switchNetwork = async () => {
-    try {
-      await library.provider.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: ethers.toHex(chainId) }],
-      });
-    } catch (switchError) {
-      // This error code indicates that the chain has not been added to MetaMask.
-      if (switchError.code === 4902) {
-        try {
-          await library.provider.request({
-            method: 'wallet_addEthereumChain',
-            params: [
-              {
-                chainId: ethers.toHex(chainId),
-                chainName: network,
-                rpcUrls: ['https://polygon-rpc.com/'],
-                blockExplorerUrls: ['https://polygonscan.com/'],
-              },
-            ],
-          });
-        } catch (addError) {
-          throw addError;
-        }
-      }
-    }
-  };
-
   const signMessage = async () => {
     if (!library) return;
     try {
